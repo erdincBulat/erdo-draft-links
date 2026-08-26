@@ -1,0 +1,26 @@
+{
+	"$schema": "https://playground.wordpress.net/blueprint-schema.json",
+	"meta": {
+		"title": "Erdo Draft Links",
+		"author": "erdincbulat",
+		"description": "Try Erdo Draft Links instantly: generate a secure, expiring preview link for a draft post, no install required."
+	},
+	"landingPage": "/wp-admin/tools.php?page=erdo-draft-links-manager",
+	"preferredVersions": {
+		"php": "8.3",
+		"wp": "latest"
+	},
+	"login": true,
+	"steps": [
+		{
+			"step": "installPlugin",
+			"pluginData": {
+				"resource": "wordpress.org/plugins",
+				"slug": "erdo-draft-links"
+			},
+			"options": {
+				"activate": true
+			}
+		}
+	]
+}
