@@ -1,4 +1,4 @@
-﻿/* global erdoDraftLinksClassicData */
+/* global erdoDraftLinksClassicData */
 ( function () {
 	'use strict';
 
@@ -24,52 +24,44 @@
 		return d.toLocaleString();
 	}
 
-	function renderActive( wrap, data ) {
-		const url = data.url;
+	function escAttr( str ) {
+		return String( str )
+			.replace( /&/g, '&amp;' )
+			.replace( /"/g, '&quot;' )
+			.replace( /</g, '&lt;' )
+			.replace( />/g, '&gt;' );
+	}
 
-		const expiresText = data.expires_at
-			? i18n.expires.replace( '%s', formatDate( data.expires_at ) )
+	function escHtml( str ) {
+		return String( str )
+			.replace( /&/g, '&amp;' )
+			.replace( /</g, '&lt;' )
+			.replace( />/g, '&gt;' );
+	}
+
+	function renderRow( link ) {
+		const expiresText = link.expires_at
+			? i18n.expires.replace( '%s', formatDate( link.expires_at ) )
 			: i18n.noExpiry;
+		const viewsText = i18n.views.replace( '%d', link.view_count );
+		const label = link.label ? escHtml( link.label ) : escHtml( i18n.untitled );
 
-		const viewsText = i18n.views.replace( '%d', data.view_count );
-
-		wrap.innerHTML = `
+		const row = document.createElement( 'div' );
+		row.className = 'erdo-draft-links-link-row';
+		row.dataset.linkId = link.id;
+		row.innerHTML = `
+			<div class="erdo-draft-links-link-header">
+				<span class="erdo-draft-links-link-label">${ label }</span>
+				<button type="button" class="button-link erdo-draft-links-revoke" data-link-id="${ link.id }">${ i18n.revoke }</button>
+			</div>
 			<div class="erdo-draft-links-url-row">
-				<input type="text" readonly class="erdo-draft-links-url widefat" value="${ escAttr( url ) }" />
+				<input type="text" readonly class="erdo-draft-links-url widefat" value="${ escAttr( link.url ) }" />
 				<button type="button" class="button erdo-draft-links-copy">${ i18n.copy }</button>
 			</div>
 			<p class="description erdo-draft-links-meta">${ escHtml( expiresText ) }</p>
 			<p class="description erdo-draft-links-meta">${ escHtml( viewsText ) }</p>
-			<div class="erdo-draft-links-actions">
-				<button type="button" class="button erdo-draft-links-regenerate">${ i18n.regenerate }</button>
-				<button type="button" class="button erdo-draft-links-revoke">${ i18n.revoke }</button>
-			</div>
-			<span class="erdo-draft-links-spinner spinner" style="display:none;float:none;margin:4px 0;"></span>
-			<div class="erdo-draft-links-notice" style="display:none;"></div>
 		`;
-		bindEvents( wrap );
-	}
-
-	function renderEmpty( wrap ) {
-		wrap.innerHTML = `
-			<p>
-				<label for="erdo-draft-links-expiry-classic">${ i18n.generate }</label>
-			</p>
-			<p>
-				<select name="erdo_draft_link_expiry" id="erdo-draft-links-expiry-classic" class="widefat">
-					<option value="24h">24 Hours</option>
-					<option value="48h">48 Hours</option>
-					<option value="7d">7 Days</option>
-					<option value="never">No Expiry</option>
-				</select>
-			</p>
-			<div class="erdo-draft-links-actions">
-				<button type="button" class="button button-primary erdo-draft-links-generate">${ i18n.generate }</button>
-			</div>
-			<span class="erdo-draft-links-spinner spinner" style="display:none;float:none;margin:4px 0;"></span>
-			<div class="erdo-draft-links-notice" style="display:none;"></div>
-		`;
-		bindEvents( wrap );
+		return row;
 	}
 
 	function setLoading( wrap, loading ) {
@@ -93,11 +85,15 @@
 
 	function bindEvents( wrap ) {
 		const postId = wrap.dataset.postId;
+		const list = wrap.querySelector( '#erdo-draft-links-list' );
 
-		const copyBtn = wrap.querySelector( '.erdo-draft-links-copy' );
-		if ( copyBtn ) {
-			copyBtn.addEventListener( 'click', () => {
-				const input = wrap.querySelector( '.erdo-draft-links-url' );
+		// Rows are added/removed dynamically (generate/revoke), so copy/revoke
+		// use delegated listeners on the list container instead of per-row binding.
+		list.addEventListener( 'click', ( e ) => {
+			const copyBtn = e.target.closest( '.erdo-draft-links-copy' );
+			if ( copyBtn ) {
+				const row = copyBtn.closest( '.erdo-draft-links-link-row' );
+				const input = row.querySelector( '.erdo-draft-links-url' );
 				navigator.clipboard
 					.writeText( input.value )
 					.catch( () => {
@@ -107,63 +103,45 @@
 				const orig = copyBtn.textContent;
 				copyBtn.textContent = i18n.copied;
 				setTimeout( () => ( copyBtn.textContent = orig ), 2000 );
-			} );
-		}
+				return;
+			}
+
+			const revokeBtn = e.target.closest( '.erdo-draft-links-revoke' );
+			if ( revokeBtn ) {
+				const linkId = Number( revokeBtn.dataset.linkId );
+				setLoading( wrap, true );
+				apiFetch( `/link/${ postId }/revoke`, 'POST', { link_id: linkId } )
+					.then( () => {
+						revokeBtn.closest( '.erdo-draft-links-link-row' ).remove();
+						setLoading( wrap, false );
+					} )
+					.catch( () => {
+						setLoading( wrap, false );
+						showError( wrap, i18n.error );
+					} );
+			}
+		} );
 
 		const generateBtn = wrap.querySelector( '.erdo-draft-links-generate' );
 		if ( generateBtn ) {
 			generateBtn.addEventListener( 'click', () => {
+				const labelInput = wrap.querySelector( '#erdo-draft-links-label-classic' );
 				const expiry = wrap.querySelector( 'select[name="erdo_draft_link_expiry"]' )?.value || '24h';
+				const label = labelInput ? labelInput.value : '';
+
 				setLoading( wrap, true );
-				apiFetch( `/link/${ postId }/generate`, 'POST', { expiry } )
-					.then( ( data ) => renderActive( wrap, data ) )
+				apiFetch( `/link/${ postId }/generate`, 'POST', { label, expiry } )
+					.then( ( link ) => {
+						list.prepend( renderRow( link ) );
+						if ( labelInput ) labelInput.value = '';
+						setLoading( wrap, false );
+					} )
 					.catch( () => {
 						setLoading( wrap, false );
 						showError( wrap, i18n.error );
 					} );
 			} );
 		}
-
-		const regenerateBtn = wrap.querySelector( '.erdo-draft-links-regenerate' );
-		if ( regenerateBtn ) {
-			regenerateBtn.addEventListener( 'click', () => {
-				setLoading( wrap, true );
-				apiFetch( `/link/${ postId }/generate`, 'POST', { expiry: '24h' } )
-					.then( ( data ) => renderActive( wrap, data ) )
-					.catch( () => {
-						setLoading( wrap, false );
-						showError( wrap, i18n.error );
-					} );
-			} );
-		}
-
-		const revokeBtn = wrap.querySelector( '.erdo-draft-links-revoke' );
-		if ( revokeBtn ) {
-			revokeBtn.addEventListener( 'click', () => {
-				setLoading( wrap, true );
-				apiFetch( `/link/${ postId }/revoke`, 'POST' )
-					.then( () => renderEmpty( wrap ) )
-					.catch( () => {
-						setLoading( wrap, false );
-						showError( wrap, i18n.error );
-					} );
-			} );
-		}
-	}
-
-	function escAttr( str ) {
-		return String( str )
-			.replace( /&/g, '&amp;' )
-			.replace( /"/g, '&quot;' )
-			.replace( /</g, '&lt;' )
-			.replace( />/g, '&gt;' );
-	}
-
-	function escHtml( str ) {
-		return String( str )
-			.replace( /&/g, '&amp;' )
-			.replace( /</g, '&lt;' )
-			.replace( />/g, '&gt;' );
 	}
 
 	document.addEventListener( 'DOMContentLoaded', () => {

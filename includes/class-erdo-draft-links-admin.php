@@ -50,6 +50,11 @@ class Erdo_Draft_Links_Admin {
 				'args'                => array_merge(
 					$this->post_id_arg(),
 					array(
+						'label'  => array(
+							'type'              => 'string',
+							'default'           => '',
+							'sanitize_callback' => 'sanitize_text_field',
+						),
 						'expiry' => array(
 							'type'              => 'string',
 							'default'           => '24h',
@@ -68,7 +73,17 @@ class Erdo_Draft_Links_Admin {
 				'methods'             => WP_REST_Server::CREATABLE,
 				'callback'            => array( $this, 'rest_revoke_link' ),
 				'permission_callback' => array( $this, 'rest_permission' ),
-				'args'                => $this->post_id_arg(),
+				'args'                => array_merge(
+					$this->post_id_arg(),
+					array(
+						'link_id' => array(
+							'type'              => 'integer',
+							'required'          => true,
+							'minimum'           => 1,
+							'sanitize_callback' => 'absint',
+						),
+					)
+				),
 			)
 		);
 	}
@@ -84,38 +99,45 @@ class Erdo_Draft_Links_Admin {
 	public function rest_get_link( WP_REST_Request $request ): WP_REST_Response {
 		// This status can change at any time (link generated/revoked elsewhere),
 		// so make sure caching plugins/proxies (e.g. LiteSpeed Cache) never
-		// serve a stale "exists: false" response to the editor sidebar.
+		// serve a stale response to the editor sidebar.
 		nocache_headers();
 
 		$post_id = (int) $request->get_param( 'post_id' );
-		$link    = $this->db->get_link_by_post( $post_id );
+		$links   = $this->db->get_active_links_by_post( $post_id );
 
-		if ( ! $link || ! $link->is_active ) {
-			return new WP_REST_Response( array( 'exists' => false ), 200 );
-		}
-
-		return new WP_REST_Response( $this->link_to_response( $link, $post_id ), 200 );
+		return new WP_REST_Response(
+			array( 'links' => array_map( fn( $link ) => $this->link_to_response( $link, $post_id ), $links ) ),
+			200
+		);
 	}
 
 	public function rest_generate_link( WP_REST_Request $request ): WP_REST_Response {
-		$post_id    = (int) $request->get_param( 'post_id' );
-		$expiry     = $request->get_param( 'expiry' );
+		$post_id = (int) $request->get_param( 'post_id' );
+		$label   = mb_substr( (string) $request->get_param( 'label' ), 0, 100 );
+		$expiry  = $request->get_param( 'expiry' );
+
 		$expires_at = $this->compute_expires_at( $expiry );
-
 		$token_data = $this->token->generate();
-		$saved      = $this->db->upsert_link( $post_id, $token_data['hash'], $token_data['raw'], $expires_at );
+		$link_id    = $this->db->insert_link( $post_id, $label, $token_data['hash'], $token_data['raw'], $expires_at );
 
-		if ( ! $saved ) {
+		if ( ! $link_id ) {
 			return new WP_REST_Response( array( 'error' => __( 'Could not save the link. Please try again.', 'erdo-draft-links' ) ), 500 );
 		}
 
-		$link = $this->db->get_link_by_post( $post_id );
+		$link = $this->db->get_link_by_id( $link_id );
 		return new WP_REST_Response( $this->link_to_response( $link, $post_id ), 201 );
 	}
 
 	public function rest_revoke_link( WP_REST_Request $request ): WP_REST_Response {
 		$post_id = (int) $request->get_param( 'post_id' );
-		$this->db->revoke_link( $post_id );
+		$link_id = (int) $request->get_param( 'link_id' );
+
+		$link = $this->db->get_link_by_id( $link_id );
+		if ( ! $link || (int) $link->post_id !== $post_id ) {
+			return new WP_REST_Response( array( 'error' => __( 'This link does not belong to that post.', 'erdo-draft-links' ) ), 404 );
+		}
+
+		$this->db->revoke_link_by_id( $link_id );
 		return new WP_REST_Response( array( 'success' => true ), 200 );
 	}
 
@@ -147,52 +169,23 @@ class Erdo_Draft_Links_Admin {
 
 	public function render_meta_box( WP_Post $post ): void {
 		wp_nonce_field( 'erdo_draft_link_meta_box_' . $post->ID, 'erdo_draft_link_nonce' );
-		$link       = $this->db->get_link_by_post( $post->ID );
-		$has_active = $link && (bool) $link->is_active;
+		$links = $this->db->get_active_links_by_post( $post->ID );
 		?>
 		<div id="erdo-draft-links-classic-wrap" data-post-id="<?php echo esc_attr( $post->ID ); ?>">
 
-			<?php if ( $has_active ) : ?>
-				<div class="erdo-draft-links-url-row">
-					<input type="text"
-					       readonly
-					       class="erdo-draft-links-url widefat"
-					       value="<?php echo esc_attr( $this->build_url( $post->ID, $link->token_raw ) ); ?>"
-					/>
-					<button type="button" class="button erdo-draft-links-copy">
-						<?php esc_html_e( 'Copy', 'erdo-draft-links' ); ?>
-					</button>
-				</div>
-				<p class="description erdo-draft-links-meta">
-					<?php
-					if ( $link->expires_at ) {
-						printf(
-							/* translators: %s: formatted expiry date */
-							esc_html__( 'Expires: %s', 'erdo-draft-links' ),
-							esc_html(
-								wp_date(
-									get_option( 'date_format' ) . ' ' . get_option( 'time_format' ),
-									strtotime( $link->expires_at )
-								)
-							)
-						);
-					} else {
-						esc_html_e( 'No expiry.', 'erdo-draft-links' );
-					}
-					?>
-				</p>
-				<p class="description erdo-draft-links-meta">
-					<?php
-					printf(
-						/* translators: %d: number of views */
-						esc_html__( 'Views: %d', 'erdo-draft-links' ),
-						(int) $link->view_count
-					);
-					?>
-				</p>
-			<?php endif; ?>
+			<div class="erdo-draft-links-list" id="erdo-draft-links-list">
+				<?php foreach ( $links as $link ) : ?>
+					<?php echo $this->render_link_row( $post->ID, $link ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- built via esc_*() calls inside render_link_row(). ?>
+				<?php endforeach; ?>
+			</div>
 
-			<?php if ( ! $has_active ) : ?>
+			<div class="erdo-draft-links-add-link">
+				<p>
+					<label for="erdo-draft-links-label-classic">
+						<?php esc_html_e( 'Label (optional):', 'erdo-draft-links' ); ?>
+					</label>
+					<input type="text" id="erdo-draft-links-label-classic" class="widefat" maxlength="100" placeholder="<?php esc_attr_e( 'e.g. Client A', 'erdo-draft-links' ); ?>" />
+				</p>
 				<p>
 					<label for="erdo-draft-links-expiry-classic">
 						<?php esc_html_e( 'Expiry:', 'erdo-draft-links' ); ?>
@@ -204,27 +197,71 @@ class Erdo_Draft_Links_Admin {
 						<option value="never"><?php esc_html_e( 'No Expiry', 'erdo-draft-links' ); ?></option>
 					</select>
 				</p>
-			<?php endif; ?>
-
-			<div class="erdo-draft-links-actions">
-				<?php if ( ! $has_active ) : ?>
+				<div class="erdo-draft-links-actions">
 					<button type="button" class="button button-primary erdo-draft-links-generate">
 						<?php esc_html_e( 'Generate Draft Link', 'erdo-draft-links' ); ?>
 					</button>
-				<?php else : ?>
-					<button type="button" class="button erdo-draft-links-regenerate">
-						<?php esc_html_e( 'Regenerate', 'erdo-draft-links' ); ?>
-					</button>
-					<button type="button" class="button erdo-draft-links-revoke">
-						<?php esc_html_e( 'Revoke', 'erdo-draft-links' ); ?>
-					</button>
-				<?php endif; ?>
+				</div>
 			</div>
 
 			<span class="erdo-draft-links-spinner spinner" style="display:none;float:none;margin:4px 0;"></span>
 			<div class="erdo-draft-links-notice" style="display:none;"></div>
 		</div>
 		<?php
+	}
+
+	private function render_link_row( int $post_id, object $link ): string {
+		$label = '' !== $link->label ? $link->label : __( 'Untitled link', 'erdo-draft-links' );
+
+		ob_start();
+		?>
+		<div class="erdo-draft-links-link-row" data-link-id="<?php echo esc_attr( $link->id ); ?>">
+			<div class="erdo-draft-links-link-header">
+				<span class="erdo-draft-links-link-label"><?php echo esc_html( $label ); ?></span>
+				<button type="button" class="button-link erdo-draft-links-revoke" data-link-id="<?php echo esc_attr( $link->id ); ?>">
+					<?php esc_html_e( 'Revoke', 'erdo-draft-links' ); ?>
+				</button>
+			</div>
+			<div class="erdo-draft-links-url-row">
+				<input type="text"
+				       readonly
+				       class="erdo-draft-links-url widefat"
+				       value="<?php echo esc_attr( $this->build_url( $post_id, $link->token_raw ) ); ?>"
+				/>
+				<button type="button" class="button erdo-draft-links-copy">
+					<?php esc_html_e( 'Copy', 'erdo-draft-links' ); ?>
+				</button>
+			</div>
+			<p class="description erdo-draft-links-meta">
+				<?php
+				if ( $link->expires_at ) {
+					printf(
+						/* translators: %s: formatted expiry date */
+						esc_html__( 'Expires: %s', 'erdo-draft-links' ),
+						esc_html(
+							wp_date(
+								get_option( 'date_format' ) . ' ' . get_option( 'time_format' ),
+								strtotime( $link->expires_at )
+							)
+						)
+					);
+				} else {
+					esc_html_e( 'No expiry.', 'erdo-draft-links' );
+				}
+				?>
+			</p>
+			<p class="description erdo-draft-links-meta">
+				<?php
+				printf(
+					/* translators: %d: number of views */
+					esc_html__( 'Views: %d', 'erdo-draft-links' ),
+					(int) $link->view_count
+				);
+				?>
+			</p>
+		</div>
+		<?php
+		return (string) ob_get_clean();
 	}
 
 	// -------------------------------------------------------------------------
@@ -316,17 +353,17 @@ class Erdo_Draft_Links_Admin {
 				'restUrl' => esc_url_raw( rest_url( 'erdo-draft-links/v1' ) ),
 				'nonce'   => wp_create_nonce( 'wp_rest' ),
 				'i18n'    => array(
-					'copy'       => __( 'Copy', 'erdo-draft-links' ),
-					'copied'     => __( 'Copied!', 'erdo-draft-links' ),
-					'generate'   => __( 'Generate Draft Link', 'erdo-draft-links' ),
-					'regenerate' => __( 'Regenerate', 'erdo-draft-links' ),
-					'revoke'     => __( 'Revoke', 'erdo-draft-links' ),
-					'noExpiry'   => __( 'No expiry.', 'erdo-draft-links' ),
+					'copy'     => __( 'Copy', 'erdo-draft-links' ),
+					'copied'   => __( 'Copied!', 'erdo-draft-links' ),
+					'generate' => __( 'Generate Draft Link', 'erdo-draft-links' ),
+					'revoke'   => __( 'Revoke', 'erdo-draft-links' ),
+					'noExpiry' => __( 'No expiry.', 'erdo-draft-links' ),
+					'untitled' => __( 'Untitled link', 'erdo-draft-links' ),
 					/* translators: %s: formatted date */
-					'expires'    => __( 'Expires: %s', 'erdo-draft-links' ),
+					'expires'  => __( 'Expires: %s', 'erdo-draft-links' ),
 					/* translators: %d: view count */
-					'views'      => __( 'Views: %d', 'erdo-draft-links' ),
-					'error'      => __( 'An error occurred. Please try again.', 'erdo-draft-links' ),
+					'views'    => __( 'Views: %d', 'erdo-draft-links' ),
+					'error'    => __( 'An error occurred. Please try again.', 'erdo-draft-links' ),
 				),
 			)
 		);
@@ -356,6 +393,21 @@ class Erdo_Draft_Links_Admin {
 	public function handle_admin_actions(): void {
 		$action = isset( $_GET['action'] ) ? sanitize_key( wp_unslash( $_GET['action'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification
 		$page   = 'tools.php?page=erdo-draft-links-manager';
+
+		if ( isset( $_POST['action'] ) && 'erdo_draft_feedback_reply' === sanitize_key( wp_unslash( $_POST['action'] ) ) ) {
+			$feedback_id = isset( $_POST['feedback_id'] ) ? absint( $_POST['feedback_id'] ) : 0;
+			if ( ! $feedback_id ) {
+				return;
+			}
+			check_admin_referer( 'erdo_draft_feedback_reply_' . $feedback_id );
+			if ( ! current_user_can( 'edit_posts' ) ) {
+				wp_die( esc_html__( 'You do not have permission to perform this action.', 'erdo-draft-links' ) );
+			}
+			$reply = isset( $_POST['reply'] ) ? sanitize_textarea_field( wp_unslash( $_POST['reply'] ) ) : '';
+			$this->db->add_feedback_reply( $feedback_id, $reply );
+			wp_safe_redirect( add_query_arg( array( 'tab' => 'feedback', 'gl_message' => 'feedback_replied' ), admin_url( $page ) ) );
+			exit;
+		}
 
 		if ( 'erdo_draft_feedback_delete' === $action ) {
 			$feedback_id = isset( $_GET['feedback_id'] ) ? absint( $_GET['feedback_id'] ) : 0;
@@ -404,10 +456,7 @@ class Erdo_Draft_Links_Admin {
 		}
 
 		if ( 'erdo_draft_link_revoke' === $action ) {
-			$link = $this->db->get_link_by_id( $link_id );
-			if ( $link ) {
-				$this->db->revoke_link( (int) $link->post_id );
-			}
+			$this->db->revoke_link_by_id( $link_id );
 			wp_safe_redirect( add_query_arg( 'gl_message', 'revoked', admin_url( $page ) ) );
 			exit;
 		}
@@ -512,6 +561,9 @@ class Erdo_Draft_Links_Admin {
 					case 'feedback_status_updated':
 						esc_html_e( 'Feedback status updated.', 'erdo-draft-links' );
 						break;
+					case 'feedback_replied':
+						esc_html_e( 'Reply saved.', 'erdo-draft-links' );
+						break;
 				}
 				?>
 				</p></div>
@@ -520,14 +572,13 @@ class Erdo_Draft_Links_Admin {
 			<?php if ( 'feedback' === $tab ) : ?>
 
 				<?php
+				// Not wrapped in a <form> like the Links tab: this table has no bulk
+				// actions or search box, and each row renders its own reply <form> —
+				// nesting that inside an outer <form> would be invalid HTML.
 				$feedback_table = new Erdo_Draft_Links_Feedback_List( $this->db );
 				$feedback_table->prepare_items();
+				$feedback_table->display();
 				?>
-				<form method="get">
-					<input type="hidden" name="page" value="erdo-draft-links-manager" />
-					<input type="hidden" name="tab" value="feedback" />
-					<?php $feedback_table->display(); ?>
-				</form>
 
 			<?php else : ?>
 
@@ -589,6 +640,8 @@ class Erdo_Draft_Links_Admin {
 
 	private function link_to_response( object $link, int $post_id ): array {
 		return array(
+			'id'         => (int) $link->id,
+			'label'      => $link->label,
 			'url'        => $this->build_url( $post_id, $link->token_raw ),
 			'expires_at' => $link->expires_at,
 			'view_count' => (int) $link->view_count,

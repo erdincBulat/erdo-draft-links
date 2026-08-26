@@ -2,9 +2,9 @@
 Contributors:      erdincbulat
 Tags:              draft, preview, share, client preview, no login
 Requires at least: 6.0
-Tested up to:      7.0
+Tested up to:      7.1
 Requires PHP:      7.4
-Stable tag:        1.1.0
+Stable tag:        1.2.0
 License:           GPLv2 or later
 License URI:       https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -27,11 +27,13 @@ Think of it like Google Docs' "Anyone with the link can view" — but for WordPr
 
 * Works with both the **Block Editor (Gutenberg)** and the **Classic Editor**
 * Supports **posts**, **pages**, and any custom post type via a filter
+* **Multiple labeled links per post** — e.g. "Client A" and "Designer", each with its own expiry, revocable independently
 * Secure **32-character cryptographic tokens** — brute-force resistant
 * Configurable expiry: 24 hours, 48 hours, 7 days, or no expiry
 * **View count** tracking per link
 * Visitors can leave **name + feedback** on the preview — collected in a "Feedback" tab in the admin and emailed to you
-* **Revoke or regenerate** any link at any time
+* **Reply to feedback** directly from the admin — visitors see your reply the next time they open the preview
+* **Revoke** any link at any time
 * Tokens are stored **hashed** in the database — raw tokens are never stored after the redirect
 * Two-step flow: token URL → cookie → clean permalink (token never appears in browser history)
 * No external API calls, no phone-home, no subscriptions
@@ -72,7 +74,7 @@ The recipient sees a clear message: "This draft link has expired and is no longe
 
 = Can I have multiple active links for the same post? =
 
-Currently one active link per post. Regenerating creates a new token and resets the view count.
+Yes. Give each link an optional label (e.g. "Client A", "Designer") when you generate it, and each link gets its own expiry, view count, and can be revoked independently of the others.
 
 = Does this work with password-protected posts? =
 
@@ -90,6 +92,11 @@ Erdo Draft Links only runs on requests that include a `?erdo_token=` parameter o
 
 == Changelog ==
 
+= 1.2.0 =
+* New: Generate multiple labeled links per post (e.g. "Client A", "Designer") — each with its own expiry, view count, and independent revoke.
+* New: Reply to visitor feedback directly from the Feedback tab; the visitor sees your reply the next time they open the preview on that page.
+* Tested up to WordPress 7.1.
+
 = 1.1.0 =
 * New: Visitors can leave name + feedback on a shared draft preview; submissions appear under the new "Feedback" tab in the Erdo Draft Links admin page and are emailed to the site admin.
 * New: The Links Manager table now has a "Link" column with a hidden-by-default reveal button and one-click copy for the generated draft link.
@@ -106,6 +113,9 @@ Erdo Draft Links only runs on requests that include a `?erdo_token=` parameter o
 * Initial release.
 
 == Upgrade Notice ==
+
+= 1.2.0 =
+New: multiple labeled links per post, and admin replies to feedback. Database tables upgrade automatically on activation — no manual action needed.
 
 = 1.1.0 =
 New: visitors can leave feedback on draft previews, and the Links Manager has a one-click copy for draft links. Fix: page builder content now renders correctly on preview links, the sidebar no longer shows stale links, and the feedback widget look is now consistent across themes.

@@ -49,11 +49,13 @@ Think of it like Google Docs' "Anyone with the link can view" — but for WordPr
 
 - Works with both the **Block Editor (Gutenberg)** and the **Classic Editor**
 - Supports **posts**, **pages**, and any custom post type via a filter
+- **Multiple labeled links per post** — e.g. "Client A" and "Designer", each with its own expiry, revocable independently
 - Secure **32-character cryptographic tokens** — brute-force resistant
 - Configurable expiry: 24 hours, 48 hours, 7 days, or no expiry
 - **View count** tracking per link
 - Visitors can leave **name + feedback** on the preview — collected in a "Feedback" tab in the admin and emailed to you
-- **Revoke or regenerate** any link at any time
+- **Reply to feedback** directly from the admin — visitors see your reply the next time they open the preview
+- **Revoke** any link at any time
 - Tokens are stored **hashed** in the database — raw tokens are never stored after the redirect
 - Two-step flow: token URL → cookie → clean permalink (token never appears in browser history)
 - No external API calls, no phone-home, no subscriptions
@@ -90,7 +92,7 @@ add_filter( 'erdo_draft_links_supported_post_types', function( $types ) {
 } );
 ```
 
-There is no build tooling committed to this repo (no `package.json`/lockfile). `assets/js/build/{classic,sidebar}.js` are pre-compiled output committed directly; the sources in `assets/js/src/` imply a `@wordpress/scripts` (`wp-scripts`) build. If you edit `assets/js/src/`, regenerate the corresponding `assets/js/build/*.js` and `*.asset.php` by hand or via an external `wp-scripts build` environment.
+`assets/js/build/{classic,sidebar}.js` are compiled output — if you edit `assets/js/src/`, run `npm install && npm run build` (uses `@wordpress/scripts`) to regenerate them and their `*.asset.php` dependency manifests before committing.
 
 See [`readme.txt`](readme.txt) for the full WordPress.org-facing description, FAQ, and changelog.
 

@@ -246,3 +246,33 @@ msgstr "Kapat"
 
 msgid "Sending…"
 msgstr "Gönderiliyor…"
+
+msgid "Label (optional):"
+msgstr "Etiket (isteğe bağlı):"
+
+msgid "Label (optional)"
+msgstr "Etiket (isteğe bağlı)"
+
+msgid "e.g. Client A"
+msgstr "örn. Müşteri A"
+
+msgid "Untitled link"
+msgstr "Adsız bağlantı"
+
+msgid "Reply to this feedback…"
+msgstr "Bu geri bildirime yanıt ver…"
+
+msgid "Update Reply"
+msgstr "Yanıtı Güncelle"
+
+msgid "Send Reply"
+msgstr "Yanıtı Gönder"
+
+msgid "Reply"
+msgstr "Yanıt"
+
+msgid "Reply saved."
+msgstr "Yanıt kaydedildi."
+
+msgid "This link does not belong to that post."
+msgstr "Bu bağlantı o yazıya ait değil."

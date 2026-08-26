@@ -24,7 +24,11 @@ class Erdo_Draft_Links_DB {
 	}
 
 	public static function activate(): void {
-		self::get_instance()->create_table();
+		// Routes through the same version-gated path as the normal plugins_loaded
+		// check, so a reactivation after a manual file update (not a WP-managed
+		// auto-update, which never re-fires this hook) still runs the index
+		// migration below instead of silently skipping it.
+		self::get_instance()->maybe_upgrade();
 	}
 
 	public static function deactivate(): void {
@@ -33,8 +37,27 @@ class Erdo_Draft_Links_DB {
 
 	public function maybe_upgrade(): void {
 		if ( get_option( 'erdo_draft_link_db_version' ) !== ERDO_DRAFT_LINKS_DB_VERSION ) {
+			$this->drop_unique_post_id_index();
 			$this->create_table();
 		}
+	}
+
+	/**
+	 * dbDelta() cannot change an existing index's definition in place — it only
+	 * adds indexes it doesn't already find by name, so a `UNIQUE KEY post_id`
+	 * left over from < 1.2.0 would silently keep enforcing one link per post
+	 * forever. Drop it explicitly before dbDelta() re-adds it as a plain KEY.
+	 */
+	private function drop_unique_post_id_index(): void {
+		global $wpdb;
+		$table = esc_sql( $this->table );
+
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.DirectDatabaseQuery.SchemaChange, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		$is_unique = $wpdb->get_var( "SHOW INDEX FROM `{$table}` WHERE Key_name = 'post_id' AND Non_unique = 0" );
+		if ( $is_unique ) {
+			$wpdb->query( "ALTER TABLE `{$table}` DROP INDEX post_id" );
+		}
+		// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.DirectDatabaseQuery.SchemaChange, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 	}
 
 	private function create_table(): void {
@@ -45,6 +68,7 @@ class Erdo_Draft_Links_DB {
 		$sql_links = "CREATE TABLE $table (
   id bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT,
   post_id bigint(20) UNSIGNED NOT NULL,
+  label varchar(100) NOT NULL DEFAULT '',
   token_hash varchar(255) NOT NULL,
   token_raw varchar(64) NOT NULL,
   created_at datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
@@ -52,7 +76,7 @@ class Erdo_Draft_Links_DB {
   view_count bigint(20) UNSIGNED NOT NULL DEFAULT 0,
   is_active tinyint(1) NOT NULL DEFAULT 1,
   PRIMARY KEY  (id),
-  UNIQUE KEY post_id (post_id),
+  KEY post_id (post_id),
   KEY token_raw (token_raw(20)),
   KEY is_active (is_active)
 ) $charset;";
@@ -65,6 +89,8 @@ class Erdo_Draft_Links_DB {
   author_name varchar(100) NOT NULL DEFAULT '',
   message text NOT NULL,
   status varchar(20) NOT NULL DEFAULT 'in_progress',
+  reply text DEFAULT NULL,
+  replied_at datetime DEFAULT NULL,
   created_at datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
   PRIMARY KEY  (id),
   KEY post_id (post_id)
@@ -77,14 +103,15 @@ class Erdo_Draft_Links_DB {
 		update_option( 'erdo_draft_link_db_version', ERDO_DRAFT_LINKS_DB_VERSION );
 	}
 
-	public function upsert_link( int $post_id, string $token_hash, string $token_raw, ?string $expires_at ): bool {
+	public function insert_link( int $post_id, string $label, string $token_hash, string $token_raw, ?string $expires_at ): int|false {
 		global $wpdb;
 
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
-		$result = $wpdb->replace(
+		$result = $wpdb->insert(
 			$this->table,
 			array(
 				'post_id'    => $post_id,
+				'label'      => $label,
 				'token_hash' => $token_hash,
 				'token_raw'  => $token_raw,
 				'created_at' => current_time( 'mysql' ),
@@ -92,34 +119,39 @@ class Erdo_Draft_Links_DB {
 				'view_count' => 0,
 				'is_active'  => 1,
 			),
-			array( '%d', '%s', '%s', '%s', '%s', '%d', '%d' )
+			array( '%d', '%s', '%s', '%s', '%s', '%s', '%d', '%d' )
 		);
 
 		wp_cache_delete( "erdo_draft_link_post_{$post_id}", 'erdo_draft_link' );
 
-		return false !== $result;
+		return $result ? (int) $wpdb->insert_id : false;
 	}
 
-	public function get_link_by_post( int $post_id ): ?object {
+	public function get_active_links_by_post( int $post_id ): array {
 		global $wpdb;
 
 		$cache_key = "erdo_draft_link_post_{$post_id}";
 		$cached    = wp_cache_get( $cache_key, 'erdo_draft_link' );
-		if ( false !== $cached ) {
-			return $cached ?: null;
+		if ( is_array( $cached ) ) {
+			return $cached;
 		}
 
 		$table = esc_sql( $this->table );
 
-		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-		$row = $wpdb->get_row(
-			$wpdb->prepare( "SELECT * FROM `{$table}` WHERE post_id = %d LIMIT 1", $post_id )
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		$rows = $wpdb->get_results(
+			$wpdb->prepare(
+				"SELECT * FROM `{$table}` WHERE post_id = %d AND is_active = 1 AND ( expires_at IS NULL OR expires_at > NOW() ) ORDER BY created_at DESC",
+				$post_id
+			)
 		);
-		// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 
-		wp_cache_set( $cache_key, $row ?: '', 'erdo_draft_link', 300 );
+		$rows = $rows ?: array();
 
-		return $row ?: null;
+		wp_cache_set( $cache_key, $rows, 'erdo_draft_link', 300 );
+
+		return $rows;
 	}
 
 	public function get_active_link_by_token_prefix( string $prefix ): ?object {
@@ -183,19 +215,24 @@ class Erdo_Draft_Links_DB {
 		wp_cache_delete( "erdo_draft_link_id_{$id}", 'erdo_draft_link' );
 	}
 
-	public function revoke_link( int $post_id ): bool {
+	public function revoke_link_by_id( int $link_id ): bool {
 		global $wpdb;
+
+		$link = $this->get_link_by_id( $link_id );
 
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		$result = $wpdb->update(
 			$this->table,
 			array( 'is_active' => 0 ),
-			array( 'post_id' => $post_id ),
+			array( 'id' => $link_id ),
 			array( '%d' ),
 			array( '%d' )
 		);
 
-		wp_cache_delete( "erdo_draft_link_post_{$post_id}", 'erdo_draft_link' );
+		wp_cache_delete( "erdo_draft_link_id_{$link_id}", 'erdo_draft_link' );
+		if ( $link ) {
+			wp_cache_delete( "erdo_draft_link_post_{$link->post_id}", 'erdo_draft_link' );
+		}
 
 		return false !== $result;
 	}
@@ -323,6 +360,24 @@ class Erdo_Draft_Links_DB {
 			array( 'status' => $status ),
 			array( 'id' => $id ),
 			array( '%s' ),
+			array( '%d' )
+		);
+
+		return false !== $result;
+	}
+
+	public function add_feedback_reply( int $feedback_id, string $reply ): bool {
+		global $wpdb;
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		$result = $wpdb->update(
+			$this->feedback_table,
+			array(
+				'reply'      => $reply,
+				'replied_at' => current_time( 'mysql' ),
+			),
+			array( 'id' => $feedback_id ),
+			array( '%s', '%s' ),
 			array( '%d' )
 		);
 

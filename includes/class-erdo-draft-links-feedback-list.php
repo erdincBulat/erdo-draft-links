@@ -70,7 +70,31 @@ class Erdo_Draft_Links_Feedback_List extends WP_List_Table {
 	}
 
 	protected function column_message( $item ): string {
-		return esc_html( $item->message );
+		return esc_html( $item->message ) . $this->render_reply_box( $item );
+	}
+
+	private function render_reply_box( object $item ): string {
+		$reply = isset( $item->reply ) ? (string) $item->reply : '';
+
+		ob_start();
+		?>
+		<form method="post" class="erdo-draft-feedback-reply-form">
+			<?php wp_nonce_field( 'erdo_draft_feedback_reply_' . $item->id ); ?>
+			<input type="hidden" name="action" value="erdo_draft_feedback_reply" />
+			<input type="hidden" name="feedback_id" value="<?php echo esc_attr( $item->id ); ?>" />
+			<textarea name="reply" rows="2" class="widefat erdo-draft-feedback-reply-input" placeholder="<?php esc_attr_e( 'Reply to this feedback…', 'erdo-draft-links' ); ?>"><?php echo esc_textarea( $reply ); ?></textarea>
+			<p>
+				<button type="submit" class="button button-small">
+					<?php if ( '' !== $reply ) : ?>
+						<?php esc_html_e( 'Update Reply', 'erdo-draft-links' ); ?>
+					<?php else : ?>
+						<?php esc_html_e( 'Send Reply', 'erdo-draft-links' ); ?>
+					<?php endif; ?>
+				</button>
+			</p>
+		</form>
+		<?php
+		return (string) ob_get_clean();
 	}
 
 	protected function column_status( $item ): string {

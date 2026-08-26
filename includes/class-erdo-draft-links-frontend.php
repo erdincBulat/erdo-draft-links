@@ -358,6 +358,12 @@ class Erdo_Draft_Links_Frontend {
 									<span class="erdo-draft-feedback-history-date">
 										<?php echo esc_html( wp_date( get_option( 'date_format' ), strtotime( $item->created_at ) ) ); ?>
 									</span>
+									<?php if ( ! empty( $item->reply ) ) : ?>
+										<div class="erdo-draft-feedback-reply">
+											<span class="erdo-draft-feedback-reply-label"><?php esc_html_e( 'Reply', 'erdo-draft-links' ); ?></span>
+											<p class="erdo-draft-feedback-reply-message"><?php echo esc_html( $item->reply ); ?></p>
+										</div>
+									<?php endif; ?>
 								</li>
 							<?php endforeach; ?>
 						</ul>

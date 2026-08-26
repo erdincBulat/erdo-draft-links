@@ -1,29 +1,30 @@
-﻿import { useState, useEffect } from '@wordpress/element';
+import { useState, useEffect } from '@wordpress/element';
 import { useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { __ } from '@wordpress/i18n';
 import apiFetch from '@wordpress/api-fetch';
-import { PanelBody, Spinner } from '@wordpress/components';
+import { PanelBody, Spinner, TextControl } from '@wordpress/components';
 import ExpirySelector from './ExpirySelector';
-import ErdoDraftLinksStatus from './ErdoDraftLinksStatus';
+import ErdoDraftLinksLinkRow from './ErdoDraftLinksLinkRow';
 
 /* global erdoDraftLinksData */
 
 export default function ErdoDraftLinksPanel() {
 	const postId = useSelect( ( select ) => select( editorStore ).getCurrentPostId(), [] );
 
-	const [ linkData, setLinkData ] = useState( null );
+	const [ links, setLinks ] = useState( [] );
 	const [ loading, setLoading ] = useState( true );
 	const [ error, setError ] = useState( null );
+	const [ label, setLabel ] = useState( '' );
 	const [ expiry, setExpiry ] = useState( '24h' );
 
 	useEffect( () => {
 		if ( ! postId ) return;
 
-		const fetchLink = () => {
+		const fetchLinks = () => {
 			apiFetch( { path: `/erdo-draft-links/v1/link/${ postId }` } )
 				.then( ( data ) => {
-					setLinkData( data.exists === false ? null : data );
+					setLinks( data.links || [] );
 					setLoading( false );
 				} )
 				.catch( () => {
@@ -32,14 +33,14 @@ export default function ErdoDraftLinksPanel() {
 				} );
 		};
 
-		fetchLink();
+		fetchLinks();
 
-		// The link may have been deleted or changed elsewhere (e.g. the
-		// Erdo Draft Links Manager in another tab) — refresh when the
-		// editor tab regains focus so the panel doesn't show stale state.
+		// Links may have been generated/revoked elsewhere (e.g. the Erdo Draft
+		// Links Manager in another tab) — refresh when the editor tab regains
+		// focus so the panel doesn't show stale state.
 		const handleFocus = () => {
 			if ( document.visibilityState === 'visible' ) {
-				fetchLink();
+				fetchLinks();
 			}
 		};
 
@@ -58,10 +59,11 @@ export default function ErdoDraftLinksPanel() {
 		apiFetch( {
 			path: `/erdo-draft-links/v1/link/${ postId }/generate`,
 			method: 'POST',
-			data: { expiry },
+			data: { label, expiry },
 		} )
-			.then( ( data ) => {
-				setLinkData( data );
+			.then( ( link ) => {
+				setLinks( ( current ) => [ link, ...current ] );
+				setLabel( '' );
 				setLoading( false );
 			} )
 			.catch( () => {
@@ -70,15 +72,16 @@ export default function ErdoDraftLinksPanel() {
 			} );
 	};
 
-	const handleRevoke = () => {
+	const handleRevoke = ( linkId ) => {
 		setLoading( true );
 		setError( null );
 		apiFetch( {
 			path: `/erdo-draft-links/v1/link/${ postId }/revoke`,
 			method: 'POST',
+			data: { link_id: linkId },
 		} )
 			.then( () => {
-				setLinkData( null );
+				setLinks( ( current ) => current.filter( ( link ) => link.id !== linkId ) );
 				setLoading( false );
 			} )
 			.catch( () => {
@@ -95,32 +98,37 @@ export default function ErdoDraftLinksPanel() {
 				<p className="erdo-draft-links-error">{ error }</p>
 			) }
 
-			{ ! loading && ! error && ! linkData && (
-				<>
-					<p className="erdo-draft-links-description">
-						{ __( 'Generate a secure link to share this draft with anyone — no login required.', 'erdo-draft-links' ) }
-					</p>
-					<ExpirySelector
-						value={ expiry }
-						options={ erdoDraftLinksData.expiries }
-						onChange={ setExpiry }
-					/>
-					<button
-						className="button button-primary erdo-draft-links-generate-btn"
-						onClick={ handleGenerate }
-					>
-						{ __( 'Generate Erdo Draft Links', 'erdo-draft-links' ) }
-					</button>
-				</>
+			{ ! loading && ! error && links.length === 0 && (
+				<p className="erdo-draft-links-description">
+					{ __( 'Generate a secure link to share this draft with anyone — no login required.', 'erdo-draft-links' ) }
+				</p>
 			) }
 
-			{ ! loading && ! error && linkData && (
-				<ErdoDraftLinksStatus
-					data={ linkData }
-					onRegenerate={ handleGenerate }
-					onRevoke={ handleRevoke }
+			{ ! loading && ! error && links.map( ( link ) => (
+				<ErdoDraftLinksLinkRow key={ link.id } link={ link } onRevoke={ handleRevoke } />
+			) ) }
+
+			<div className="erdo-draft-links-add-link">
+				<TextControl
+					label={ __( 'Label (optional)', 'erdo-draft-links' ) }
+					placeholder={ __( 'e.g. Client A', 'erdo-draft-links' ) }
+					value={ label }
+					maxLength={ 100 }
+					onChange={ setLabel }
 				/>
-			) }
+				<ExpirySelector
+					value={ expiry }
+					options={ erdoDraftLinksData.expiries }
+					onChange={ setExpiry }
+				/>
+				<button
+					className="button button-primary erdo-draft-links-generate-btn"
+					onClick={ handleGenerate }
+					disabled={ loading }
+				>
+					{ __( 'Generate Erdo Draft Links', 'erdo-draft-links' ) }
+				</button>
+			</div>
 		</PanelBody>
 	);
 }

@@ -470,6 +470,34 @@
 	color: var(--erdo-text-muted) !important;
 }
 
+/* ---- Admin reply ---- */
+
+.erdo-draft-feedback-reply {
+	margin-top: 8px !important;
+	padding: 10px 12px !important;
+	border-radius: 10px !important;
+	background: var(--erdo-primary-soft) !important;
+}
+
+.erdo-draft-feedback-reply-label {
+	display: block !important;
+	margin-bottom: 4px !important;
+	font-size: 10px !important;
+	font-weight: 700 !important;
+	text-transform: uppercase !important;
+	letter-spacing: 0.5px !important;
+	color: var(--erdo-primary) !important;
+}
+
+.erdo-draft-feedback-reply-message {
+	margin: 0 !important;
+	font-size: 13px !important;
+	color: var(--erdo-text) !important;
+	line-height: 1.5 !important;
+	white-space: pre-wrap !important;
+	word-break: break-word !important;
+}
+
 @keyframes erdo-feedback-fade-in {
 	from {
 		opacity: 0;

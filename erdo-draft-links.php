@@ -3,9 +3,9 @@
  * Plugin Name:       Erdo Draft Links
  * Plugin URI:        https://wordpress.org/plugins/erdo-draft-links/
  * Description:       Share draft posts with non-logged-in users via a secure, temporary link — no login required.
- * Version:           1.1.0
+ * Version:           1.2.0
  * Requires at least: 6.0
- * Tested up to:      7.0
+ * Tested up to:      7.1
  * Requires PHP:      7.4
  * Author:            Erdinc Bulat
  * Author URI:        https://erdincbulat.com
@@ -17,8 +17,8 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'ERDO_DRAFT_LINKS_VERSION',     '1.1.0' );
-define( 'ERDO_DRAFT_LINKS_DB_VERSION',  '1.1.0' );
+define( 'ERDO_DRAFT_LINKS_VERSION',     '1.2.0' );
+define( 'ERDO_DRAFT_LINKS_DB_VERSION',  '1.2.0' );
 define( 'ERDO_DRAFT_LINKS_PLUGIN_FILE', __FILE__ );
 define( 'ERDO_DRAFT_LINKS_PLUGIN_DIR',  plugin_dir_path( __FILE__ ) );
 

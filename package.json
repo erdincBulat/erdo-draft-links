@@ -1,0 +1,10 @@
+{
+	"name": "erdo-draft-links",
+	"private": true,
+	"scripts": {
+		"build": "wp-scripts build"
+	},
+	"devDependencies": {
+		"@wordpress/scripts": "^34.0.0"
+	}
+}
