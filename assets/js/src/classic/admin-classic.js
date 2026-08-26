@@ -15,7 +15,9 @@
 		if ( body ) {
 			opts.body = JSON.stringify( body );
 		}
-		return fetch( restUrl + path, opts ).then( ( res ) => res.json() );
+		return fetch( restUrl + path, opts ).then( ( res ) =>
+			res.json().then( ( data ) => ( res.ok ? data : Promise.reject( data ) ) )
+		);
 	}
 
 	function formatDate( isoString ) {
@@ -115,30 +117,46 @@
 						revokeBtn.closest( '.erdo-draft-links-link-row' ).remove();
 						setLoading( wrap, false );
 					} )
-					.catch( () => {
+					.catch( ( err ) => {
 						setLoading( wrap, false );
-						showError( wrap, i18n.error );
+						showError( wrap, ( err && err.error ) || i18n.error );
 					} );
 			}
 		} );
 
+		const expirySelect      = wrap.querySelector( 'select[name="erdo_draft_link_expiry"]' );
+		const customExpiryRow   = wrap.querySelector( '#erdo-draft-links-custom-expiry-row-classic' );
+		const customExpiryInput = wrap.querySelector( '#erdo-draft-links-custom-expiry-classic' );
+		if ( expirySelect && customExpiryRow ) {
+			expirySelect.addEventListener( 'change', () => {
+				customExpiryRow.style.display = 'custom' === expirySelect.value ? '' : 'none';
+			} );
+		}
+
 		const generateBtn = wrap.querySelector( '.erdo-draft-links-generate' );
 		if ( generateBtn ) {
 			generateBtn.addEventListener( 'click', () => {
-				const labelInput = wrap.querySelector( '#erdo-draft-links-label-classic' );
-				const expiry = wrap.querySelector( 'select[name="erdo_draft_link_expiry"]' )?.value || '24h';
-				const label = labelInput ? labelInput.value : '';
+				const labelInput  = wrap.querySelector( '#erdo-draft-links-label-classic' );
+				const expiry      = expirySelect ? expirySelect.value : '24h';
+				const label       = labelInput ? labelInput.value : '';
+				const customExpiry = customExpiryInput ? customExpiryInput.value : '';
+
+				if ( 'custom' === expiry && ! customExpiry ) {
+					showError( wrap, i18n.invalidCustomExpiry );
+					return;
+				}
 
 				setLoading( wrap, true );
-				apiFetch( `/link/${ postId }/generate`, 'POST', { label, expiry } )
+				apiFetch( `/link/${ postId }/generate`, 'POST', { label, expiry, custom_expiry: customExpiry } )
 					.then( ( link ) => {
 						list.prepend( renderRow( link ) );
 						if ( labelInput ) labelInput.value = '';
+						if ( customExpiryInput ) customExpiryInput.value = '';
 						setLoading( wrap, false );
 					} )
-					.catch( () => {
+					.catch( ( err ) => {
 						setLoading( wrap, false );
-						showError( wrap, i18n.error );
+						showError( wrap, ( err && err.error ) || i18n.error );
 					} );
 			} );
 		}

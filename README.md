@@ -42,7 +42,7 @@ Think of it like Google Docs' "Anyone with the link can view" — but for WordPr
 
 1. Open any post or page in the editor (Block Editor or Classic Editor).
 2. Click **"Generate Draft Link"** in the sidebar panel or meta box.
-3. Choose an expiry: 24 hours, 48 hours, 7 days, or never.
+3. Choose an expiry: 24 hours, 48 hours, 7 days, never, or a custom date & time.
 4. Share the link. Recipients can view the content — no login needed.
 
 ## Features
@@ -51,8 +51,8 @@ Think of it like Google Docs' "Anyone with the link can view" — but for WordPr
 - Supports **posts**, **pages**, and any custom post type via a filter
 - **Multiple labeled links per post** — e.g. "Client A" and "Designer", each with its own expiry, revocable independently
 - Secure **32-character cryptographic tokens** — brute-force resistant
-- Configurable expiry: 24 hours, 48 hours, 7 days, or no expiry
-- **View count** tracking per link
+- Configurable expiry: 24 hours, 48 hours, 7 days, no expiry, or a custom date & time
+- **View count** tracking per link, with an email notification the first time a link is opened
 - Visitors can leave **name + feedback** on the preview — collected in a "Feedback" tab in the admin and emailed to you
 - **Reply to feedback** directly from the admin — visitors see your reply the next time they open the preview
 - **Revoke** any link at any time

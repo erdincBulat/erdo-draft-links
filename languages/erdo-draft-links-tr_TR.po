@@ -276,3 +276,18 @@ msgstr "Yanıt kaydedildi."
 
 msgid "This link does not belong to that post."
 msgstr "Bu bağlantı o yazıya ait değil."
+
+msgid "Custom Date & Time…"
+msgstr "Özel Tarih ve Saat…"
+
+msgid "Expires on:"
+msgstr "Bitiş tarihi:"
+
+msgid "Please choose a valid future date and time."
+msgstr "Lütfen geçerli, gelecekte bir tarih ve saat seçin."
+
+msgid "Your draft link was opened: %s"
+msgstr "Taslak bağlantınız açıldı: %s"
+
+msgid "The \"%1$s\" draft link for \"%2$s\" was just opened for the first time.\n\nManage links: %3$s"
+msgstr "\"%2$s\" için \"%1$s\" taslak bağlantısı ilk kez açıldı.\n\nBağlantıları yönet: %3$s"

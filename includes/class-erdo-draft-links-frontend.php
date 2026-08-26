@@ -138,11 +138,36 @@ class Erdo_Draft_Links_Frontend {
 			$this->die_expired();
 		}
 
+		if ( 0 === (int) $link->view_count ) {
+			$this->send_first_view_notification( $link );
+		}
+
 		$this->set_access_cookie( (int) $link->id, $link->token_hash );
 		$this->db->increment_view_count( (int) $link->id );
 
 		wp_safe_redirect( get_permalink( (int) $link->post_id ) );
 		exit;
+	}
+
+	private function send_first_view_notification( object $link ): void {
+		$post_title = get_the_title( (int) $link->post_id );
+		$label      = '' !== $link->label ? $link->label : __( 'Untitled link', 'erdo-draft-links' );
+
+		$subject = sprintf(
+			/* translators: %s: post title */
+			__( 'Your draft link was opened: %s', 'erdo-draft-links' ),
+			$post_title
+		);
+
+		$body = sprintf(
+			/* translators: 1: link label, 2: post title, 3: admin URL to manage links */
+			__( "The \"%1\$s\" draft link for \"%2\$s\" was just opened for the first time.\n\nManage links: %3\$s", 'erdo-draft-links' ),
+			$label,
+			$post_title,
+			admin_url( 'tools.php?page=erdo-draft-links-manager' )
+		);
+
+		wp_mail( get_option( 'admin_email' ), $subject, $body );
 	}
 
 	// -------------------------------------------------------------------------

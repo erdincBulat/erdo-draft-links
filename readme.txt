@@ -20,7 +20,7 @@ Think of it like Google Docs' "Anyone with the link can view" — but for WordPr
 
 1. Open any post or page in the editor (Block Editor or Classic Editor).
 2. Click **"Generate Draft Link"** in the sidebar panel or meta box.
-3. Choose an expiry: 24 hours, 48 hours, 7 days, or never.
+3. Choose an expiry: 24 hours, 48 hours, 7 days, never, or a custom date & time.
 4. Share the link. Recipients can view the content — no login needed.
 
 = Features =
@@ -29,8 +29,8 @@ Think of it like Google Docs' "Anyone with the link can view" — but for WordPr
 * Supports **posts**, **pages**, and any custom post type via a filter
 * **Multiple labeled links per post** — e.g. "Client A" and "Designer", each with its own expiry, revocable independently
 * Secure **32-character cryptographic tokens** — brute-force resistant
-* Configurable expiry: 24 hours, 48 hours, 7 days, or no expiry
-* **View count** tracking per link
+* Configurable expiry: 24 hours, 48 hours, 7 days, no expiry, or a custom date & time
+* **View count** tracking per link, with an email notification the first time a link is opened
 * Visitors can leave **name + feedback** on the preview — collected in a "Feedback" tab in the admin and emailed to you
 * **Reply to feedback** directly from the admin — visitors see your reply the next time they open the preview
 * **Revoke** any link at any time
@@ -76,6 +76,14 @@ The recipient sees a clear message: "This draft link has expired and is no longe
 
 Yes. Give each link an optional label (e.g. "Client A", "Designer") when you generate it, and each link gets its own expiry, view count, and can be revoked independently of the others.
 
+= Can I set a custom expiry date and time? =
+
+Yes. Choose "Custom Date & Time…" from the expiry dropdown when generating a link and pick any future date and time, in addition to the 24 hour / 48 hour / 7 day / never presets.
+
+= Will I be notified when someone opens the link? =
+
+Yes. The site admin email receives a notification the first time each link is opened. Repeat visits to an already-opened link don't send another email.
+
 = Does this work with password-protected posts? =
 
 No. Erdo Draft Links is designed for draft and private posts. Password-protected posts use WordPress's own mechanism.
@@ -95,6 +103,8 @@ Erdo Draft Links only runs on requests that include a `?erdo_token=` parameter o
 = 1.2.0 =
 * New: Generate multiple labeled links per post (e.g. "Client A", "Designer") — each with its own expiry, view count, and independent revoke.
 * New: Reply to visitor feedback directly from the Feedback tab; the visitor sees your reply the next time they open the preview on that page.
+* New: Custom date & time expiry option, in addition to the 24 hour / 48 hour / 7 day / never presets.
+* New: The site admin gets an email the first time a draft link is opened.
 * Tested up to WordPress 7.1.
 
 = 1.1.0 =
@@ -115,7 +125,7 @@ Erdo Draft Links only runs on requests that include a `?erdo_token=` parameter o
 == Upgrade Notice ==
 
 = 1.2.0 =
-New: multiple labeled links per post, and admin replies to feedback. Database tables upgrade automatically on activation — no manual action needed.
+New: multiple labeled links per post, admin replies to feedback, custom expiry date/time, and a first-view email notification. Database tables upgrade automatically on activation — no manual action needed.
 
 = 1.1.0 =
 New: visitors can leave feedback on draft previews, and the Links Manager has a one-click copy for draft links. Fix: page builder content now renders correctly on preview links, the sidebar no longer shows stale links, and the feedback widget look is now consistent across themes.

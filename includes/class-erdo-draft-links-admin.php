@@ -50,15 +50,20 @@ class Erdo_Draft_Links_Admin {
 				'args'                => array_merge(
 					$this->post_id_arg(),
 					array(
-						'label'  => array(
+						'label'         => array(
 							'type'              => 'string',
 							'default'           => '',
 							'sanitize_callback' => 'sanitize_text_field',
 						),
-						'expiry' => array(
+						'expiry'        => array(
 							'type'              => 'string',
 							'default'           => '24h',
-							'enum'              => array( '24h', '48h', '7d', 'never' ),
+							'enum'              => array( '24h', '48h', '7d', 'never', 'custom' ),
+							'sanitize_callback' => 'sanitize_text_field',
+						),
+						'custom_expiry' => array(
+							'type'              => 'string',
+							'default'           => '',
 							'sanitize_callback' => 'sanitize_text_field',
 						),
 					)
@@ -116,7 +121,15 @@ class Erdo_Draft_Links_Admin {
 		$label   = mb_substr( (string) $request->get_param( 'label' ), 0, 100 );
 		$expiry  = $request->get_param( 'expiry' );
 
-		$expires_at = $this->compute_expires_at( $expiry );
+		if ( 'custom' === $expiry ) {
+			$expires_at = $this->compute_custom_expires_at( (string) $request->get_param( 'custom_expiry' ) );
+			if ( null === $expires_at ) {
+				return new WP_REST_Response( array( 'error' => __( 'Please choose a valid future date and time.', 'erdo-draft-links' ) ), 400 );
+			}
+		} else {
+			$expires_at = $this->compute_expires_at( $expiry );
+		}
+
 		$token_data = $this->token->generate();
 		$link_id    = $this->db->insert_link( $post_id, $label, $token_data['hash'], $token_data['raw'], $expires_at );
 
@@ -195,7 +208,14 @@ class Erdo_Draft_Links_Admin {
 						<option value="48h"><?php esc_html_e( '48 Hours', 'erdo-draft-links' ); ?></option>
 						<option value="7d"><?php esc_html_e( '7 Days', 'erdo-draft-links' ); ?></option>
 						<option value="never"><?php esc_html_e( 'No Expiry', 'erdo-draft-links' ); ?></option>
+						<option value="custom"><?php esc_html_e( 'Custom Date & Time…', 'erdo-draft-links' ); ?></option>
 					</select>
+				</p>
+				<p id="erdo-draft-links-custom-expiry-row-classic" style="display:none;">
+					<label for="erdo-draft-links-custom-expiry-classic">
+						<?php esc_html_e( 'Expires on:', 'erdo-draft-links' ); ?>
+					</label>
+					<input type="datetime-local" id="erdo-draft-links-custom-expiry-classic" class="widefat" />
 				</p>
 				<div class="erdo-draft-links-actions">
 					<button type="button" class="button button-primary erdo-draft-links-generate">
@@ -298,10 +318,11 @@ class Erdo_Draft_Links_Admin {
 				'nonce'     => wp_create_nonce( 'wp_rest' ),
 				'postTypes' => Erdo_Draft_Links_Post_Types::get_supported(),
 				'expiries'  => array(
-					array( 'value' => '24h',   'label' => __( '24 Hours', 'erdo-draft-links' ) ),
-					array( 'value' => '48h',   'label' => __( '48 Hours', 'erdo-draft-links' ) ),
-					array( 'value' => '7d',    'label' => __( '7 Days',   'erdo-draft-links' ) ),
-					array( 'value' => 'never', 'label' => __( 'No Expiry', 'erdo-draft-links' ) ),
+					array( 'value' => '24h',    'label' => __( '24 Hours', 'erdo-draft-links' ) ),
+					array( 'value' => '48h',    'label' => __( '48 Hours', 'erdo-draft-links' ) ),
+					array( 'value' => '7d',     'label' => __( '7 Days',   'erdo-draft-links' ) ),
+					array( 'value' => 'never',  'label' => __( 'No Expiry', 'erdo-draft-links' ) ),
+					array( 'value' => 'custom', 'label' => __( 'Custom Date & Time…', 'erdo-draft-links' ) ),
 				),
 			)
 		);
@@ -364,6 +385,7 @@ class Erdo_Draft_Links_Admin {
 					/* translators: %d: view count */
 					'views'    => __( 'Views: %d', 'erdo-draft-links' ),
 					'error'    => __( 'An error occurred. Please try again.', 'erdo-draft-links' ),
+					'invalidCustomExpiry' => __( 'Please choose a valid future date and time.', 'erdo-draft-links' ),
 				),
 			)
 		);
@@ -632,6 +654,27 @@ class Erdo_Draft_Links_Admin {
 			return null;
 		}
 		return gmdate( 'Y-m-d H:i:s', strtotime( $map[ $expiry ], current_time( 'timestamp', true ) ) );
+	}
+
+	/**
+	 * $value is the raw "Y-m-d\TH:i" (or "Y-m-d H:i[:s]") string from an HTML
+	 * `<input type="datetime-local">`, which carries no timezone — interpreted
+	 * as the site's configured local time, the same convention WP core uses
+	 * for scheduling posts. Returns a UTC MySQL datetime, or null if the value
+	 * is malformed or not in the future.
+	 */
+	private function compute_custom_expires_at( string $value ): ?string {
+		$local = str_replace( 'T', ' ', trim( $value ) );
+		if ( ! preg_match( '/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}(:\d{2})?$/', $local ) ) {
+			return null;
+		}
+
+		$gmt_string = get_gmt_from_date( $local, 'Y-m-d H:i:s' );
+		if ( strtotime( $gmt_string ) <= time() ) {
+			return null;
+		}
+
+		return $gmt_string;
 	}
 
 	private function build_url( int $post_id, string $token_raw ): string {

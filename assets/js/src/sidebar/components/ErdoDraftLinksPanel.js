@@ -17,6 +17,7 @@ export default function ErdoDraftLinksPanel() {
 	const [ error, setError ] = useState( null );
 	const [ label, setLabel ] = useState( '' );
 	const [ expiry, setExpiry ] = useState( '24h' );
+	const [ customExpiry, setCustomExpiry ] = useState( '' );
 
 	useEffect( () => {
 		if ( ! postId ) return;
@@ -54,20 +55,26 @@ export default function ErdoDraftLinksPanel() {
 	}, [ postId ] );
 
 	const handleGenerate = () => {
+		if ( 'custom' === expiry && ! customExpiry ) {
+			setError( __( 'Please choose a valid future date and time.', 'erdo-draft-links' ) );
+			return;
+		}
+
 		setLoading( true );
 		setError( null );
 		apiFetch( {
 			path: `/erdo-draft-links/v1/link/${ postId }/generate`,
 			method: 'POST',
-			data: { label, expiry },
+			data: { label, expiry, custom_expiry: customExpiry },
 		} )
 			.then( ( link ) => {
 				setLinks( ( current ) => [ link, ...current ] );
 				setLabel( '' );
+				setCustomExpiry( '' );
 				setLoading( false );
 			} )
-			.catch( () => {
-				setError( __( 'Could not generate the link. Please try again.', 'erdo-draft-links' ) );
+			.catch( ( err ) => {
+				setError( ( err && err.error ) || __( 'Could not generate the link. Please try again.', 'erdo-draft-links' ) );
 				setLoading( false );
 			} );
 	};
@@ -84,8 +91,8 @@ export default function ErdoDraftLinksPanel() {
 				setLinks( ( current ) => current.filter( ( link ) => link.id !== linkId ) );
 				setLoading( false );
 			} )
-			.catch( () => {
-				setError( __( 'Could not revoke the link. Please try again.', 'erdo-draft-links' ) );
+			.catch( ( err ) => {
+				setError( ( err && err.error ) || __( 'Could not revoke the link. Please try again.', 'erdo-draft-links' ) );
 				setLoading( false );
 			} );
 	};
@@ -121,6 +128,19 @@ export default function ErdoDraftLinksPanel() {
 					options={ erdoDraftLinksData.expiries }
 					onChange={ setExpiry }
 				/>
+				{ 'custom' === expiry && (
+					<div className="erdo-draft-links-custom-expiry">
+						<label htmlFor="erdo-draft-links-custom-expiry-input">
+							{ __( 'Expires on:', 'erdo-draft-links' ) }
+						</label>
+						<input
+							type="datetime-local"
+							id="erdo-draft-links-custom-expiry-input"
+							value={ customExpiry }
+							onChange={ ( e ) => setCustomExpiry( e.target.value ) }
+						/>
+					</div>
+				) }
 				<button
 					className="button button-primary erdo-draft-links-generate-btn"
 					onClick={ handleGenerate }
