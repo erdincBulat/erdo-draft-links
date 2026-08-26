@@ -26,8 +26,9 @@ Think of it like Google Docs' "Anyone with the link can view" — but for WordPr
 = Features =
 
 * Works with both the **Block Editor (Gutenberg)** and the **Classic Editor**
-* Supports **posts**, **pages**, and any custom post type via a filter
+* Supports **posts**, **pages**, and any custom post type — toggle them on in **Tools → Erdo Draft Links → Settings**, or via a filter for developers
 * **Multiple labeled links per post** — e.g. "Client A" and "Designer", each with its own expiry, revocable independently
+* **WP-CLI support** — `wp erdo-draft-links generate|revoke|list` for scripting and automation
 * Secure **32-character cryptographic tokens** — brute-force resistant
 * Configurable expiry: 24 hours, 48 hours, 7 days, no expiry, or a custom date & time
 * **View count** tracking per link, with an email notification the first time a link is opened
@@ -62,7 +63,11 @@ The full source code including build tools is included in the plugin's `assets/j
 
 = Does this work with custom post types? =
 
-Yes. By default Erdo Draft Links supports posts and pages. Add more post types using the `erdo_draft_links_supported_post_types` filter.
+Yes. By default Erdo Draft Links supports posts and pages. Administrators can enable other public post types under **Tools → Erdo Draft Links → Settings** — no code required. Developers can also use the `erdo_draft_links_supported_post_types` filter, which takes precedence over the Settings tab.
+
+= Can I generate or manage links from the command line? =
+
+Yes, via WP-CLI: `wp erdo-draft-links generate <post_id> [--label=<label>] [--expiry=<24h|48h|7d|never>]`, `wp erdo-draft-links revoke <link_id>`, and `wp erdo-draft-links list [--post_id=<id>] [--status=<all|active|expired|revoked>] [--format=<table|csv|json|yaml|count>]`.
 
 = Is the shared link secure? =
 
@@ -105,6 +110,8 @@ Erdo Draft Links only runs on requests that include a `?erdo_token=` parameter o
 * New: Reply to visitor feedback directly from the Feedback tab; the visitor sees your reply the next time they open the preview on that page.
 * New: Custom date & time expiry option, in addition to the 24 hour / 48 hour / 7 day / never presets.
 * New: The site admin gets an email the first time a draft link is opened.
+* New: A Settings tab (Tools → Erdo Draft Links → Settings) lets administrators enable other public post types without code.
+* New: WP-CLI support — `wp erdo-draft-links generate|revoke|list`.
 * Tested up to WordPress 7.1.
 
 = 1.1.0 =
@@ -125,7 +132,7 @@ Erdo Draft Links only runs on requests that include a `?erdo_token=` parameter o
 == Upgrade Notice ==
 
 = 1.2.0 =
-New: multiple labeled links per post, admin replies to feedback, custom expiry date/time, and a first-view email notification. Database tables upgrade automatically on activation — no manual action needed.
+New: multiple labeled links per post, admin replies to feedback, custom expiry date/time, a first-view email notification, a Settings tab for post type support, and WP-CLI commands. Database tables upgrade automatically on activation — no manual action needed.
 
 = 1.1.0 =
 New: visitors can leave feedback on draft previews, and the Links Manager has a one-click copy for draft links. Fix: page builder content now renders correctly on preview links, the sidebar no longer shows stale links, and the feedback widget look is now consistent across themes.

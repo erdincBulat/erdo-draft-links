@@ -48,8 +48,9 @@ Think of it like Google Docs' "Anyone with the link can view" — but for WordPr
 ## Features
 
 - Works with both the **Block Editor (Gutenberg)** and the **Classic Editor**
-- Supports **posts**, **pages**, and any custom post type via a filter
+- Supports **posts**, **pages**, and any custom post type — toggle them on in **Tools → Erdo Draft Links → Settings**, or via a filter for developers
 - **Multiple labeled links per post** — e.g. "Client A" and "Designer", each with its own expiry, revocable independently
+- **WP-CLI support** — `wp erdo-draft-links generate|revoke|list` for scripting and automation
 - Secure **32-character cryptographic tokens** — brute-force resistant
 - Configurable expiry: 24 hours, 48 hours, 7 days, no expiry, or a custom date & time
 - **View count** tracking per link, with an email notification the first time a link is opened
@@ -83,13 +84,21 @@ Runs entirely in your browser, no server or account needed.
 
 ## Developer notes
 
-Add support for custom post types using the `erdo_draft_links_supported_post_types` filter:
+Site admins can enable other public post types under **Tools → Erdo Draft Links → Settings** — no code needed. Developers can also add support via the `erdo_draft_links_supported_post_types` filter, which takes precedence over the Settings tab:
 
 ```php
 add_filter( 'erdo_draft_links_supported_post_types', function( $types ) {
     $types[] = 'product';
     return $types;
 } );
+```
+
+### WP-CLI
+
+```
+wp erdo-draft-links generate <post_id> [--label=<label>] [--expiry=<24h|48h|7d|never>]
+wp erdo-draft-links revoke <link_id>
+wp erdo-draft-links list [--post_id=<id>] [--status=<all|active|expired|revoked>] [--format=<table|csv|json|yaml|count>]
 ```
 
 `assets/js/build/{classic,sidebar}.js` are compiled output — if you edit `assets/js/src/`, run `npm install && npm run build` (uses `@wordpress/scripts`) to regenerate them and their `*.asset.php` dependency manifests before committing.

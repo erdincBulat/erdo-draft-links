@@ -56,4 +56,8 @@ add_action( 'plugins_loaded', function (): void {
 	$frontend->register( $loader );
 	$cron->register( $loader );
 	$loader->run();
+
+	if ( defined( 'WP_CLI' ) && WP_CLI ) {
+		WP_CLI::add_command( 'erdo-draft-links', new Erdo_Draft_Links_CLI( $db, $token ) );
+	}
 } );

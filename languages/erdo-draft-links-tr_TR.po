@@ -291,3 +291,21 @@ msgstr "Taslak bağlantınız açıldı: %s"
 
 msgid "The \"%1$s\" draft link for \"%2$s\" was just opened for the first time.\n\nManage links: %3$s"
 msgstr "\"%2$s\" için \"%1$s\" taslak bağlantısı ilk kez açıldı.\n\nBağlantıları yönet: %3$s"
+
+msgid "Settings"
+msgstr "Ayarlar"
+
+msgid "Supported Post Types"
+msgstr "Desteklenen İçerik Türleri"
+
+msgid "Choose which post types can have Erdo Draft Links generated for them."
+msgstr "Erdo Draft Links oluşturulabilecek içerik türlerini seçin."
+
+msgid "Save Changes"
+msgstr "Değişiklikleri Kaydet"
+
+msgid "Note: the erdo_draft_links_supported_post_types filter is also active in code and may override these settings."
+msgstr "Not: erdo_draft_links_supported_post_types filtresi kodda da aktif ve bu ayarları geçersiz kılabilir."
+
+msgid "Settings saved."
+msgstr "Ayarlar kaydedildi."

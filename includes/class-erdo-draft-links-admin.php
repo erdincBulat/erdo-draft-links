@@ -127,7 +127,7 @@ class Erdo_Draft_Links_Admin {
 				return new WP_REST_Response( array( 'error' => __( 'Please choose a valid future date and time.', 'erdo-draft-links' ) ), 400 );
 			}
 		} else {
-			$expires_at = $this->compute_expires_at( $expiry );
+			$expires_at = $this->token->compute_expires_at( $expiry );
 		}
 
 		$token_data = $this->token->generate();
@@ -431,6 +431,23 @@ class Erdo_Draft_Links_Admin {
 			exit;
 		}
 
+		if ( isset( $_POST['action'] ) && 'erdo_draft_links_save_settings' === sanitize_key( wp_unslash( $_POST['action'] ) ) ) {
+			check_admin_referer( 'erdo_draft_links_save_settings' );
+			if ( ! current_user_can( 'manage_options' ) ) {
+				wp_die( esc_html__( 'You do not have permission to perform this action.', 'erdo-draft-links' ) );
+			}
+			$selected = isset( $_POST['erdo_draft_link_post_types'] ) && is_array( $_POST['erdo_draft_link_post_types'] )
+				? array_map( 'sanitize_key', wp_unslash( $_POST['erdo_draft_link_post_types'] ) )
+				: array();
+			// Only persist slugs that are actually selectable, so a tampered
+			// request can't store an arbitrary/internal post type.
+			$valid    = wp_list_pluck( Erdo_Draft_Links_Post_Types::get_selectable(), 'name' );
+			$selected = array_values( array_intersect( $selected, $valid ) );
+			update_option( Erdo_Draft_Links_Post_Types::OPTION_KEY, $selected );
+			wp_safe_redirect( add_query_arg( array( 'tab' => 'settings', 'gl_message' => 'settings_saved' ), admin_url( $page ) ) );
+			exit;
+		}
+
 		if ( 'erdo_draft_feedback_delete' === $action ) {
 			$feedback_id = isset( $_GET['feedback_id'] ) ? absint( $_GET['feedback_id'] ) : 0;
 			if ( ! $feedback_id ) {
@@ -549,7 +566,7 @@ class Erdo_Draft_Links_Admin {
 			<hr class="wp-header-end">
 
 			<h2 class="nav-tab-wrapper">
-				<a href="<?php echo esc_url( $base_url ); ?>" class="nav-tab <?php echo 'feedback' !== $tab ? 'nav-tab-active' : ''; ?>">
+				<a href="<?php echo esc_url( $base_url ); ?>" class="nav-tab <?php echo 'links' === $tab ? 'nav-tab-active' : ''; ?>">
 					<?php esc_html_e( 'Links', 'erdo-draft-links' ); ?>
 				</a>
 				<a href="<?php echo esc_url( add_query_arg( 'tab', 'feedback', $base_url ) ); ?>" class="nav-tab <?php echo 'feedback' === $tab ? 'nav-tab-active' : ''; ?>">
@@ -561,6 +578,11 @@ class Erdo_Draft_Links_Admin {
 					);
 					?>
 				</a>
+				<?php if ( current_user_can( 'manage_options' ) ) : ?>
+					<a href="<?php echo esc_url( add_query_arg( 'tab', 'settings', $base_url ) ); ?>" class="nav-tab <?php echo 'settings' === $tab ? 'nav-tab-active' : ''; ?>">
+						<?php esc_html_e( 'Settings', 'erdo-draft-links' ); ?>
+					</a>
+				<?php endif; ?>
 			</h2>
 
 			<?php if ( $message ) : ?>
@@ -586,6 +608,9 @@ class Erdo_Draft_Links_Admin {
 					case 'feedback_replied':
 						esc_html_e( 'Reply saved.', 'erdo-draft-links' );
 						break;
+					case 'settings_saved':
+						esc_html_e( 'Settings saved.', 'erdo-draft-links' );
+						break;
 				}
 				?>
 				</p></div>
@@ -601,6 +626,10 @@ class Erdo_Draft_Links_Admin {
 				$feedback_table->prepare_items();
 				$feedback_table->display();
 				?>
+
+			<?php elseif ( 'settings' === $tab && current_user_can( 'manage_options' ) ) : ?>
+
+				<?php $this->render_settings_tab(); ?>
 
 			<?php else : ?>
 
@@ -635,6 +664,41 @@ class Erdo_Draft_Links_Admin {
 		<?php
 	}
 
+	private function render_settings_tab(): void {
+		$supported = Erdo_Draft_Links_Post_Types::get_supported();
+		?>
+		<h2><?php esc_html_e( 'Supported Post Types', 'erdo-draft-links' ); ?></h2>
+		<p class="description">
+			<?php esc_html_e( 'Choose which post types can have Erdo Draft Links generated for them.', 'erdo-draft-links' ); ?>
+		</p>
+		<form method="post">
+			<?php wp_nonce_field( 'erdo_draft_links_save_settings' ); ?>
+			<input type="hidden" name="action" value="erdo_draft_links_save_settings" />
+			<?php foreach ( Erdo_Draft_Links_Post_Types::get_selectable() as $post_type ) : ?>
+				<label class="erdo-draft-links-post-type-option">
+					<input type="checkbox"
+					       name="erdo_draft_link_post_types[]"
+					       value="<?php echo esc_attr( $post_type->name ); ?>"
+					       <?php checked( in_array( $post_type->name, $supported, true ) ); ?>
+					/>
+					<?php echo esc_html( $post_type->labels->singular_name ); ?>
+					<code><?php echo esc_html( $post_type->name ); ?></code>
+				</label>
+			<?php endforeach; ?>
+			<p>
+				<button type="submit" class="button button-primary">
+					<?php esc_html_e( 'Save Changes', 'erdo-draft-links' ); ?>
+				</button>
+			</p>
+		</form>
+		<?php if ( has_filter( 'erdo_draft_links_supported_post_types' ) ) : ?>
+			<p class="description">
+				<?php esc_html_e( 'Note: the erdo_draft_links_supported_post_types filter is also active in code and may override these settings.', 'erdo-draft-links' ); ?>
+			</p>
+		<?php endif; ?>
+		<?php
+	}
+
 	// -------------------------------------------------------------------------
 	// Helpers
 	// -------------------------------------------------------------------------
@@ -642,18 +706,6 @@ class Erdo_Draft_Links_Admin {
 	public function on_delete_post( int $post_id ): void {
 		$this->db->delete_by_post( $post_id );
 		$this->db->delete_feedback_by_post( $post_id );
-	}
-
-	private function compute_expires_at( string $expiry ): ?string {
-		$map = array(
-			'24h' => '+24 hours',
-			'48h' => '+48 hours',
-			'7d'  => '+7 days',
-		);
-		if ( ! isset( $map[ $expiry ] ) ) {
-			return null;
-		}
-		return gmdate( 'Y-m-d H:i:s', strtotime( $map[ $expiry ], current_time( 'timestamp', true ) ) );
 	}
 
 	/**

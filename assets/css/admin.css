@@ -163,6 +163,16 @@
 	margin: 4px 0 12px;
 }
 
+.erdo-draft-links-post-type-option {
+	display: block;
+	margin: 8px 0;
+}
+
+.erdo-draft-links-post-type-option code {
+	margin-left: 4px;
+	color: #666;
+}
+
 .erdo-draft-links-badge {
 	display: inline-block;
 	padding: 2px 8px;

@@ -20,6 +20,18 @@ class Erdo_Draft_Links_Token {
 		return time() > strtotime( $expires_at );
 	}
 
+	public function compute_expires_at( string $expiry ): ?string {
+		$map = array(
+			'24h' => '+24 hours',
+			'48h' => '+48 hours',
+			'7d'  => '+7 days',
+		);
+		if ( ! isset( $map[ $expiry ] ) ) {
+			return null;
+		}
+		return gmdate( 'Y-m-d H:i:s', strtotime( $map[ $expiry ], current_time( 'timestamp', true ) ) );
+	}
+
 	public function cookie_value( string $token_hash ): string {
 		return hash_hmac( 'sha256', $token_hash, SECURE_AUTH_KEY );
 	}
