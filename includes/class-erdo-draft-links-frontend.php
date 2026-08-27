@@ -194,9 +194,12 @@ class Erdo_Draft_Links_Frontend {
 		$queried_page_id = absint( $query->get( 'page_id' ) );
 
 		if ( $queried_p !== $active_post_id && $queried_page_id !== $active_post_id ) {
-			// Try slug-based matching only if the post is known.
+			// Try slug-based matching only if the post is known and has a real slug.
+			// Draft posts commonly have an empty post_name until first published, and
+			// 'name'/'pagename' are also empty on ID-based queries — comparing empty
+			// strings would otherwise false-match an unrelated post and leak it.
 			$post = get_post( $active_post_id );
-			if ( ! $post ) {
+			if ( ! $post || '' === $post->post_name ) {
 				return;
 			}
 			$name     = $query->get( 'name' );
@@ -218,6 +221,7 @@ class Erdo_Draft_Links_Frontend {
 		// plugins, CDNs, and browsers from storing it — otherwise a revoked
 		// link or an updated feedback status would keep showing a stale copy.
 		if ( ! defined( 'DONOTCACHEPAGE' ) ) {
+			// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedConstantFound -- reserved cache-buster constant name, recognized by caching plugins/CDNs; cannot be prefixed.
 			define( 'DONOTCACHEPAGE', true );
 		}
 		nocache_headers();

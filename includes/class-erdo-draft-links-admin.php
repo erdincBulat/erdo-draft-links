@@ -574,7 +574,7 @@ class Erdo_Draft_Links_Admin {
 					printf(
 						/* translators: %d: number of feedback entries */
 						esc_html__( 'Feedback (%d)', 'erdo-draft-links' ),
-						$this->db->get_feedback_count()
+						(int) $this->db->get_feedback_count()
 					);
 					?>
 				</a>

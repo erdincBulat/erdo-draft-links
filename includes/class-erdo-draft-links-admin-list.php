@@ -24,6 +24,7 @@ class Erdo_Draft_Links_Admin_List extends WP_List_Table {
 		return array(
 			'cb'         => '<input type="checkbox" />',
 			'post_title' => __( 'Post', 'erdo-draft-links' ),
+			'label'      => __( 'Label', 'erdo-draft-links' ),
 			'ghost_link' => __( 'Link', 'erdo-draft-links' ),
 			'status'     => __( 'Status', 'erdo-draft-links' ),
 			'view_count' => __( 'Views', 'erdo-draft-links' ),
@@ -149,6 +150,13 @@ class Erdo_Draft_Links_Admin_List extends WP_List_Table {
 			esc_html__( 'View Link', 'erdo-draft-links' ),
 			esc_attr__( 'Copy', 'erdo-draft-links' )
 		);
+	}
+
+	protected function column_label( $item ): string {
+		if ( '' === $item->label ) {
+			return '<span class="erdo-draft-links-never">&#8212;</span>';
+		}
+		return esc_html( $item->label );
 	}
 
 	protected function column_status( $item ): string {
