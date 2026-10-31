@@ -57,6 +57,7 @@ add_action( 'plugins_loaded', function (): void {
 	$review        = new Erdo_Draft_Links_Review( $db, $session, $notifications );
 	$admin         = new Erdo_Draft_Links_Admin( $db, $token, $review );
 	$feedback_api  = new Erdo_Draft_Links_Feedback_Api( $db, $review );
+	$visitor_api   = new Erdo_Draft_Links_Visitor_Api( $db, $token, $session, $review, $notifications );
 	$frontend      = new Erdo_Draft_Links_Frontend( $db, $token, $session, new Erdo_Draft_Links_Status_Page(), $notifications );
 	$cron          = new Erdo_Draft_Links_Cron( $db );
 
@@ -64,6 +65,7 @@ add_action( 'plugins_loaded', function (): void {
 	$review->register( $loader );
 	$admin->register( $loader );
 	$feedback_api->register( $loader );
+	$visitor_api->register( $loader );
 	$frontend->register( $loader );
 	$cron->register( $loader );
 	$loader->run();

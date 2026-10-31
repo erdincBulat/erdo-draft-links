@@ -17,6 +17,7 @@ class Erdo_Draft_Links_Frontend {
 
 	private ?int $active_link_id = null;
 	private ?int $active_post_id = null;
+	private ?object $active_link = null;
 
 	public function __construct( Erdo_Draft_Links_DB $db, Erdo_Draft_Links_Token $token, Erdo_Draft_Links_Session $session, Erdo_Draft_Links_Status_Page $status_page, Erdo_Draft_Links_Notifications $notifications ) {
 		$this->db            = $db;
@@ -45,85 +46,15 @@ class Erdo_Draft_Links_Frontend {
 		// Priority 5: after the token redirect (priority 1) has had a chance to run/exit.
 		$loader->add_action( 'template_redirect', $this, 'handle_feedback_submission', 5 );
 
-		// wp_footer fires on every front-end page regardless of how the page builder
-		// rendered the content, so the form appears even with builders (e.g. Elementor
-		// Canvas templates) that bypass the the_content filter entirely.
-		$loader->add_action( 'wp_footer', $this, 'render_feedback_form_in_footer' );
-
-		$loader->add_action( 'wp_enqueue_scripts', $this, 'enqueue_feedback_assets' );
+		// The review bar is built by JS in a Shadow DOM and mounted on <html>, so
+		// it shows up however the theme or page builder rendered the post. The
+		// footer only carries a no-JS fallback form; wp_footer fires even with
+		// builder templates (e.g. Elementor Canvas) that skip the_content.
+		$loader->add_action( 'wp_enqueue_scripts', $this, 'enqueue_review_bar' );
+		$loader->add_action( 'wp_footer', $this, 'render_noscript_form' );
 
 		$loader->add_filter( 'wp_robots', $this, 'filter_robots' );
 
-		$loader->add_action( 'rest_api_init', $this, 'register_rest_routes' );
-	}
-
-	// -------------------------------------------------------------------------
-	// REST API — AJAX feedback submission (no page reload).
-	// -------------------------------------------------------------------------
-
-	public function register_rest_routes(): void {
-		register_rest_route(
-			'erdo-draft-links/v1',
-			'/feedback',
-			array(
-				'methods'             => WP_REST_Server::CREATABLE,
-				'callback'            => array( $this, 'rest_submit_feedback' ),
-				'permission_callback' => '__return_true',
-				'args'                => array(
-					'name'    => array( 'required' => true ),
-					'message' => array( 'required' => true ),
-					'nonce'   => array( 'required' => true ),
-				),
-			)
-		);
-	}
-
-	/**
-	 * @return WP_REST_Response|WP_Error
-	 */
-	public function rest_submit_feedback( WP_REST_Request $request ) {
-		$cookie_data = $this->session->current();
-		if ( null === $cookie_data ) {
-			return new WP_Error( 'erdo_invalid_session', __( 'An error occurred. Please try again.', 'erdo-draft-links' ), array( 'status' => 403 ) );
-		}
-
-		$nonce = sanitize_text_field( (string) $request->get_param( 'nonce' ) );
-		if ( ! wp_verify_nonce( $nonce, 'erdo_draft_feedback_' . $cookie_data['link_id'] ) ) {
-			return new WP_Error( 'erdo_invalid_nonce', __( 'An error occurred. Please try again.', 'erdo-draft-links' ), array( 'status' => 403 ) );
-		}
-
-		$name    = sanitize_text_field( (string) $request->get_param( 'name' ) );
-		$message = sanitize_textarea_field( (string) $request->get_param( 'message' ) );
-
-		if ( '' === $name || '' === $message ) {
-			return new WP_Error( 'erdo_missing_fields', __( 'An error occurred. Please try again.', 'erdo-draft-links' ), array( 'status' => 400 ) );
-		}
-
-		$post_id     = $cookie_data['post_id'];
-		$feedback_id = $this->db->add_feedback( $post_id, $cookie_data['link_id'], $name, $message );
-
-		if ( ! $feedback_id ) {
-			return new WP_Error( 'erdo_feedback_failed', __( 'An error occurred. Please try again.', 'erdo-draft-links' ), array( 'status' => 500 ) );
-		}
-
-		$this->notifications->feedback( $cookie_data['link'], $name, $message );
-
-		$status  = Erdo_Draft_Links_DB::FEEDBACK_STATUS_OPEN;
-		$initial = function_exists( 'mb_substr' ) ? mb_substr( $name, 0, 1 ) : substr( $name, 0, 1 );
-
-		return rest_ensure_response(
-			array(
-				'success' => true,
-				'item'    => array(
-					'author_name'  => $name,
-					'message'      => $message,
-					'status'       => $status,
-					'status_label' => Erdo_Draft_Links_DB::get_feedback_status_label( $status ),
-					'date'         => wp_date( get_option( 'date_format' ) ),
-					'initial'      => mb_strtoupper( $initial ),
-				),
-			)
-		);
 	}
 
 	// -------------------------------------------------------------------------
@@ -387,6 +318,7 @@ class Erdo_Draft_Links_Frontend {
 
 		$this->active_link_id = $cookie_data['link_id'];
 		$this->active_post_id = $active_post_id;
+		$this->active_link    = $cookie_data['link'];
 
 		// This response shows draft content via a temporary preview cookie and
 		// may include feedback status that changes over time. Prevent caching
@@ -446,155 +378,141 @@ class Erdo_Draft_Links_Frontend {
 	}
 
 	// -------------------------------------------------------------------------
-	// Preview feedback — lets the visitor leave a name + message on the
-	// shared draft, stored in the plugin's own table and emailed to the site admin.
-	// Each visitor only sees feedback left through their own link.
+	// Review bar — the visitor's comments, notes on the page and approve /
+	// request-changes buttons (assets/js/review-bar.js). Each visitor only
+	// sees the conversation on their own link.
 	// -------------------------------------------------------------------------
 
-	public function enqueue_feedback_assets(): void {
-		if ( null === $this->active_post_id || get_queried_object_id() !== $this->active_post_id ) {
+	private function is_previewing(): bool {
+		return null !== $this->active_post_id && is_singular() && get_queried_object_id() === $this->active_post_id;
+	}
+
+	public function enqueue_review_bar(): void {
+		if ( ! $this->is_previewing() ) {
 			return;
 		}
 
-		wp_enqueue_style(
-			'erdo-draft-links-frontend',
-			plugins_url( 'assets/css/frontend.css', ERDO_DRAFT_LINKS_PLUGIN_FILE ),
-			array(),
-			ERDO_DRAFT_LINKS_VERSION
-		);
-
 		wp_enqueue_script(
-			'erdo-draft-links-frontend',
-			plugins_url( 'assets/js/frontend.js', ERDO_DRAFT_LINKS_PLUGIN_FILE ),
+			'erdo-draft-links-review-bar',
+			plugins_url( 'assets/js/review-bar.js', ERDO_DRAFT_LINKS_PLUGIN_FILE ),
 			array(),
 			ERDO_DRAFT_LINKS_VERSION,
-			true
+			array(
+				'in_footer' => true,
+				'strategy'  => 'defer',
+			)
 		);
 
+		$link = $this->active_link;
+
 		wp_localize_script(
-			'erdo-draft-links-frontend',
-			'erdoDraftFeedback',
+			'erdo-draft-links-review-bar',
+			'erdoDraftReview',
 			array(
-				'restUrl' => rest_url( 'erdo-draft-links/v1/feedback' ),
-				'i18n'    => array(
-					'submit'  => __( 'Send Feedback', 'erdo-draft-links' ),
-					'sending' => __( 'Sending…', 'erdo-draft-links' ),
-					'success' => __( 'Thanks! Your feedback has been sent.', 'erdo-draft-links' ),
-					'error'   => __( 'An error occurred. Please try again.', 'erdo-draft-links' ),
-				),
+				'restUrl'     => rest_url( 'erdo-draft-links/v1/' ),
+				'nonce'       => wp_create_nonce( 'erdo_draft_feedback_' . (int) $this->active_link_id ),
+				// Logged-in viewers need the REST nonce too: without it the REST API
+				// runs as user 0 and the link nonce above (made for them) won't verify.
+				'wpNonce'     => is_user_logged_in() ? wp_create_nonce( 'wp_rest' ) : '',
+				'cssUrl'      => add_query_arg( 'ver', ERDO_DRAFT_LINKS_VERSION, plugins_url( 'assets/css/review-bar.css', ERDO_DRAFT_LINKS_PLUGIN_FILE ) ),
+				'site'        => wp_strip_all_tags( get_bloginfo( 'name' ) ),
+				'isPublished' => 'publish' === get_post_status( $this->active_post_id ),
+				'expiresAt'   => $link && $link->expires_at ? gmdate( 'Y-m-d\TH:i:s\Z', strtotime( $link->expires_at . ' UTC' ) ) : null,
+				'locale'      => str_replace( '_', '-', determine_locale() ),
+				'i18n'        => $this->review_bar_strings(),
 			)
 		);
 	}
 
-	public function render_feedback_form_in_footer(): void {
-		if ( null === $this->active_post_id || ! is_singular() ) {
-			return;
-		}
-
-		if ( get_queried_object_id() !== $this->active_post_id ) {
-			return;
-		}
-
-		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- built via esc_*() calls inside render_feedback_form().
-		echo $this->render_feedback_form( (int) $this->active_link_id );
+	/**
+	 * @return array<string, string>
+	 */
+	private function review_bar_strings(): array {
+		return array(
+			'draftPreview'       => __( 'Draft preview', 'erdo-draft-links' ),
+			'preview'            => __( 'Preview', 'erdo-draft-links' ),
+			/* translators: %s: relative time, e.g. "in 3 days" */
+			'expires'            => __( 'Link expires %s', 'erdo-draft-links' ),
+			'reviewBar'          => __( 'Review toolbar', 'erdo-draft-links' ),
+			'comments'           => __( 'Comments', 'erdo-draft-links' ),
+			'addNote'            => __( 'Note on page', 'erdo-draft-links' ),
+			'approve'            => __( 'Approve', 'erdo-draft-links' ),
+			'requestChanges'     => __( 'Request changes', 'erdo-draft-links' ),
+			'collapse'           => __( 'Hide toolbar', 'erdo-draft-links' ),
+			'review'             => __( 'Review', 'erdo-draft-links' ),
+			'close'              => __( 'Close', 'erdo-draft-links' ),
+			'cancel'             => __( 'Cancel', 'erdo-draft-links' ),
+			'send'               => __( 'Send', 'erdo-draft-links' ),
+			'sending'            => __( 'Sending…', 'erdo-draft-links' ),
+			'reply'              => __( 'Reply', 'erdo-draft-links' ),
+			'sendReply'          => __( 'Send reply', 'erdo-draft-links' ),
+			'yourName'           => __( 'Your name', 'erdo-draft-links' ),
+			'yourEmail'          => __( 'Email (optional)', 'erdo-draft-links' ),
+			'emailHelp'          => __( 'Only used to let you know when someone replies.', 'erdo-draft-links' ),
+			'changeName'         => __( 'Change', 'erdo-draft-links' ),
+			/* translators: %s: reviewer name */
+			'commentingAs'       => __( 'Commenting as %s', 'erdo-draft-links' ),
+			'commentLabel'       => __( 'Your comment', 'erdo-draft-links' ),
+			'commentPlaceholder' => __( 'What do you think?', 'erdo-draft-links' ),
+			'notePlaceholder'    => __( 'What should change here?', 'erdo-draft-links' ),
+			'noteHint'           => __( 'Click the part of the page you want to comment on. Press Esc to cancel.', 'erdo-draft-links' ),
+			/* translators: %d: note number */
+			'noteN'              => __( 'Note %d', 'erdo-draft-links' ),
+			'showOnPage'         => __( 'Show on page', 'erdo-draft-links' ),
+			'notFound'           => __( 'This part of the page has changed since the note was left.', 'erdo-draft-links' ),
+			'empty'              => __( 'No comments yet. Write one below, or use “Note on page” to point at something specific.', 'erdo-draft-links' ),
+			'resolved'           => __( 'Resolved', 'erdo-draft-links' ),
+			'team'               => __( 'Team', 'erdo-draft-links' ),
+			'approvedItem'       => __( 'Approved', 'erdo-draft-links' ),
+			'changesItem'        => __( 'Requested changes', 'erdo-draft-links' ),
+			'approveTitle'       => __( 'Approve this draft?', 'erdo-draft-links' ),
+			'approveHelp'        => __( 'The author will be told it is good to go.', 'erdo-draft-links' ),
+			'approveMessage'     => __( 'Message (optional)', 'erdo-draft-links' ),
+			'changesTitle'       => __( 'Request changes', 'erdo-draft-links' ),
+			'changesHelp'        => __( 'Tell the author what should change. Your comments and notes stay attached.', 'erdo-draft-links' ),
+			'changesMessage'     => __( 'What should change?', 'erdo-draft-links' ),
+			/* translators: %s: reviewer name */
+			'approvedBy'         => __( 'Approved by %s', 'erdo-draft-links' ),
+			/* translators: %s: reviewer name */
+			'changesBy'          => __( 'Changes requested by %s', 'erdo-draft-links' ),
+			'editedSince'        => __( 'Updated since the last review', 'erdo-draft-links' ),
+			'thanksApproved'     => __( 'Thanks! The author has been told you approved it.', 'erdo-draft-links' ),
+			'thanksChanges'      => __( 'Thanks! The author has your change requests.', 'erdo-draft-links' ),
+			'thanksComment'      => __( 'Comment sent.', 'erdo-draft-links' ),
+			'thanksNote'         => __( 'Note added.', 'erdo-draft-links' ),
+			'error'              => __( 'An error occurred. Please try again.', 'erdo-draft-links' ),
+			'loadError'          => __( 'Could not load the conversation.', 'erdo-draft-links' ),
+		);
 	}
 
-	private function render_feedback_form( int $link_id ): string {
+	/**
+	 * Plain form for visitors without JavaScript (the review bar needs it).
+	 */
+	public function render_noscript_form(): void {
+		if ( ! $this->is_previewing() ) {
+			return;
+		}
+
 		$sent = isset( $_GET['erdo_feedback'] ) && 'sent' === $_GET['erdo_feedback']; // phpcs:ignore WordPress.Security.NonceVerification
-
-		ob_start();
 		?>
-		<div class="erdo-draft-feedback">
-			<button type="button" class="erdo-draft-feedback-toggle" aria-expanded="false" aria-controls="erdo-draft-feedback-panel">
-				<svg class="erdo-draft-feedback-toggle-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
-					<path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path>
-				</svg>
-				<span class="erdo-draft-feedback-toggle-label"><?php esc_html_e( 'Feedback', 'erdo-draft-links' ); ?></span>
-			</button>
-			<div class="erdo-draft-feedback-panel" id="erdo-draft-feedback-panel" hidden <?php echo $sent ? 'data-auto-open="1"' : ''; ?>>
-				<div class="erdo-draft-feedback-header">
-					<div class="erdo-draft-feedback-heading">
-						<h3 class="erdo-draft-feedback-title"><?php esc_html_e( 'Leave Feedback', 'erdo-draft-links' ); ?></h3>
-						<p class="erdo-draft-feedback-description">
-							<?php esc_html_e( 'Have comments about this draft? Let the author know below.', 'erdo-draft-links' ); ?>
-						</p>
-					</div>
-					<button type="button" class="erdo-draft-feedback-close" aria-label="<?php esc_attr_e( 'Close', 'erdo-draft-links' ); ?>">
-						<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
-							<path d="M18 6 6 18"></path>
-							<path d="m6 6 12 12"></path>
-						</svg>
-					</button>
-				</div>
-				<div class="erdo-draft-feedback-body">
-					<div class="erdo-draft-feedback-notice" id="erdo-draft-feedback-notice">
-						<?php if ( $sent ) : ?>
-							<div class="erdo-draft-feedback-success" role="status">
-								<svg class="erdo-draft-feedback-success-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
-									<path d="M20 6 9 17l-5-5"></path>
-								</svg>
-								<span><?php esc_html_e( 'Thanks! Your feedback has been sent.', 'erdo-draft-links' ); ?></span>
-							</div>
-						<?php endif; ?>
-					</div>
-
-					<form method="post" class="erdo-draft-feedback-form" id="erdo-draft-feedback-form">
-						<?php wp_nonce_field( 'erdo_draft_feedback_' . $link_id, 'erdo_feedback_nonce' ); ?>
-						<p class="erdo-draft-feedback-field">
-							<label for="erdo-feedback-name"><?php esc_html_e( 'Name', 'erdo-draft-links' ); ?></label>
-							<input type="text" id="erdo-feedback-name" name="erdo_feedback_name" maxlength="100" required="required" />
-						</p>
-						<p class="erdo-draft-feedback-field">
-							<label for="erdo-feedback-message"><?php esc_html_e( 'Your feedback', 'erdo-draft-links' ); ?></label>
-							<textarea id="erdo-feedback-message" name="erdo_feedback_message" rows="4" maxlength="2000" required="required"></textarea>
-						</p>
-						<p>
-							<button type="submit" name="erdo_draft_feedback_submit" value="1" class="erdo-draft-feedback-submit">
-								<span class="erdo-draft-feedback-submit-label"><?php esc_html_e( 'Send Feedback', 'erdo-draft-links' ); ?></span>
-							</button>
-						</p>
-					</form>
-
-					<?php
-					$history = $this->db->get_feedback_by_link( $link_id );
-					$replies = $this->db->get_replies( wp_list_pluck( $history, 'id' ) );
-					?>
-					<div class="erdo-draft-feedback-history" id="erdo-draft-feedback-history" <?php echo empty( $history ) ? 'hidden' : ''; ?>>
-						<h4 class="erdo-draft-feedback-history-title"><?php esc_html_e( 'Past Feedback', 'erdo-draft-links' ); ?></h4>
-						<ul class="erdo-draft-feedback-history-list" id="erdo-draft-feedback-history-list">
-							<?php foreach ( $history as $item ) : ?>
-								<?php
-								$item_status = $item->status;
-								$item_label  = Erdo_Draft_Links_DB::get_feedback_status_label( $item_status );
-								$initial     = function_exists( 'mb_substr' ) ? mb_substr( $item->author_name, 0, 1 ) : substr( $item->author_name, 0, 1 );
-								?>
-								<li class="erdo-draft-feedback-history-item">
-									<div class="erdo-draft-feedback-history-head">
-										<span class="erdo-draft-feedback-history-author-row">
-											<span class="erdo-draft-feedback-history-avatar" aria-hidden="true"><?php echo esc_html( mb_strtoupper( $initial ) ); ?></span>
-											<span class="erdo-draft-feedback-history-author"><?php echo esc_html( $item->author_name ); ?></span>
-										</span>
-										<span class="erdo-draft-feedback-status erdo-draft-feedback-status--<?php echo esc_attr( $item_status ); ?>"><?php echo esc_html( $item_label ); ?></span>
-									</div>
-									<p class="erdo-draft-feedback-history-message"><?php echo esc_html( $item->message ); ?></p>
-									<span class="erdo-draft-feedback-history-date">
-										<?php echo esc_html( wp_date( get_option( 'date_format' ), strtotime( $item->created_at . ' UTC' ) ) ); ?>
-									</span>
-									<?php foreach ( $replies[ (int) $item->id ] ?? array() as $reply ) : ?>
-										<div class="erdo-draft-feedback-reply">
-											<span class="erdo-draft-feedback-reply-label"><?php echo esc_html( $reply->author_name ); ?></span>
-											<p class="erdo-draft-feedback-reply-message"><?php echo esc_html( $reply->message ); ?></p>
-										</div>
-									<?php endforeach; ?>
-								</li>
-							<?php endforeach; ?>
-						</ul>
-					</div>
-				</div>
-			</div>
-		</div>
+		<noscript>
+			<form method="post" class="erdo-draft-feedback-noscript" style="max-width:40rem;margin:2rem auto;padding:1rem;border:1px solid #dcdcde;font:16px/1.5 system-ui,sans-serif;">
+				<?php if ( $sent ) : ?>
+					<p role="status"><?php esc_html_e( 'Thanks! Your feedback has been sent.', 'erdo-draft-links' ); ?></p>
+				<?php endif; ?>
+				<?php wp_nonce_field( 'erdo_draft_feedback_' . (int) $this->active_link_id, 'erdo_feedback_nonce' ); ?>
+				<p>
+					<label for="erdo-feedback-name"><?php esc_html_e( 'Your name', 'erdo-draft-links' ); ?></label><br />
+					<input type="text" id="erdo-feedback-name" name="erdo_feedback_name" maxlength="100" required="required" />
+				</p>
+				<p>
+					<label for="erdo-feedback-message"><?php esc_html_e( 'Your comment', 'erdo-draft-links' ); ?></label><br />
+					<textarea id="erdo-feedback-message" name="erdo_feedback_message" rows="4" cols="50" maxlength="5000" required="required"></textarea>
+				</p>
+				<p><button type="submit" name="erdo_draft_feedback_submit" value="1"><?php esc_html_e( 'Send', 'erdo-draft-links' ); ?></button></p>
+			</form>
+		</noscript>
 		<?php
-		return (string) ob_get_clean();
 	}
 
 	public function handle_feedback_submission(): void {

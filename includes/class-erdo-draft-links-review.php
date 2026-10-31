@@ -68,6 +68,10 @@ class Erdo_Draft_Links_Review {
 						'default'           => '',
 						'sanitize_callback' => 'sanitize_textarea_field',
 					),
+					'email'    => array(
+						'type'    => 'string',
+						'default' => '',
+					),
 					'nonce'    => array(
 						'type'     => 'string',
 						'required' => true,
@@ -101,12 +105,14 @@ class Erdo_Draft_Links_Review {
 			return new WP_Error( 'erdo_missing_message', __( 'Please describe the changes you would like.', 'erdo-draft-links' ), array( 'status' => 400 ) );
 		}
 
-		$this->record( $session['link'], $decision, $name, $message );
+		$email = sanitize_email( (string) $request->get_param( 'email' ) );
+
+		$this->record( $session['link'], $decision, $name, $message, is_email( $email ) ? $email : '' );
 
 		return rest_ensure_response( array_merge( array( 'success' => true ), $this->get_link_review( $this->db->get_link_by_id( $session['link_id'] ) ) ) );
 	}
 
-	public function record( object $link, string $decision, string $name, string $message ): void {
+	public function record( object $link, string $decision, string $name, string $message, string $email = '' ): void {
 		$post_id  = (int) $link->post_id;
 		$modified = (string) get_post_field( 'post_modified_gmt', $post_id );
 
@@ -118,7 +124,8 @@ class Erdo_Draft_Links_Review {
 			$name,
 			$message,
 			array(
-				'type' => Erdo_Draft_Links_DB::REVIEW_APPROVED === $decision ? Erdo_Draft_Links_DB::FEEDBACK_TYPE_APPROVAL : Erdo_Draft_Links_DB::FEEDBACK_TYPE_CHANGES,
+				'type'         => Erdo_Draft_Links_DB::REVIEW_APPROVED === $decision ? Erdo_Draft_Links_DB::FEEDBACK_TYPE_APPROVAL : Erdo_Draft_Links_DB::FEEDBACK_TYPE_CHANGES,
+				'author_email' => $email,
 			)
 		);
 

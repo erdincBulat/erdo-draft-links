@@ -556,7 +556,11 @@ class Erdo_Draft_Links_Admin {
 			$reply = isset( $_POST['reply'] ) ? sanitize_textarea_field( wp_unslash( $_POST['reply'] ) ) : '';
 			if ( '' !== $reply ) {
 				$user = wp_get_current_user();
-				$this->db->add_reply( $feedback, (int) $user->ID, $user->display_name, $reply );
+				$reply_id = $this->db->add_reply( $feedback, (int) $user->ID, $user->display_name, $reply );
+				if ( $reply_id ) {
+					/** This action is documented in includes/class-erdo-draft-links-feedback-api.php */
+					do_action( 'erdo_draft_links_reply_added', $feedback, $reply_id );
+				}
 			}
 			wp_safe_redirect( add_query_arg( array( 'tab' => 'feedback', 'edl_message' => 'feedback_replied' ), admin_url( $page ) ) );
 			exit;

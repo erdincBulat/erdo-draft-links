@@ -98,6 +98,36 @@ class Erdo_Draft_Links_Notifications {
 	}
 
 	/**
+	 * Tells a reviewer who left their email that someone replied to them.
+	 *
+	 * @param object $item  The reviewer's top-level feedback item.
+	 * @param object $reply The reply row.
+	 * @param string $url   Their review link, or '' if it no longer opens.
+	 */
+	public function reply_to_visitor( object $item, object $reply, string $url ): void {
+		$post_title = get_the_title( (int) $item->post_id );
+
+		$body = sprintf(
+			/* translators: 1: name of the person who replied, 2: post title, 3: reply text */
+			__( "%1\$s replied to your feedback on \"%2\$s\":\n\n%3\$s", 'erdo-draft-links' ),
+			(string) $reply->author_name,
+			$post_title,
+			(string) $reply->message
+		);
+		if ( '' !== $url ) {
+			/* translators: %s: the reviewer's draft link */
+			$body .= "\n\n" . sprintf( __( 'See the conversation: %s', 'erdo-draft-links' ), $url );
+		}
+
+		wp_mail(
+			(string) $item->author_email,
+			/* translators: %s: post title */
+			sprintf( __( 'New reply about "%s"', 'erdo-draft-links' ), $post_title ),
+			$body
+		);
+	}
+
+	/**
 	 * @return string[]
 	 */
 	public function recipients( object $link ): array {
