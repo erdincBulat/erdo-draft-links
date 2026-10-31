@@ -30,7 +30,7 @@ class Erdo_Draft_Links_Cron {
 
 	public function run_cleanup(): void {
 		// Delete expired links older than 7 days so recent ones stay visible in admin.
-		$deleted = $this->db->delete_expired_links( 7 );
+		$deleted = $this->db->delete_expired_links( (int) Erdo_Draft_Links_Settings::get( 'cleanup_days' ) );
 		if ( $deleted > 0 ) {
 			update_option( 'erdo_draft_link_last_cleanup', array(
 				'time'    => current_time( 'mysql' ),

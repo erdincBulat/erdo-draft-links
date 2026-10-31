@@ -376,32 +376,43 @@ class Erdo_Draft_Links_DB {
 	// -------------------------------------------------------------------------
 	// Admin list methods
 	//
-	// $author_id > 0 limits results to posts written by that user — used for
-	// users who can't edit others' posts, so they only see their own links.
+	// $query keys (all optional):
+	//   status    'all' | 'active' | 'expired' | 'revoked'
+	//   author_id > 0 limits results to posts written by that user — used for
+	//             users who can't edit others' posts, so they only see their own.
+	//   search    matched against the link label and the post title.
+	//   orderby   'id' | 'created_at' | 'expires_at' | 'view_count' | 'last_viewed_at'
+	//   order     'asc' | 'desc'
 	// -------------------------------------------------------------------------
 
-	public function get_links_paginated( int $page, int $per_page, string $filter = 'all', int $author_id = 0 ): array {
+	const LINK_ORDERBY = array( 'id', 'created_at', 'expires_at', 'view_count', 'last_viewed_at' );
+
+	public function get_links_paginated( int $page, int $per_page, array $query = array() ): array {
 		global $wpdb;
 
 		$table = esc_sql( $this->table );
-		list( $where, $args ) = $this->links_where( $filter, $author_id );
+		list( $where, $args ) = $this->links_where( $query );
+
+		$orderby = in_array( $query['orderby'] ?? '', self::LINK_ORDERBY, true ) ? $query['orderby'] : 'id';
+		$order   = 'asc' === strtolower( (string) ( $query['order'] ?? '' ) ) ? 'ASC' : 'DESC';
 
 		$args[] = $per_page;
 		$args[] = ( $page - 1 ) * $per_page;
 
 		// $where is built only from fixed SQL and placeholders (links_where/feedback_where); its values are in $args.
+		// $orderby/$order come from the whitelist above.
 		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber, PluginCheck.Security.DirectDB.UnescapedDBParameter
-		$rows = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM `{$table}` WHERE {$where} ORDER BY id DESC LIMIT %d OFFSET %d", $args ) );
+		$rows = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM `{$table}` WHERE {$where} ORDER BY {$orderby} {$order}, id DESC LIMIT %d OFFSET %d", $args ) );
 		// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber, PluginCheck.Security.DirectDB.UnescapedDBParameter
 
 		return $rows ?: array();
 	}
 
-	public function get_links_count( string $filter = 'all', int $author_id = 0 ): int {
+	public function get_links_count( array $query = array() ): int {
 		global $wpdb;
 
 		$table = esc_sql( $this->table );
-		list( $where, $args ) = $this->links_where( $filter, $author_id );
+		list( $where, $args ) = $this->links_where( $query );
 		$sql = "SELECT COUNT(*) FROM `{$table}` WHERE {$where}";
 
 		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
@@ -414,19 +425,19 @@ class Erdo_Draft_Links_DB {
 	/**
 	 * @return array{0: string, 1: array} WHERE clause with placeholders, and its arguments.
 	 */
-	private function links_where( string $filter, int $author_id ): array {
+	private function links_where( array $query ): array {
 		global $wpdb;
 
 		$where = array( '1=1' );
 		$args  = array();
 
-		switch ( $filter ) {
+		switch ( $query['status'] ?? 'all' ) {
 			case 'active':
 				$where[] = 'is_active = 1 AND ( expires_at IS NULL OR expires_at > %s )';
 				$args[]  = gmdate( 'Y-m-d H:i:s' );
 				break;
 			case 'expired':
-				$where[] = 'expires_at IS NOT NULL AND expires_at <= %s';
+				$where[] = 'is_active = 1 AND expires_at IS NOT NULL AND expires_at <= %s';
 				$args[]  = gmdate( 'Y-m-d H:i:s' );
 				break;
 			case 'revoked':
@@ -434,9 +445,18 @@ class Erdo_Draft_Links_DB {
 				break;
 		}
 
+		$author_id = (int) ( $query['author_id'] ?? 0 );
 		if ( $author_id > 0 ) {
 			$where[] = "post_id IN ( SELECT ID FROM {$wpdb->posts} WHERE post_author = %d )";
 			$args[]  = $author_id;
+		}
+
+		$search = trim( (string) ( $query['search'] ?? '' ) );
+		if ( '' !== $search ) {
+			$like    = '%' . $wpdb->esc_like( $search ) . '%';
+			$where[] = "( label LIKE %s OR post_id IN ( SELECT ID FROM {$wpdb->posts} WHERE post_title LIKE %s ) )";
+			$args[]  = $like;
+			$args[]  = $like;
 		}
 
 		return array( implode( ' AND ', $where ), $args );
@@ -562,9 +582,9 @@ class Erdo_Draft_Links_DB {
 		$table        = esc_sql( $this->feedback_table );
 		$placeholders = implode( ',', array_fill( 0, count( $parent_ids ), '%d' ) );
 
-		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber
 		$rows = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM `{$table}` WHERE parent_id IN ( {$placeholders} ) ORDER BY id ASC", $parent_ids ) );
-		// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare
+		// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber
 
 		$grouped = array();
 		foreach ( (array) $rows as $row ) {
@@ -611,17 +631,21 @@ class Erdo_Draft_Links_DB {
 
 	public static function get_feedback_status_label( string $status ): string {
 		if ( self::FEEDBACK_STATUS_DONE === $status ) {
-			return __( 'Completed', 'erdo-draft-links' );
+			return __( 'Resolved', 'erdo-draft-links' );
 		}
 
-		return __( 'In Progress', 'erdo-draft-links' );
+		return __( 'Open', 'erdo-draft-links' );
 	}
 
-	public function get_feedback_paginated( int $page, int $per_page, int $post_id = 0, int $author_id = 0 ): array {
+	/**
+	 * $query keys (all optional): post_id, link_id, author_id (see links),
+	 * status 'open' | 'resolved' | 'decisions' | 'all'.
+	 */
+	public function get_feedback_paginated( int $page, int $per_page, array $query = array() ): array {
 		global $wpdb;
 
 		$table = esc_sql( $this->feedback_table );
-		list( $where, $args ) = $this->feedback_where( $post_id, $author_id );
+		list( $where, $args ) = $this->feedback_where( $query );
 
 		$args[] = $per_page;
 		$args[] = ( $page - 1 ) * $per_page;
@@ -634,11 +658,11 @@ class Erdo_Draft_Links_DB {
 		return $rows ?: array();
 	}
 
-	public function get_feedback_count( int $post_id = 0, int $author_id = 0 ): int {
+	public function get_feedback_count( array $query = array() ): int {
 		global $wpdb;
 
 		$table = esc_sql( $this->feedback_table );
-		list( $where, $args ) = $this->feedback_where( $post_id, $author_id );
+		list( $where, $args ) = $this->feedback_where( $query );
 		$sql = "SELECT COUNT(*) FROM `{$table}` WHERE {$where}";
 
 		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
@@ -649,19 +673,67 @@ class Erdo_Draft_Links_DB {
 	}
 
 	/**
+	 * Open (unresolved) comments, notes and change requests per link.
+	 *
+	 * @param int[] $link_ids
+	 * @return array<int, int> Link id => count; links with none are left out.
+	 */
+	public function count_open_feedback_by_link( array $link_ids ): array {
+		$link_ids = array_values( array_filter( array_map( 'intval', $link_ids ) ) );
+		if ( ! $link_ids ) {
+			return array();
+		}
+
+		global $wpdb;
+
+		$table        = esc_sql( $this->feedback_table );
+		$placeholders = implode( ',', array_fill( 0, count( $link_ids ), '%d' ) );
+		$args         = array_merge( $link_ids, array( self::FEEDBACK_TYPE_COMMENT, self::FEEDBACK_TYPE_ANNOTATION, self::FEEDBACK_TYPE_CHANGES, self::FEEDBACK_STATUS_OPEN ) );
+
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber
+		$rows = $wpdb->get_results( $wpdb->prepare( "SELECT link_id, COUNT(*) AS n FROM `{$table}` WHERE link_id IN ( {$placeholders} ) AND parent_id = 0 AND type IN ( %s, %s, %s ) AND status = %s GROUP BY link_id", $args ) );
+		// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber
+
+		$counts = array();
+		foreach ( (array) $rows as $row ) {
+			$counts[ (int) $row->link_id ] = (int) $row->n;
+		}
+		return $counts;
+	}
+
+	/**
 	 * @return array{0: string, 1: array} WHERE clause with placeholders, and its arguments.
 	 */
-	private function feedback_where( int $post_id, int $author_id ): array {
+	private function feedback_where( array $query ): array {
 		global $wpdb;
 
 		$where = array( 'parent_id = 0' );
 		$args  = array();
 
-		if ( $post_id > 0 ) {
-			$where[] = 'post_id = %d';
-			$args[]  = $post_id;
+		foreach ( array( 'post_id', 'link_id' ) as $key ) {
+			$id = (int) ( $query[ $key ] ?? 0 );
+			if ( $id > 0 ) {
+				$where[] = "{$key} = %d";
+				$args[]  = $id;
+			}
 		}
 
+		switch ( $query['status'] ?? 'all' ) {
+			case 'open':
+				$where[] = 'status = %s AND type IN ( %s, %s, %s )';
+				array_push( $args, self::FEEDBACK_STATUS_OPEN, self::FEEDBACK_TYPE_COMMENT, self::FEEDBACK_TYPE_ANNOTATION, self::FEEDBACK_TYPE_CHANGES );
+				break;
+			case 'resolved':
+				$where[] = 'status = %s AND type <> %s';
+				array_push( $args, self::FEEDBACK_STATUS_DONE, self::FEEDBACK_TYPE_APPROVAL );
+				break;
+			case 'decisions':
+				$where[] = 'type IN ( %s, %s )';
+				array_push( $args, self::FEEDBACK_TYPE_APPROVAL, self::FEEDBACK_TYPE_CHANGES );
+				break;
+		}
+
+		$author_id = (int) ( $query['author_id'] ?? 0 );
 		if ( $author_id > 0 ) {
 			$where[] = "post_id IN ( SELECT ID FROM {$wpdb->posts} WHERE post_author = %d )";
 			$args[]  = $author_id;

@@ -12,6 +12,7 @@ class Erdo_Draft_Links_Notifications {
 		$post_title = get_the_title( (int) $link->post_id );
 
 		$this->send(
+			'first_view',
 			$link,
 			sprintf(
 				/* translators: %s: post title */
@@ -23,7 +24,7 @@ class Erdo_Draft_Links_Notifications {
 				__( "The \"%1\$s\" draft link for \"%2\$s\" was just opened for the first time.\n\nManage links: %3\$s", 'erdo-draft-links' ),
 				$this->label( $link ),
 				$post_title,
-				admin_url( 'tools.php?page=erdo-draft-links-manager' )
+				Erdo_Draft_Links_Admin_Pages::url( 'links' )
 			)
 		);
 	}
@@ -32,6 +33,7 @@ class Erdo_Draft_Links_Notifications {
 		$post_title = get_the_title( (int) $link->post_id );
 
 		$this->send(
+			'feedback',
 			$link,
 			sprintf(
 				/* translators: %s: post title */
@@ -44,7 +46,7 @@ class Erdo_Draft_Links_Notifications {
 				$name,
 				$post_title,
 				$message,
-				admin_url( 'tools.php?page=erdo-draft-links-manager&tab=feedback' )
+				Erdo_Draft_Links_Admin_Pages::url( 'feedback', array( 'post_id' => (int) $link->post_id ) )
 			)
 		);
 	}
@@ -74,13 +76,14 @@ class Erdo_Draft_Links_Notifications {
 			$body .= "\n\n" . sprintf( __( 'Open the post: %s', 'erdo-draft-links' ), $edit_link );
 		}
 
-		$this->send( $link, $subject, $body );
+		$this->send( 'review', $link, $subject, $body );
 	}
 
 	public function link_requested( object $link ): void {
 		$post_title = get_the_title( (int) $link->post_id );
 
 		$this->send(
+			'link_requested',
 			$link,
 			sprintf(
 				/* translators: %s: post title */
@@ -143,6 +146,7 @@ class Erdo_Draft_Links_Notifications {
 		if ( ! $emails ) {
 			$emails[] = (string) get_option( 'admin_email' );
 		}
+		$emails = array_merge( $emails, Erdo_Draft_Links_Settings::extra_recipients() );
 
 		/**
 		 * Filters who receives emails about a draft link.
@@ -153,7 +157,13 @@ class Erdo_Draft_Links_Notifications {
 		return array_values( array_unique( array_filter( (array) apply_filters( 'erdo_draft_links_notification_recipients', $emails, $link ), 'is_email' ) ) );
 	}
 
-	private function send( object $link, string $subject, string $body ): void {
+	/**
+	 * @param string $event One of Erdo_Draft_Links_Settings::EVENTS; skipped when switched off.
+	 */
+	private function send( string $event, object $link, string $subject, string $body ): void {
+		if ( ! Erdo_Draft_Links_Settings::notify_enabled( $event ) ) {
+			return;
+		}
 		$to = $this->recipients( $link );
 		if ( $to ) {
 			wp_mail( $to, $subject, $body );

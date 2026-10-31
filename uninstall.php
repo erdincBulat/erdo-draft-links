@@ -3,6 +3,14 @@ defined( 'WP_UNINSTALL_PLUGIN' ) || exit;
 
 global $wpdb;
 
+// "Remove all links, feedback and settings" (on by default) can be switched
+// off on Draft Links → Settings to keep the data for a reinstall.
+$erdo_draft_links_settings = get_option( 'erdo_draft_link_settings' );
+if ( is_array( $erdo_draft_links_settings ) && array_key_exists( 'delete_data', $erdo_draft_links_settings ) && ! $erdo_draft_links_settings['delete_data'] ) {
+	wp_clear_scheduled_hook( 'erdo_draft_link_daily_cleanup' );
+	return;
+}
+
 // phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.DirectDatabaseQuery.SchemaChange
 $wpdb->query( "DROP TABLE IF EXISTS `{$wpdb->prefix}erdo_draft_links`" );
 $wpdb->query( "DROP TABLE IF EXISTS `{$wpdb->prefix}erdo_draft_feedback`" );

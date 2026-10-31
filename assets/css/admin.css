@@ -278,54 +278,7 @@
 	margin-top: 8px;
 }
 
-/* wp-admin manager page */
-.erdo-draft-links-manager .erdo-draft-links-cleanup-note {
-	color: #666;
-	font-size: 12px;
-	margin: 4px 0 12px;
-}
-
-.erdo-draft-links-post-type-option {
-	display: block;
-	margin: 8px 0;
-}
-
-.erdo-draft-links-post-type-option code {
-	margin-left: 4px;
-	color: #666;
-}
-
-.erdo-draft-links-badge {
-	display: inline-block;
-	padding: 2px 8px;
-	border-radius: 10px;
-	font-size: 11px;
-	font-weight: 600;
-	text-transform: uppercase;
-	letter-spacing: 0.5px;
-}
-
-.erdo-draft-links-badge--active {
-	background: #d1fae5;
-	color: #065f46;
-}
-
-.erdo-draft-links-badge--expired {
-	background: #fef3c7;
-	color: #92400e;
-}
-
-.erdo-draft-links-badge--revoked {
-	background: #fee2e2;
-	color: #991b1b;
-}
-
-.erdo-draft-links-never {
-	color: #999;
-	font-style: italic;
-}
-
-/* ---- Reveal-on-click link + copy (Links table) ---- */
+/* ---- Reveal-on-click link + copy (Classic Editor meta box) ---- */
 .erdo-draft-links-reveal {
 	display: flex;
 	flex-wrap: wrap;
@@ -359,38 +312,247 @@
 	color: #00782f;
 }
 
-/* ---- Feedback status ---- */
-.erdo-draft-feedback-status {
-	display: inline-block;
-	padding: 2px 8px;
-	border-radius: 10px;
-	font-size: 11px;
-	font-weight: 600;
-	text-transform: uppercase;
-	letter-spacing: 0.5px;
-}
+/* ==========================================================================
+   Draft Links admin pages, Posts list column, dashboard widget
+   ========================================================================== */
 
-.erdo-draft-feedback-status--in_progress {
-	background: #fef3c7;
-	color: #92400e;
-}
-
-.erdo-draft-feedback-status--completed {
-	background: #d1fae5;
-	color: #065f46;
-}
-
-/* ---- Feedback reply form (Feedback tab) ---- */
-.erdo-draft-feedback-reply-form {
-	margin-top: 8px;
-}
-
-.erdo-draft-feedback-thread-reply {
+.erdo-dl-admin .erdo-dl-intro {
 	margin: 8px 0 0;
-	padding-left: 8px;
+	color: #50575e;
+}
+
+.erdo-dl-admin .erdo-dl-cleanup-note {
+	margin-top: 16px;
+}
+
+.erdo-dl-filter-note {
+	margin: 12px 0 0;
+	padding: 8px 12px;
+	background: #f0f6fc;
+	border-left: 4px solid #72aee6;
+}
+
+.erdo-dl-muted {
+	color: #646970;
+}
+
+a.erdo-dl-muted {
+	text-decoration: none;
+}
+
+a.erdo-dl-muted:hover,
+a.erdo-dl-muted:focus {
+	color: #2271b1;
+	text-decoration: underline;
+}
+
+.erdo-dl-cell-sub {
+	display: block;
+	margin-top: 2px;
+	color: #646970;
+	font-size: 12px;
+}
+
+.erdo-dl-cell-sub .dashicons {
+	width: 14px;
+	height: 14px;
+	margin-right: 2px;
+	font-size: 14px;
+	vertical-align: -2px;
+}
+
+.erdo-dl-cell-label {
+	font-weight: 600;
+}
+
+/* Status / review badges */
+.erdo-dl-badge {
+	display: inline-block;
+	padding: 1px 8px;
+	border-radius: 2px;
+	font-size: 12px;
+	font-weight: 500;
+	line-height: 1.7;
+	white-space: nowrap;
+}
+
+.erdo-dl-badge--active   { background: #edfaef; color: #00692b; }
+.erdo-dl-badge--approved { background: #edfaef; color: #00692b; }
+.erdo-dl-badge--open     { background: #f0f6fc; color: #135e96; }
+.erdo-dl-badge--changes  { background: #fcf9e8; color: #7a5200; }
+.erdo-dl-badge--warning  { background: #fcf0f1; color: #a00; }
+.erdo-dl-badge--off      { background: #f0f0f1; color: #50575e; }
+
+.erdo-dl-badge--team {
+	padding: 0 6px;
+	background: #2271b1;
+	color: #fff;
+	font-size: 11px;
+	line-height: 1.6;
+}
+
+.erdo-dl-count {
+	display: inline-block;
+	min-width: 22px;
+	padding: 0 7px;
+	border-radius: 11px;
+	background: #2271b1;
+	color: #fff;
+	font-weight: 600;
+	line-height: 22px;
+	text-align: center;
+	text-decoration: none;
+}
+
+.erdo-dl-count:hover,
+.erdo-dl-count:focus {
+	background: #135e96;
+	color: #fff;
+}
+
+/* Copy buttons in row actions */
+.erdo-dl-copy.button-link {
+	color: #2271b1;
+	font-size: 13px;
+	text-decoration: none;
+}
+
+.erdo-dl-copy.button-link:hover {
+	color: #135e96;
+	text-decoration: underline;
+}
+
+.erdo-dl-copy.is-copied {
+	color: #00692b;
+}
+
+/* Links table */
+.erdo-dl-admin .wp-list-table .column-status,
+.erdo-dl-admin .wp-list-table .column-review {
+	width: 15%;
+}
+
+.erdo-dl-admin .wp-list-table .column-view_count,
+.erdo-dl-admin .wp-list-table .column-created_at {
+	width: 11%;
+}
+
+.erdo-dl-admin .wp-list-table .column-feedback {
+	width: 9%;
+}
+
+/* Feedback table */
+.erdo-dl-admin .wp-list-table .column-post {
+	width: 22%;
+}
+
+.erdo-dl-admin .wp-list-table .column-status,
+.erdo-dl-admin .wp-list-table .column-date {
+	width: 10%;
+}
+
+.erdo-dl-fb-head {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 4px 8px;
+}
+
+.erdo-dl-type {
+	display: inline-flex;
+	align-items: center;
+	gap: 2px;
+	color: #50575e;
+	font-size: 12px;
+	font-weight: 500;
+}
+
+.erdo-dl-type .dashicons {
+	width: 16px;
+	height: 16px;
+	font-size: 16px;
+}
+
+.erdo-dl-type--note     { color: #135e96; }
+.erdo-dl-type--approved { color: #00692b; }
+.erdo-dl-type--changes  { color: #7a5200; }
+
+.erdo-dl-fb-message {
+	margin: 6px 0 0;
+	max-width: 70ch;
+	font-size: 14px;
+	line-height: 1.5;
+}
+
+.erdo-dl-fb-thread {
+	margin: 10px 0 0;
+	padding: 0 0 0 12px;
 	border-left: 2px solid #dcdcde;
 }
 
-.erdo-draft-feedback-reply-input {
-	font-size: 12px;
+.erdo-dl-fb-thread li {
+	margin: 0 0 8px;
+}
+
+.erdo-dl-fb-thread li.is-staff {
+	margin-left: -14px;
+	padding-left: 12px;
+	border-left: 2px solid #2271b1;
+}
+
+.erdo-dl-fb-reply {
+	margin-top: 8px;
+}
+
+.erdo-dl-fb-reply summary {
+	display: inline-block;
+	color: #2271b1;
+	cursor: pointer;
+}
+
+.erdo-dl-fb-reply[open] summary {
+	margin-bottom: 6px;
+}
+
+.erdo-dl-fb-reply textarea {
+	max-width: 70ch;
+}
+
+.erdo-dl-fb-reply .description {
+	margin: 4px 0 6px;
+}
+
+/* Posts list "Review" column */
+.wp-list-table .column-erdo_review {
+	width: 12%;
+}
+
+/* Dashboard widget */
+.erdo-dl-dash {
+	margin: 0;
+}
+
+.erdo-dl-dash li {
+	margin: 0;
+	padding: 10px 0;
+	border-bottom: 1px solid #f0f0f1;
+}
+
+.erdo-dl-dash__msg {
+	margin-top: 2px;
+	color: #3c434a;
+}
+
+.erdo-dl-dash__all {
+	margin: 10px 0 0;
+}
+
+@media screen and (max-width: 782px) {
+	.erdo-dl-admin .wp-list-table .column-status,
+	.erdo-dl-admin .wp-list-table .column-review,
+	.erdo-dl-admin .wp-list-table .column-feedback,
+	.erdo-dl-admin .wp-list-table .column-post,
+	.erdo-dl-admin .wp-list-table .column-date {
+		width: auto;
+	}
 }

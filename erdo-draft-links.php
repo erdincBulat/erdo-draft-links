@@ -56,6 +56,10 @@ add_action( 'plugins_loaded', function (): void {
 	$notifications = new Erdo_Draft_Links_Notifications();
 	$review        = new Erdo_Draft_Links_Review( $db, $session, $notifications );
 	$admin         = new Erdo_Draft_Links_Admin( $db, $token, $review );
+	$settings      = new Erdo_Draft_Links_Settings();
+	$admin_pages   = new Erdo_Draft_Links_Admin_Pages( $db, $token, $review, $settings );
+	$post_list     = new Erdo_Draft_Links_Post_List( $db, $token, $review );
+	$dashboard     = new Erdo_Draft_Links_Dashboard( $db );
 	$feedback_api  = new Erdo_Draft_Links_Feedback_Api( $db, $review );
 	$visitor_api   = new Erdo_Draft_Links_Visitor_Api( $db, $token, $session, $review, $notifications );
 	$frontend      = new Erdo_Draft_Links_Frontend( $db, $token, $session, new Erdo_Draft_Links_Status_Page(), $notifications );
@@ -64,6 +68,10 @@ add_action( 'plugins_loaded', function (): void {
 	( new Erdo_Draft_Links_Migrator( $db, $token ) )->maybe_upgrade();
 	$review->register( $loader );
 	$admin->register( $loader );
+	$settings->register( $loader );
+	$admin_pages->register( $loader );
+	$post_list->register( $loader );
+	$dashboard->register( $loader );
 	$feedback_api->register( $loader );
 	$visitor_api->register( $loader );
 	$frontend->register( $loader );

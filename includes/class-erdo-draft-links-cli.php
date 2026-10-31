@@ -152,7 +152,7 @@ class Erdo_Draft_Links_CLI extends WP_CLI_Command {
 	 */
 	public function list_( array $args, array $assoc_args ): void {
 		$status = $assoc_args['status'] ?? 'all';
-		$rows   = $this->db->get_links_paginated( 1, 10000, $status );
+		$rows   = $this->db->get_links_paginated( 1, 10000, array( 'status' => $status ) );
 
 		if ( isset( $assoc_args['post_id'] ) ) {
 			$post_id = (int) $assoc_args['post_id'];
