@@ -111,7 +111,7 @@ class Erdo_Draft_Links_Admin {
 		$links   = $this->db->get_active_links_by_post( $post_id );
 
 		return new WP_REST_Response(
-			array( 'links' => array_map( fn( $link ) => $this->link_to_response( $link, $post_id ), $links ) ),
+			array( 'links' => array_map( fn( $link ) => $this->link_to_response( $link ), $links ) ),
 			200
 		);
 	}
@@ -120,6 +120,17 @@ class Erdo_Draft_Links_Admin {
 		$post_id = (int) $request->get_param( 'post_id' );
 		$label   = mb_substr( (string) $request->get_param( 'label' ), 0, 100 );
 		$expiry  = $request->get_param( 'expiry' );
+
+		$post = get_post( $post_id );
+		if ( ! $post || ! in_array( $post->post_type, Erdo_Draft_Links_Post_Types::get_supported(), true ) ) {
+			return new WP_REST_Response( array( 'error' => __( 'Draft links are not enabled for this post type.', 'erdo-draft-links' ) ), 400 );
+		}
+		if ( 'auto-draft' === $post->post_status ) {
+			return new WP_REST_Response( array( 'error' => __( 'Save the post first, then generate a draft link.', 'erdo-draft-links' ) ), 400 );
+		}
+		if ( 'trash' === $post->post_status ) {
+			return new WP_REST_Response( array( 'error' => __( 'Draft links cannot be generated for posts in the trash.', 'erdo-draft-links' ) ), 400 );
+		}
 
 		if ( 'custom' === $expiry ) {
 			$expires_at = $this->compute_custom_expires_at( (string) $request->get_param( 'custom_expiry' ) );
@@ -131,14 +142,14 @@ class Erdo_Draft_Links_Admin {
 		}
 
 		$token_data = $this->token->generate();
-		$link_id    = $this->db->insert_link( $post_id, $label, $token_data['hash'], $token_data['raw'], $expires_at );
+		$link_id    = $this->db->insert_link( $post_id, $label, $token_data['hash'], $token_data['enc'], $expires_at );
 
 		if ( ! $link_id ) {
 			return new WP_REST_Response( array( 'error' => __( 'Could not save the link. Please try again.', 'erdo-draft-links' ) ), 500 );
 		}
 
 		$link = $this->db->get_link_by_id( $link_id );
-		return new WP_REST_Response( $this->link_to_response( $link, $post_id ), 201 );
+		return new WP_REST_Response( $this->link_to_response( $link ), 201 );
 	}
 
 	public function rest_revoke_link( WP_REST_Request $request ): WP_REST_Response {
@@ -188,7 +199,7 @@ class Erdo_Draft_Links_Admin {
 
 			<div class="erdo-draft-links-list" id="erdo-draft-links-list">
 				<?php foreach ( $links as $link ) : ?>
-					<?php echo $this->render_link_row( $post->ID, $link ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- built via esc_*() calls inside render_link_row(). ?>
+					<?php echo $this->render_link_row( $link ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- built via esc_*() calls inside render_link_row(). ?>
 				<?php endforeach; ?>
 			</div>
 
@@ -230,7 +241,7 @@ class Erdo_Draft_Links_Admin {
 		<?php
 	}
 
-	private function render_link_row( int $post_id, object $link ): string {
+	private function render_link_row( object $link ): string {
 		$label = '' !== $link->label ? $link->label : __( 'Untitled link', 'erdo-draft-links' );
 
 		ob_start();
@@ -246,7 +257,7 @@ class Erdo_Draft_Links_Admin {
 				<input type="text"
 				       readonly
 				       class="erdo-draft-links-url widefat"
-				       value="<?php echo esc_attr( $this->build_url( $post_id, $link->token_raw ) ); ?>"
+				       value="<?php echo esc_attr( $this->token->link_url( $link ) ); ?>"
 				/>
 				<button type="button" class="button erdo-draft-links-copy">
 					<?php esc_html_e( 'Copy', 'erdo-draft-links' ); ?>
@@ -422,12 +433,14 @@ class Erdo_Draft_Links_Admin {
 				return;
 			}
 			check_admin_referer( 'erdo_draft_feedback_reply_' . $feedback_id );
-			if ( ! current_user_can( 'edit_posts' ) ) {
-				wp_die( esc_html__( 'You do not have permission to perform this action.', 'erdo-draft-links' ) );
+			$feedback = $this->db->get_feedback_by_id( $feedback_id );
+			if ( ! $feedback ) {
+				return;
 			}
+			$this->deny_unless_can_manage_post_row( (int) $feedback->post_id );
 			$reply = isset( $_POST['reply'] ) ? sanitize_textarea_field( wp_unslash( $_POST['reply'] ) ) : '';
 			$this->db->add_feedback_reply( $feedback_id, $reply );
-			wp_safe_redirect( add_query_arg( array( 'tab' => 'feedback', 'gl_message' => 'feedback_replied' ), admin_url( $page ) ) );
+			wp_safe_redirect( add_query_arg( array( 'tab' => 'feedback', 'edl_message' => 'feedback_replied' ), admin_url( $page ) ) );
 			exit;
 		}
 
@@ -444,7 +457,7 @@ class Erdo_Draft_Links_Admin {
 			$valid    = wp_list_pluck( Erdo_Draft_Links_Post_Types::get_selectable(), 'name' );
 			$selected = array_values( array_intersect( $selected, $valid ) );
 			update_option( Erdo_Draft_Links_Post_Types::OPTION_KEY, $selected );
-			wp_safe_redirect( add_query_arg( array( 'tab' => 'settings', 'gl_message' => 'settings_saved' ), admin_url( $page ) ) );
+			wp_safe_redirect( add_query_arg( array( 'tab' => 'settings', 'edl_message' => 'settings_saved' ), admin_url( $page ) ) );
 			exit;
 		}
 
@@ -454,11 +467,13 @@ class Erdo_Draft_Links_Admin {
 				return;
 			}
 			check_admin_referer( 'erdo_draft_feedback_delete_' . $feedback_id );
-			if ( ! current_user_can( 'edit_posts' ) ) {
-				wp_die( esc_html__( 'You do not have permission to perform this action.', 'erdo-draft-links' ) );
+			$feedback = $this->db->get_feedback_by_id( $feedback_id );
+			if ( ! $feedback ) {
+				return;
 			}
+			$this->deny_unless_can_manage_post_row( (int) $feedback->post_id );
 			$this->db->delete_feedback( $feedback_id );
-			wp_safe_redirect( add_query_arg( array( 'tab' => 'feedback', 'gl_message' => 'feedback_deleted' ), admin_url( $page ) ) );
+			wp_safe_redirect( add_query_arg( array( 'tab' => 'feedback', 'edl_message' => 'feedback_deleted' ), admin_url( $page ) ) );
 			exit;
 		}
 
@@ -469,11 +484,13 @@ class Erdo_Draft_Links_Admin {
 				return;
 			}
 			check_admin_referer( 'erdo_draft_feedback_status_' . $feedback_id );
-			if ( ! current_user_can( 'edit_posts' ) ) {
-				wp_die( esc_html__( 'You do not have permission to perform this action.', 'erdo-draft-links' ) );
+			$feedback = $this->db->get_feedback_by_id( $feedback_id );
+			if ( ! $feedback ) {
+				return;
 			}
+			$this->deny_unless_can_manage_post_row( (int) $feedback->post_id );
 			$this->db->update_feedback_status( $feedback_id, $status );
-			wp_safe_redirect( add_query_arg( array( 'tab' => 'feedback', 'gl_message' => 'feedback_status_updated' ), admin_url( $page ) ) );
+			wp_safe_redirect( add_query_arg( array( 'tab' => 'feedback', 'edl_message' => 'feedback_status_updated' ), admin_url( $page ) ) );
 			exit;
 		}
 
@@ -490,19 +507,21 @@ class Erdo_Draft_Links_Admin {
 
 		check_admin_referer( 'erdo_draft_link_action_' . $link_id );
 
-		if ( ! current_user_can( 'edit_posts' ) ) {
-			wp_die( esc_html__( 'You do not have permission to perform this action.', 'erdo-draft-links' ) );
+		$link = $this->db->get_link_by_id( $link_id );
+		if ( ! $link ) {
+			return;
 		}
+		$this->deny_unless_can_manage_post_row( (int) $link->post_id );
 
 		if ( 'erdo_draft_link_revoke' === $action ) {
 			$this->db->revoke_link_by_id( $link_id );
-			wp_safe_redirect( add_query_arg( 'gl_message', 'revoked', admin_url( $page ) ) );
+			wp_safe_redirect( add_query_arg( 'edl_message', 'revoked', admin_url( $page ) ) );
 			exit;
 		}
 
 		if ( 'erdo_draft_link_delete' === $action ) {
 			$this->db->delete_link_by_id( $link_id );
-			wp_safe_redirect( add_query_arg( 'gl_message', 'deleted', admin_url( $page ) ) );
+			wp_safe_redirect( add_query_arg( 'edl_message', 'deleted', admin_url( $page ) ) );
 			exit;
 		}
 	}
@@ -518,12 +537,14 @@ class Erdo_Draft_Links_Admin {
 		$ids     = array_map( 'absint', $_GET['link_ids'] ); // phpcs:ignore WordPress.Security.NonceVerification
 		$deleted = 0;
 		foreach ( $ids as $id ) {
-			if ( $id > 0 ) {
+			$link = $id > 0 ? $this->db->get_link_by_id( $id ) : null;
+			// Silently skip rows this user may not manage (e.g. a tampered request).
+			if ( $link && $this->can_manage_post_row( (int) $link->post_id ) ) {
 				$this->db->delete_link_by_id( $id );
 				++$deleted;
 			}
 		}
-		wp_safe_redirect( add_query_arg( array( 'gl_message' => 'bulk_deleted', 'gl_count' => $deleted ), admin_url( 'tools.php?page=erdo-draft-links-manager' ) ) );
+		wp_safe_redirect( add_query_arg( array( 'edl_message' => 'bulk_deleted', 'edl_count' => $deleted ), admin_url( 'tools.php?page=erdo-draft-links-manager' ) ) );
 		exit;
 	}
 
@@ -553,8 +574,11 @@ class Erdo_Draft_Links_Admin {
 
 		$tab = isset( $_GET['tab'] ) ? sanitize_key( $_GET['tab'] ) : 'links'; // phpcs:ignore WordPress.Security.NonceVerification
 
-		$message = isset( $_GET['gl_message'] ) ? sanitize_key( $_GET['gl_message'] ) : ''; // phpcs:ignore WordPress.Security.NonceVerification
-		$count   = isset( $_GET['gl_count'] ) ? absint( $_GET['gl_count'] ) : 0; // phpcs:ignore WordPress.Security.NonceVerification
+		// gl_* are the pre-2.0 parameter names, still read so old bookmarks work.
+		// phpcs:disable WordPress.Security.NonceVerification
+		$message = isset( $_GET['edl_message'] ) ? sanitize_key( $_GET['edl_message'] ) : ( isset( $_GET['edl_message'] ) ? sanitize_key( $_GET['edl_message'] ) : '' );
+		$count   = isset( $_GET['edl_count'] ) ? absint( $_GET['edl_count'] ) : ( isset( $_GET['gl_count'] ) ? absint( $_GET['gl_count'] ) : 0 );
+		// phpcs:enable WordPress.Security.NonceVerification
 
 		$last_cleanup = get_option( 'erdo_draft_link_last_cleanup' );
 		$base_url     = admin_url( 'tools.php?page=erdo-draft-links-manager' );
@@ -574,7 +598,7 @@ class Erdo_Draft_Links_Admin {
 					printf(
 						/* translators: %d: number of feedback entries */
 						esc_html__( 'Feedback (%d)', 'erdo-draft-links' ),
-						(int) $this->db->get_feedback_count()
+						(int) $this->db->get_feedback_count( 0, $this->scope_author_id() )
 					);
 					?>
 				</a>
@@ -590,14 +614,14 @@ class Erdo_Draft_Links_Admin {
 				<?php
 				switch ( $message ) {
 					case 'revoked':
-						esc_html_e( 'Ghost link revoked.', 'erdo-draft-links' );
+						esc_html_e( 'Draft link revoked.', 'erdo-draft-links' );
 						break;
 					case 'deleted':
-						esc_html_e( 'Ghost link deleted.', 'erdo-draft-links' );
+						esc_html_e( 'Draft link deleted.', 'erdo-draft-links' );
 						break;
 					case 'bulk_deleted':
 						/* translators: %d: number of deleted links */
-						printf( esc_html__( '%d ghost link(s) deleted.', 'erdo-draft-links' ), (int) $count );
+						printf( esc_html( _n( '%d draft link deleted.', '%d draft links deleted.', $count, 'erdo-draft-links' ) ), (int) $count );
 						break;
 					case 'feedback_deleted':
 						esc_html_e( 'Feedback deleted.', 'erdo-draft-links' );
@@ -622,7 +646,7 @@ class Erdo_Draft_Links_Admin {
 				// Not wrapped in a <form> like the Links tab: this table has no bulk
 				// actions or search box, and each row renders its own reply <form> —
 				// nesting that inside an outer <form> would be invalid HTML.
-				$feedback_table = new Erdo_Draft_Links_Feedback_List( $this->db );
+				$feedback_table = new Erdo_Draft_Links_Feedback_List( $this->db, 0, $this->scope_author_id() );
 				$feedback_table->prepare_items();
 				$feedback_table->display();
 				?>
@@ -647,7 +671,7 @@ class Erdo_Draft_Links_Admin {
 				<?php endif; ?>
 
 				<?php
-				$list_table = new Erdo_Draft_Links_Admin_List( $this->db );
+				$list_table = new Erdo_Draft_Links_Admin_List( $this->db, $this->token, $this->scope_author_id() );
 				$list_table->prepare_items();
 				?>
 				<form method="get">
@@ -669,7 +693,7 @@ class Erdo_Draft_Links_Admin {
 		?>
 		<h2><?php esc_html_e( 'Supported Post Types', 'erdo-draft-links' ); ?></h2>
 		<p class="description">
-			<?php esc_html_e( 'Choose which post types can have Erdo Draft Links generated for them.', 'erdo-draft-links' ); ?>
+			<?php esc_html_e( 'Choose which post types can have draft links generated for them.', 'erdo-draft-links' ); ?>
 		</p>
 		<form method="post">
 			<?php wp_nonce_field( 'erdo_draft_links_save_settings' ); ?>
@@ -729,19 +753,42 @@ class Erdo_Draft_Links_Admin {
 		return $gmt_string;
 	}
 
-	private function build_url( int $post_id, string $token_raw ): string {
-		return add_query_arg( 'erdo_token', $token_raw, get_permalink( $post_id ) );
+	private function link_to_response( object $link ): array {
+		return array(
+			'id'              => (int) $link->id,
+			'label'           => $link->label,
+			'url'             => $this->token->link_url( $link ),
+			// ISO 8601 UTC for machines, plus a ready-made string in the site's
+			// timezone and date format for the editor UIs.
+			'expires_at'      => $link->expires_at ? gmdate( 'Y-m-d\TH:i:s\Z', strtotime( $link->expires_at ) ) : null,
+			'expires_display' => $link->expires_at ? wp_date( get_option( 'date_format' ) . ' ' . get_option( 'time_format' ), strtotime( $link->expires_at ) ) : null,
+			'view_count'      => (int) $link->view_count,
+			'is_active'       => (bool) $link->is_active,
+		);
 	}
 
-	private function link_to_response( object $link, int $post_id ): array {
-		return array(
-			'id'         => (int) $link->id,
-			'label'      => $link->label,
-			'url'        => $this->build_url( $post_id, $link->token_raw ),
-			'expires_at' => $link->expires_at,
-			'view_count' => (int) $link->view_count,
-			'is_active'  => (bool) $link->is_active,
-		);
+	/**
+	 * Users who can't edit others' posts only see links and feedback for their
+	 * own posts. Returns the author id to filter by, or 0 for no filter.
+	 */
+	private function scope_author_id(): int {
+		return current_user_can( 'edit_others_posts' ) ? 0 : get_current_user_id();
+	}
+
+	/**
+	 * Whether the current user may act on a link/feedback row of this post.
+	 * Rows whose post was deleted fall back to edit_others_posts.
+	 */
+	private function can_manage_post_row( int $post_id ): bool {
+		return get_post( $post_id )
+			? current_user_can( 'edit_post', $post_id )
+			: current_user_can( 'edit_others_posts' );
+	}
+
+	private function deny_unless_can_manage_post_row( int $post_id ): void {
+		if ( ! $this->can_manage_post_row( $post_id ) ) {
+			wp_die( esc_html__( 'You do not have permission to perform this action.', 'erdo-draft-links' ), '', array( 'response' => 403 ) );
+		}
 	}
 
 	private function post_id_arg(): array {

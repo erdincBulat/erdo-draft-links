@@ -35,6 +35,8 @@ class Erdo_Draft_Links_Frontend {
 
 		$loader->add_action( 'wp_enqueue_scripts', $this, 'enqueue_feedback_assets' );
 
+		$loader->add_filter( 'wp_robots', $this, 'filter_robots' );
+
 		$loader->add_action( 'rest_api_init', $this, 'register_rest_routes' );
 	}
 
@@ -81,7 +83,7 @@ class Erdo_Draft_Links_Frontend {
 		}
 
 		$post_id     = $cookie_data['post_id'];
-		$feedback_id = $this->db->add_feedback( $post_id, $name, $message );
+		$feedback_id = $this->db->add_feedback( $post_id, $cookie_data['link_id'], $name, $message );
 
 		if ( ! $feedback_id ) {
 			return new WP_Error( 'erdo_feedback_failed', __( 'An error occurred. Please try again.', 'erdo-draft-links' ), array( 'status' => 500 ) );
@@ -118,13 +120,24 @@ class Erdo_Draft_Links_Frontend {
 
 		$raw_token = sanitize_text_field( wp_unslash( $_GET['erdo_token'] ) ); // phpcs:ignore WordPress.Security.NonceVerification
 
+		// Keep the token URL (and whatever it answers) out of search indexes,
+		// caches and the Referer header sent to any third-party asset.
+		$this->send_private_headers();
+		header( 'Referrer-Policy: no-referrer' );
+
 		// Format guard: exactly 32 alphanumeric characters.
 		if ( ! ctype_alnum( $raw_token ) || strlen( $raw_token ) !== 32 ) {
 			$this->die_invalid();
 		}
 
-		$prefix = substr( $raw_token, 0, 20 );
-		$link   = $this->db->get_active_link_by_token_prefix( $prefix );
+		// Chat apps, mail scanners and browser prefetches open links on their
+		// own. They get a neutral page: no view counted, no "first view" email,
+		// no cookie, and nothing about the draft (not even its title).
+		if ( $this->is_automated_request() ) {
+			$this->render_neutral_page();
+		}
+
+		$link = $this->db->get_link_by_token_hash( $this->token->hash( $raw_token ) );
 
 		if ( ! $link || ! $this->token->verify( $raw_token, $link->token_hash ) ) {
 			$this->die_invalid();
@@ -142,11 +155,64 @@ class Erdo_Draft_Links_Frontend {
 			$this->send_first_view_notification( $link );
 		}
 
-		$this->set_access_cookie( (int) $link->id, $link->token_hash );
+		$this->set_access_cookie( $link );
 		$this->db->increment_view_count( (int) $link->id );
 
 		wp_safe_redirect( get_permalink( (int) $link->post_id ) );
 		exit;
+	}
+
+	/**
+	 * Link unfurlers (Slack, WhatsApp, Teams, iMessage…), mail link scanners
+	 * (e.g. Outlook Safe Links) and speculative prefetches.
+	 */
+	private function is_automated_request(): bool {
+		$method = isset( $_SERVER['REQUEST_METHOD'] ) ? strtoupper( sanitize_text_field( wp_unslash( $_SERVER['REQUEST_METHOD'] ) ) ) : 'GET';
+		if ( 'HEAD' === $method ) {
+			return true;
+		}
+
+		foreach ( array( 'HTTP_PURPOSE', 'HTTP_SEC_PURPOSE', 'HTTP_X_PURPOSE', 'HTTP_X_MOZ' ) as $header ) {
+			if ( isset( $_SERVER[ $header ] ) && false !== stripos( sanitize_text_field( wp_unslash( $_SERVER[ $header ] ) ), 'prefetch' ) ) {
+				return true;
+			}
+		}
+
+		$user_agent = isset( $_SERVER['HTTP_USER_AGENT'] ) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ) : '';
+		$is_bot     = '' === $user_agent || (bool) preg_match(
+			'/Slackbot|Slack-ImgProxy|facebookexternalhit|Facebot|WhatsApp|Twitterbot|LinkedInBot|TelegramBot|Discordbot|SkypeUriPreview|MicrosoftPreview|Microsoft Office|Teams|BingPreview|Google-PageRenderer|Googlebot|bingbot|Applebot|redditbot|Pinterest|Embedly|Iframely|vkShare|Viber|Snapchat|Mattermost|Rocket\.Chat|GoogleImageProxy|python-requests|curl\/|Wget/i',
+			$user_agent
+		);
+
+		/**
+		 * Filters whether a draft link request comes from an automated client
+		 * (link preview, mail scanner, prefetch) rather than a person.
+		 *
+		 * @param bool   $is_bot     Detection result.
+		 * @param string $user_agent The request's User-Agent header.
+		 */
+		return (bool) apply_filters( 'erdo_draft_links_is_automated_request', $is_bot, $user_agent );
+	}
+
+	private function render_neutral_page(): void {
+		status_header( 200 );
+		header( 'Content-Type: text/html; charset=' . get_option( 'blog_charset' ) );
+		$site = get_bloginfo( 'name' );
+		printf(
+			'<!DOCTYPE html><html><head><meta charset="%1$s"><meta name="robots" content="noindex, nofollow"><title>%2$s</title><meta property="og:title" content="%2$s"><meta property="og:description" content="%3$s"></head><body><p>%3$s</p></body></html>',
+			esc_attr( get_option( 'blog_charset' ) ),
+			esc_html( $site ),
+			esc_html__( 'Private draft preview. Open this link in your browser to view it.', 'erdo-draft-links' )
+		);
+		exit;
+	}
+
+	private function send_private_headers(): void {
+		if ( headers_sent() ) {
+			return;
+		}
+		nocache_headers();
+		header( 'X-Robots-Tag: noindex, nofollow, noarchive, nosnippet' );
 	}
 
 	private function send_first_view_notification( object $link ): void {
@@ -224,7 +290,24 @@ class Erdo_Draft_Links_Frontend {
 			// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedConstantFound -- reserved cache-buster constant name, recognized by caching plugins/CDNs; cannot be prefixed.
 			define( 'DONOTCACHEPAGE', true );
 		}
-		nocache_headers();
+		$this->send_private_headers();
+	}
+
+	public function filter_robots( array $robots ): array {
+		if ( null === $this->active_post_id ) {
+			return $robots;
+		}
+		// Same directives as the X-Robots-Tag header.
+		unset( $robots['follow'], $robots['max-image-preview'] );
+		return array_merge(
+			$robots,
+			array(
+				'noindex'   => true,
+				'nofollow'  => true,
+				'noarchive' => true,
+				'nosnippet' => true,
+			)
+		);
 	}
 
 	// -------------------------------------------------------------------------
@@ -258,7 +341,8 @@ class Erdo_Draft_Links_Frontend {
 
 	// -------------------------------------------------------------------------
 	// Preview feedback — lets the visitor leave a name + message on the
-	// shared draft, stored as a comment and emailed to the site admin.
+	// shared draft, stored in the plugin's own table and emailed to the site admin.
+	// Each visitor only sees feedback left through their own link.
 	// -------------------------------------------------------------------------
 
 	public function enqueue_feedback_assets(): void {
@@ -365,7 +449,7 @@ class Erdo_Draft_Links_Frontend {
 						</p>
 					</form>
 
-					<?php $history = $this->db->get_feedback_paginated( 1, 50, (int) $this->active_post_id ); ?>
+					<?php $history = $this->db->get_feedback_by_link( $link_id ); ?>
 					<div class="erdo-draft-feedback-history" id="erdo-draft-feedback-history" <?php echo empty( $history ) ? 'hidden' : ''; ?>>
 						<h4 class="erdo-draft-feedback-history-title"><?php esc_html_e( 'Past Feedback', 'erdo-draft-links' ); ?></h4>
 						<ul class="erdo-draft-feedback-history-list" id="erdo-draft-feedback-history-list">
@@ -385,7 +469,7 @@ class Erdo_Draft_Links_Frontend {
 									</div>
 									<p class="erdo-draft-feedback-history-message"><?php echo esc_html( $item->message ); ?></p>
 									<span class="erdo-draft-feedback-history-date">
-										<?php echo esc_html( wp_date( get_option( 'date_format' ), strtotime( $item->created_at ) ) ); ?>
+										<?php echo esc_html( wp_date( get_option( 'date_format' ), strtotime( $item->created_at . ' UTC' ) ) ); ?>
 									</span>
 									<?php if ( ! empty( $item->reply ) ) : ?>
 										<div class="erdo-draft-feedback-reply">
@@ -427,7 +511,7 @@ class Erdo_Draft_Links_Frontend {
 		}
 
 		$post_id     = $cookie_data['post_id'];
-		$feedback_id = $this->db->add_feedback( $post_id, $name, $message );
+		$feedback_id = $this->db->add_feedback( $post_id, $cookie_data['link_id'], $name, $message );
 
 		if ( $feedback_id ) {
 			$this->send_feedback_notification( $post_id, $name, $message );
@@ -489,15 +573,15 @@ class Erdo_Draft_Links_Frontend {
 		return null;
 	}
 
-	private function set_access_cookie( int $link_id, string $token_hash ): void {
-		$name  = 'erdo_draft_link_' . $link_id;
-		$value = $this->token->cookie_value( $token_hash );
+	private function set_access_cookie( object $link ): void {
+		$name  = 'erdo_draft_link_' . (int) $link->id;
+		$value = $this->token->cookie_value( $link->token_hash );
 
 		setcookie(
 			$name,
 			$value,
 			array(
-				'expires'  => time() + 3600,
+				'expires'  => $this->token->cookie_expires( $link->expires_at ),
 				'path'     => COOKIEPATH,
 				'domain'   => COOKIE_DOMAIN,
 				'secure'   => is_ssl(),
@@ -509,24 +593,24 @@ class Erdo_Draft_Links_Frontend {
 
 	private function die_invalid(): void {
 		wp_die(
-			esc_html__( 'This link is invalid or has expired.', 'erdo-draft-links' ),
-			esc_html__( 'Erdo Draft Links', 'erdo-draft-links' ),
-			array( 'response' => 403 )
+			esc_html__( 'This draft link is not valid. Check that you copied the whole link.', 'erdo-draft-links' ),
+			esc_html__( 'Draft preview', 'erdo-draft-links' ),
+			array( 'response' => 404 )
 		);
 	}
 
 	private function die_expired(): void {
 		wp_die(
-			esc_html__( 'This Erdo Draft Links has expired and is no longer accessible.', 'erdo-draft-links' ),
-			esc_html__( 'Erdo Draft Links', 'erdo-draft-links' ),
+			esc_html__( 'This draft link has expired and is no longer accessible. Ask the person who shared it for a new link.', 'erdo-draft-links' ),
+			esc_html__( 'Draft preview', 'erdo-draft-links' ),
 			array( 'response' => 410 )
 		);
 	}
 
 	private function die_revoked(): void {
 		wp_die(
-			esc_html__( 'This Erdo Draft Links has been revoked.', 'erdo-draft-links' ),
-			esc_html__( 'Erdo Draft Links', 'erdo-draft-links' ),
+			esc_html__( 'This draft link has been turned off by the person who shared it.', 'erdo-draft-links' ),
+			esc_html__( 'Draft preview', 'erdo-draft-links' ),
 			array( 'response' => 410 )
 		);
 	}

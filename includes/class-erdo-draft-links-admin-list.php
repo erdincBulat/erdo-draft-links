@@ -8,15 +8,22 @@ if ( ! class_exists( 'WP_List_Table' ) ) {
 class Erdo_Draft_Links_Admin_List extends WP_List_Table {
 
 	private Erdo_Draft_Links_DB $db;
+	private Erdo_Draft_Links_Token $token;
+	private int $author_id;
 	private string $current_filter;
 
-	public function __construct( Erdo_Draft_Links_DB $db ) {
+	/**
+	 * @param int $author_id Only list links for this author's posts (0 = all).
+	 */
+	public function __construct( Erdo_Draft_Links_DB $db, Erdo_Draft_Links_Token $token, int $author_id = 0 ) {
 		parent::__construct( array(
 			'singular' => 'erdo_draft_link',
 			'plural'   => 'erdo_draft_links',
 			'ajax'     => false,
 		) );
 		$this->db             = $db;
+		$this->token          = $token;
+		$this->author_id      = $author_id;
 		$this->current_filter = isset( $_GET['link_status'] ) ? sanitize_key( $_GET['link_status'] ) : 'all'; // phpcs:ignore WordPress.Security.NonceVerification
 	}
 
@@ -25,7 +32,7 @@ class Erdo_Draft_Links_Admin_List extends WP_List_Table {
 			'cb'         => '<input type="checkbox" />',
 			'post_title' => __( 'Post', 'erdo-draft-links' ),
 			'label'      => __( 'Label', 'erdo-draft-links' ),
-			'ghost_link' => __( 'Link', 'erdo-draft-links' ),
+			'draft_link' => __( 'Link', 'erdo-draft-links' ),
 			'status'     => __( 'Status', 'erdo-draft-links' ),
 			'view_count' => __( 'Views', 'erdo-draft-links' ),
 			'expires_at' => __( 'Expires', 'erdo-draft-links' ),
@@ -49,10 +56,10 @@ class Erdo_Draft_Links_Admin_List extends WP_List_Table {
 
 	public function get_views(): array {
 		$counts = array(
-			'all'     => $this->db->get_links_count( 'all' ),
-			'active'  => $this->db->get_links_count( 'active' ),
-			'expired' => $this->db->get_links_count( 'expired' ),
-			'revoked' => $this->db->get_links_count( 'revoked' ),
+			'all'     => $this->db->get_links_count( 'all', $this->author_id ),
+			'active'  => $this->db->get_links_count( 'active', $this->author_id ),
+			'expired' => $this->db->get_links_count( 'expired', $this->author_id ),
+			'revoked' => $this->db->get_links_count( 'revoked', $this->author_id ),
 		);
 
 		$base_url = admin_url( 'tools.php?page=erdo-draft-links-manager' );
@@ -90,7 +97,7 @@ class Erdo_Draft_Links_Admin_List extends WP_List_Table {
 		/* translators: %d: post ID number */
 		$title = $post ? esc_html( get_the_title( $post ) ) : sprintf( __( '(Post #%d — deleted)', 'erdo-draft-links' ), (int) $item->post_id );
 
-		$ghost_url = $post ? add_query_arg( 'erdo_token', $item->token_raw, get_permalink( $post ) ) : '';
+		$preview_url = $post ? $this->token->link_url( $item ) : '';
 
 		$edit_link   = $post ? get_edit_post_link( $post->ID ) : '';
 		$revoke_url  = wp_nonce_url(
@@ -106,10 +113,10 @@ class Erdo_Draft_Links_Admin_List extends WP_List_Table {
 		if ( $edit_link ) {
 			$row_actions['edit'] = sprintf( '<a href="%s">%s</a>', esc_url( $edit_link ), __( 'Edit Post', 'erdo-draft-links' ) );
 		}
-		if ( $ghost_url ) {
+		if ( $preview_url ) {
 			$row_actions['view_page'] = sprintf(
-				'<a href="%s" target="_blank">%s</a>',
-				esc_url( $ghost_url ),
+				'<a href="%s" target="_blank" rel="noopener noreferrer">%s</a>',
+				esc_url( $preview_url ),
 				__( 'View Page', 'erdo-draft-links' )
 			);
 		}
@@ -123,20 +130,18 @@ class Erdo_Draft_Links_Admin_List extends WP_List_Table {
 		$row_actions['delete'] = sprintf(
 			'<a href="%s" class="submitdelete" onclick="return confirm(\'%s\')">%s</a>',
 			esc_url( $delete_url ),
-			esc_js( __( 'Are you sure you want to delete this ghost link?', 'erdo-draft-links' ) ),
+			esc_js( __( 'Are you sure you want to delete this draft link?', 'erdo-draft-links' ) ),
 			__( 'Delete', 'erdo-draft-links' )
 		);
 
 		return $title . $this->row_actions( $row_actions );
 	}
 
-	protected function column_ghost_link( $item ): string {
-		$post = get_post( (int) $item->post_id );
-		if ( ! $post ) {
+	protected function column_draft_link( $item ): string {
+		$preview_url = get_post( (int) $item->post_id ) ? $this->token->link_url( $item ) : '';
+		if ( '' === $preview_url ) {
 			return '&#8212;';
 		}
-
-		$ghost_url = add_query_arg( 'erdo_token', $item->token_raw, get_permalink( $post ) );
 
 		return sprintf(
 			'<div class="erdo-draft-links-reveal" data-url="%1$s">' .
@@ -146,7 +151,7 @@ class Erdo_Draft_Links_Admin_List extends WP_List_Table {
 					'<button type="button" class="button button-small erdo-draft-links-copy" title="%3$s"><span class="dashicons dashicons-clipboard"></span></button>' .
 				'</span>' .
 			'</div>',
-			esc_url( $ghost_url ),
+			esc_url( $preview_url ),
 			esc_html__( 'View Link', 'erdo-draft-links' ),
 			esc_attr__( 'Copy', 'erdo-draft-links' )
 		);
@@ -160,7 +165,7 @@ class Erdo_Draft_Links_Admin_List extends WP_List_Table {
 	}
 
 	protected function column_status( $item ): string {
-		$now = current_time( 'timestamp', true );
+		$now = time();
 
 		if ( ! $item->is_active ) {
 			return '<span class="erdo-draft-links-badge erdo-draft-links-badge--revoked">' . esc_html__( 'Revoked', 'erdo-draft-links' ) . '</span>';
@@ -181,8 +186,8 @@ class Erdo_Draft_Links_Admin_List extends WP_List_Table {
 		}
 		$ts   = strtotime( $item->expires_at );
 		$date = wp_date( get_option( 'date_format' ) . ' ' . get_option( 'time_format' ), $ts );
-		$diff = human_time_diff( $ts, current_time( 'timestamp', true ) );
-		$past = $ts < current_time( 'timestamp', true );
+		$diff = human_time_diff( $ts, time() );
+		$past = $ts < time();
 
 		return sprintf(
 			'<abbr title="%s">%s</abbr>',
@@ -209,7 +214,7 @@ class Erdo_Draft_Links_Admin_List extends WP_List_Table {
 		$current_page = $this->get_pagenum();
 
 		$this->set_pagination_args( array(
-			'total_items' => $this->db->get_links_count( $this->current_filter ),
+			'total_items' => $this->db->get_links_count( $this->current_filter, $this->author_id ),
 			'per_page'    => $per_page,
 		) );
 
@@ -219,6 +224,6 @@ class Erdo_Draft_Links_Admin_List extends WP_List_Table {
 			$this->get_sortable_columns(),
 		);
 
-		$this->items = $this->db->get_links_paginated( $current_page, $per_page, $this->current_filter );
+		$this->items = $this->db->get_links_paginated( $current_page, $per_page, $this->current_filter, $this->author_id );
 	}
 }

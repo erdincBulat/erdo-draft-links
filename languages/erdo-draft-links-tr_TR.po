@@ -1,311 +1,539 @@
-# Turkish translation for Ghost Link
-# Copyright (C) 2025 Ghost Link Contributors
-# This file is distributed under the same license as the Ghost Link plugin.
 msgid ""
 msgstr ""
 "Project-Id-Version: Ghost Link 1.0.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/ghost-link\n"
-"POT-Creation-Date: 2025-01-01 00:00:00+00:00\n"
-"PO-Revision-Date: 2025-01-01 00:00:00+00:00\n"
+"Last-Translator: \n"
 "Language-Team: Turkish\n"
-"Language: tr_TR\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"POT-Creation-Date: 2025-01-01 00:00:00+00:00\n"
+"PO-Revision-Date: 2025-01-01 00:00:00+00:00\n"
+"Language: tr_TR\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Generator: Hand-crafted\n"
-"X-Domain: ghost-link\n"
+"X-Domain: erdo-draft-links\n"
 
-msgid "Ghost Link"
-msgstr "Gizli Bağlantı"
-
+#. Description of the plugin
+#: erdo-draft-links.php
 msgid "Share draft posts with non-logged-in users via a secure, temporary link — no login required."
 msgstr "Taslak yazıları giriş yapmayan kullanıcılarla güvenli, geçici bir bağlantı aracılığıyla paylaşın — giriş gerekmez."
 
+#: assets/js/build/sidebar.js:1
 msgid "Generate a secure link to share this draft with anyone — no login required."
 msgstr "Bu taslağı herkesle paylaşmak için güvenli bir bağlantı oluşturun — giriş gerekmez."
 
-msgid "Generate Ghost Link"
-msgstr "Gizli Bağlantı Oluştur"
-
+#: assets/js/build/sidebar.js:1
 msgid "Link Expiry"
 msgstr "Bağlantı Süresi"
 
+#: includes/class-erdo-draft-links-admin.php:218
+#: includes/class-erdo-draft-links-admin.php:332
 msgid "24 Hours"
 msgstr "24 Saat"
 
+#: includes/class-erdo-draft-links-admin.php:219
+#: includes/class-erdo-draft-links-admin.php:333
 msgid "48 Hours"
 msgstr "48 Saat"
 
+#: includes/class-erdo-draft-links-admin.php:220
+#: includes/class-erdo-draft-links-admin.php:334
 msgid "7 Days"
 msgstr "7 Gün"
 
+#: includes/class-erdo-draft-links-admin.php:221
+#: includes/class-erdo-draft-links-admin.php:335
 msgid "No Expiry"
 msgstr "Süresiz"
 
+#: includes/class-erdo-draft-links-admin-list.php:156
+#: includes/class-erdo-draft-links-admin.php:263
+#: includes/class-erdo-draft-links-admin.php:388
+#: assets/js/build/sidebar.js:1
 msgid "Copy"
 msgstr "Kopyala"
 
+#: includes/class-erdo-draft-links-admin.php:389
+#: assets/js/build/sidebar.js:1
 msgid "Copied!"
 msgstr "Kopyalandı!"
 
+#: assets/js/build/sidebar.js:1
 msgid "Open"
 msgstr "Aç"
 
-msgid "Regenerate"
-msgstr "Yenile"
-
+#: includes/class-erdo-draft-links-admin-list.php:127
+#: includes/class-erdo-draft-links-admin.php:253
+#: includes/class-erdo-draft-links-admin.php:391
+#: assets/js/build/sidebar.js:1
 msgid "Revoke"
 msgstr "İptal Et"
 
+#. translators: %s: formatted expiry date
+#. translators: %s: formatted date
+#: includes/class-erdo-draft-links-admin.php:271
+#: includes/class-erdo-draft-links-admin.php:395
+#, php-format
 msgid "Expires: %s"
 msgstr "Son kullanma: %s"
 
+#: includes/class-erdo-draft-links-admin.php:280
+#: includes/class-erdo-draft-links-admin.php:392
+#: assets/js/build/sidebar.js:1
 msgid "No expiry."
 msgstr "Süresiz."
 
+#. translators: %d: number of views
+#. translators: %d: view count
+#: includes/class-erdo-draft-links-admin.php:288
+#: includes/class-erdo-draft-links-admin.php:397
+#, php-format
 msgid "Views: %d"
 msgstr "Görüntülenme: %d"
 
+#: assets/js/build/sidebar.js:1
 msgid "Views:"
 msgstr "Görüntülenme:"
 
+#: assets/js/build/sidebar.js:1
 msgid "Expires:"
 msgstr "Son kullanma:"
 
-msgid "You are not allowed to manage Ghost Links for this post."
-msgstr "Bu yazı için Gizli Bağlantıları yönetme yetkiniz yok."
-
+#: includes/class-erdo-draft-links-admin.php:148
 msgid "Could not save the link. Please try again."
 msgstr "Bağlantı kaydedilemedi. Lütfen tekrar deneyin."
 
-msgid "Could not load Ghost Link data."
-msgstr "Gizli Bağlantı verisi yüklenemedi."
-
+#: assets/js/build/sidebar.js:1
 msgid "Could not generate the link. Please try again."
 msgstr "Bağlantı oluşturulamadı. Lütfen tekrar deneyin."
 
+#: assets/js/build/sidebar.js:1
 msgid "Could not revoke the link. Please try again."
 msgstr "Bağlantı iptal edilemedi. Lütfen tekrar deneyin."
 
+#: includes/class-erdo-draft-links-admin.php:398
+#: includes/class-erdo-draft-links-frontend.php:70
+#: includes/class-erdo-draft-links-frontend.php:75
+#: includes/class-erdo-draft-links-frontend.php:82
+#: includes/class-erdo-draft-links-frontend.php:89
+#: includes/class-erdo-draft-links-frontend.php:377
 msgid "An error occurred. Please try again."
 msgstr "Bir hata oluştu. Lütfen tekrar deneyin."
 
-msgid "This link is invalid or has expired."
-msgstr "Bu bağlantı geçersiz veya süresi dolmuş."
-
-msgid "This Ghost Link has expired and is no longer accessible."
-msgstr "Bu Gizli Bağlantının süresi dolmuş ve artık erişilemez."
-
-msgid "This Ghost Link has been revoked."
-msgstr "Bu Gizli Bağlantı iptal edilmiş."
-
-msgid "Ghost Links"
-msgstr "Gizli Bağlantılar"
-
+#: includes/class-erdo-draft-links-admin-list.php:33
+#: includes/class-erdo-draft-links-feedback-list.php:30
 msgid "Post"
 msgstr "Yazı"
 
+#: includes/class-erdo-draft-links-admin-list.php:35
 msgid "Link"
 msgstr "Bağlantı"
 
+#: includes/class-erdo-draft-links-admin-list.php:36
+#: includes/class-erdo-draft-links-feedback-list.php:33
 msgid "Status"
 msgstr "Durum"
 
+#: includes/class-erdo-draft-links-admin-list.php:37
 msgid "Views"
 msgstr "Görüntüleme"
 
+#: includes/class-erdo-draft-links-admin-list.php:38
 msgid "Expires"
 msgstr "Bitiş"
 
+#: includes/class-erdo-draft-links-admin-list.php:39
 msgid "Created"
 msgstr "Oluşturuldu"
 
+#: includes/class-erdo-draft-links-admin-list.php:69
 msgid "All"
 msgstr "Tümü"
 
+#: includes/class-erdo-draft-links-admin-list.php:70
+#: includes/class-erdo-draft-links-admin-list.php:176
 msgid "Active"
 msgstr "Aktif"
 
+#: includes/class-erdo-draft-links-admin-list.php:71
+#: includes/class-erdo-draft-links-admin-list.php:174
 msgid "Expired"
 msgstr "Süresi Dolmuş"
 
+#: includes/class-erdo-draft-links-admin-list.php:72
+#: includes/class-erdo-draft-links-admin-list.php:171
 msgid "Revoked"
 msgstr "İptal Edilmiş"
 
+#: includes/class-erdo-draft-links-admin-list.php:114
+#: includes/class-erdo-draft-links-feedback-list.php:48
 msgid "Edit Post"
 msgstr "Yazıyı Düzenle"
 
+#: includes/class-erdo-draft-links-admin-list.php:120
 msgid "View Page"
 msgstr "Sayfayı Gör"
 
+#: includes/class-erdo-draft-links-admin-list.php:155
 msgid "View Link"
 msgstr "Bağlantıyı Gör"
 
+#: includes/class-erdo-draft-links-admin-list.php:53
+#: includes/class-erdo-draft-links-admin-list.php:134
+#: includes/class-erdo-draft-links-feedback-list.php:67
 msgid "Delete"
 msgstr "Sil"
 
+#: includes/class-erdo-draft-links-admin-list.php:185
 msgid "Never"
 msgstr "Hiçbir Zaman"
 
-msgid "Are you sure you want to delete this ghost link?"
-msgstr "Bu gizli bağlantıyı silmek istediğinizden emin misiniz?"
-
-msgid "Ghost link revoked."
-msgstr "Gizli bağlantı iptal edildi."
-
-msgid "Ghost link deleted."
-msgstr "Gizli bağlantı silindi."
-
-msgid "%d ghost link(s) deleted."
-msgstr "%d gizli bağlantı silindi."
-
+#. translators: 1: cleanup date, 2: number of links deleted
+#: includes/class-erdo-draft-links-admin.php:665
+#, php-format
 msgid "Last auto-cleanup: %1$s (%2$d expired link(s) removed)."
 msgstr "Son otomatik temizleme: %1$s (%2$d süresi dolmuş bağlantı kaldırıldı)."
 
+#: includes/class-erdo-draft-links-admin.php:450
+#: includes/class-erdo-draft-links-admin.php:790
 msgid "You do not have permission to perform this action."
 msgstr "Bu işlemi gerçekleştirme yetkiniz yok."
 
+#: includes/class-erdo-draft-links-admin.php:572
 msgid "You do not have permission to view this page."
 msgstr "Bu sayfayı görüntüleme yetkiniz yok."
 
+#. translators: %d: post ID number
+#: includes/class-erdo-draft-links-admin-list.php:98
+#: includes/class-erdo-draft-links-feedback-list.php:41
+#, php-format
 msgid "(Post #%d — deleted)"
 msgstr "(Yazı #%d — silindi)"
 
+#. translators: %s: human-readable time ago
+#: includes/class-erdo-draft-links-admin-list.php:197
+#, php-format
 msgid "%s ago"
 msgstr "%s önce"
 
+#. translators: %s: human-readable time remaining
+#: includes/class-erdo-draft-links-admin-list.php:199
+#, php-format
 msgid "in %s"
 msgstr "%s içinde"
 
+#: includes/class-erdo-draft-links-admin.php:681
 msgid "Search"
 msgstr "Ara"
 
+#: includes/class-erdo-draft-links-admin.php:594
 msgid "Links"
 msgstr "Bağlantılar"
 
+#. translators: %d: number of feedback entries
+#: includes/class-erdo-draft-links-admin.php:600
+#, php-format
 msgid "Feedback (%d)"
 msgstr "Geri Bildirimler (%d)"
 
+#: includes/class-erdo-draft-links-admin.php:627
 msgid "Feedback deleted."
 msgstr "Geri bildirim silindi."
 
+#: includes/class-erdo-draft-links-feedback-list.php:32
+#: includes/class-erdo-draft-links-frontend.php:406
 msgid "Feedback"
 msgstr "Geri Bildirim"
 
+#: includes/class-erdo-draft-links-feedback-list.php:31
+#: includes/class-erdo-draft-links-frontend.php:438
 msgid "Name"
 msgstr "İsim"
 
+#: includes/class-erdo-draft-links-feedback-list.php:34
 msgid "Date"
 msgstr "Tarih"
 
+#: includes/class-erdo-draft-links-feedback-list.php:66
 msgid "Are you sure you want to delete this feedback?"
 msgstr "Bu geri bildirimi silmek istediğinizden emin misiniz?"
 
+#: includes/class-erdo-draft-links-frontend.php:411
 msgid "Leave Feedback"
 msgstr "Geri Bildirim Bırak"
 
+#: includes/class-erdo-draft-links-frontend.php:413
 msgid "Have comments about this draft? Let the author know below."
 msgstr "Bu taslakla ilgili düşünceleriniz mi var? Aşağıdan yazara iletin."
 
+#: includes/class-erdo-draft-links-frontend.php:442
 msgid "Your feedback"
 msgstr "Geri bildiriminiz"
 
+#: includes/class-erdo-draft-links-frontend.php:374
+#: includes/class-erdo-draft-links-frontend.php:447
 msgid "Send Feedback"
 msgstr "Gönder"
 
+#: includes/class-erdo-draft-links-frontend.php:376
+#: includes/class-erdo-draft-links-frontend.php:430
 msgid "Thanks! Your feedback has been sent."
 msgstr "Teşekkürler! Geri bildiriminiz gönderildi."
 
+#. translators: %s: post title
+#: includes/class-erdo-draft-links-frontend.php:529
+#, php-format
 msgid "New feedback on draft preview: %s"
 msgstr "Taslak önizlemesine yeni geri bildirim: %s"
 
-msgid "%1$s left feedback on the draft preview of \"%2$s\":\n\n%3$s\n\nManage feedback: %4$s"
-msgstr "%1$s, \"%2$s\" taslağının önizlemesine geri bildirim bıraktı:\n\n%3$s\n\nGeri bildirimleri yönet: %4$s"
+#. translators: 1: commenter name, 2: post title, 3: feedback message, 4: admin URL to manage feedback
+#: includes/class-erdo-draft-links-frontend.php:535
+#, php-format
+msgid ""
+"%1$s left feedback on the draft preview of \"%2$s\":\n"
+"\n"
+"%3$s\n"
+"\n"
+"Manage feedback: %4$s"
+msgstr ""
+"%1$s, \"%2$s\" taslağının önizlemesine geri bildirim bıraktı:\n"
+"\n"
+"%3$s\n"
+"\n"
+"Geri bildirimleri yönet: %4$s"
 
+#: includes/class-erdo-draft-links-frontend.php:454
 msgid "Past Feedback"
 msgstr "Geçmiş Geri Bildirimler"
 
+#: includes/class-erdo-draft-links-db.php:543
 msgid "In Progress"
 msgstr "Devam Ediyor"
 
+#: includes/class-erdo-draft-links-db.php:540
 msgid "Completed"
 msgstr "Tamamlandı"
 
+#: includes/class-erdo-draft-links-feedback-list.php:114
 msgid "Mark as Completed"
 msgstr "Tamamlandı Olarak İşaretle"
 
+#: includes/class-erdo-draft-links-feedback-list.php:115
 msgid "Mark as In Progress"
 msgstr "Devam Ediyor Olarak İşaretle"
 
+#: includes/class-erdo-draft-links-admin.php:630
 msgid "Feedback status updated."
 msgstr "Geri bildirim durumu güncellendi."
 
+#: includes/class-erdo-draft-links-frontend.php:416
 msgid "Close"
 msgstr "Kapat"
 
+#: includes/class-erdo-draft-links-frontend.php:375
 msgid "Sending…"
 msgstr "Gönderiliyor…"
 
+#: includes/class-erdo-draft-links-admin.php:209
 msgid "Label (optional):"
 msgstr "Etiket (isteğe bağlı):"
 
+#: assets/js/build/sidebar.js:1
 msgid "Label (optional)"
 msgstr "Etiket (isteğe bağlı)"
 
+#: includes/class-erdo-draft-links-admin.php:211
+#: assets/js/build/sidebar.js:1
 msgid "e.g. Client A"
 msgstr "örn. Müşteri A"
 
+#: includes/class-erdo-draft-links-admin.php:245
+#: includes/class-erdo-draft-links-admin.php:393
+#: includes/class-erdo-draft-links-frontend.php:220
+#: assets/js/build/sidebar.js:1
 msgid "Untitled link"
 msgstr "Adsız bağlantı"
 
+#: includes/class-erdo-draft-links-feedback-list.php:90
 msgid "Reply to this feedback…"
 msgstr "Bu geri bildirime yanıt ver…"
 
+#: includes/class-erdo-draft-links-feedback-list.php:94
 msgid "Update Reply"
 msgstr "Yanıtı Güncelle"
 
+#: includes/class-erdo-draft-links-feedback-list.php:96
 msgid "Send Reply"
 msgstr "Yanıtı Gönder"
 
+#: includes/class-erdo-draft-links-frontend.php:476
 msgid "Reply"
 msgstr "Yanıt"
 
+#: includes/class-erdo-draft-links-admin.php:633
 msgid "Reply saved."
 msgstr "Yanıt kaydedildi."
 
+#: includes/class-erdo-draft-links-admin.php:161
 msgid "This link does not belong to that post."
 msgstr "Bu bağlantı o yazıya ait değil."
 
+#: includes/class-erdo-draft-links-admin.php:222
+#: includes/class-erdo-draft-links-admin.php:336
 msgid "Custom Date & Time…"
 msgstr "Özel Tarih ve Saat…"
 
+#: includes/class-erdo-draft-links-admin.php:227
+#: assets/js/build/sidebar.js:1
 msgid "Expires on:"
 msgstr "Bitiş tarihi:"
 
+#: includes/class-erdo-draft-links-admin.php:138
+#: includes/class-erdo-draft-links-admin.php:399
+#: assets/js/build/sidebar.js:1
 msgid "Please choose a valid future date and time."
 msgstr "Lütfen geçerli, gelecekte bir tarih ve saat seçin."
 
+#. translators: %s: post title
+#: includes/class-erdo-draft-links-frontend.php:224
+#, php-format
 msgid "Your draft link was opened: %s"
 msgstr "Taslak bağlantınız açıldı: %s"
 
-msgid "The \"%1$s\" draft link for \"%2$s\" was just opened for the first time.\n\nManage links: %3$s"
-msgstr "\"%2$s\" için \"%1$s\" taslak bağlantısı ilk kez açıldı.\n\nBağlantıları yönet: %3$s"
+#. translators: 1: link label, 2: post title, 3: admin URL to manage links
+#: includes/class-erdo-draft-links-frontend.php:230
+#, php-format
+msgid ""
+"The \"%1$s\" draft link for \"%2$s\" was just opened for the first time.\n"
+"\n"
+"Manage links: %3$s"
+msgstr ""
+"\"%2$s\" için \"%1$s\" taslak bağlantısı ilk kez açıldı.\n"
+"\n"
+"Bağlantıları yönet: %3$s"
 
+#: includes/class-erdo-draft-links-admin.php:607
 msgid "Settings"
 msgstr "Ayarlar"
 
+#: includes/class-erdo-draft-links-admin.php:694
 msgid "Supported Post Types"
 msgstr "Desteklenen İçerik Türleri"
 
-msgid "Choose which post types can have Erdo Draft Links generated for them."
-msgstr "Erdo Draft Links oluşturulabilecek içerik türlerini seçin."
-
+#: includes/class-erdo-draft-links-admin.php:714
 msgid "Save Changes"
 msgstr "Değişiklikleri Kaydet"
 
+#: includes/class-erdo-draft-links-admin.php:720
 msgid "Note: the erdo_draft_links_supported_post_types filter is also active in code and may override these settings."
 msgstr "Not: erdo_draft_links_supported_post_types filtresi kodda da aktif ve bu ayarları geçersiz kılabilir."
 
+#: includes/class-erdo-draft-links-admin.php:636
 msgid "Settings saved."
 msgstr "Ayarlar kaydedildi."
+
+#. Plugin Name of the plugin
+#: erdo-draft-links.php
+#: includes/class-erdo-draft-links-admin.php:185
+#: includes/class-erdo-draft-links-admin.php:418
+#: includes/class-erdo-draft-links-admin.php:419
+#: includes/class-erdo-draft-links-admin.php:588
+#: assets/js/build/sidebar.js:1
+msgid "Erdo Draft Links"
+msgstr "Erdo Draft Links"
+
+#. Plugin URI of the plugin
+#: erdo-draft-links.php
+msgid "https://wordpress.org/plugins/erdo-draft-links/"
+msgstr ""
+
+#. Author of the plugin
+#: erdo-draft-links.php
+msgid "Erdinc Bulat"
+msgstr ""
+
+#. Author URI of the plugin
+#: erdo-draft-links.php
+msgid "https://erdincbulat.com"
+msgstr ""
+
+#: includes/class-erdo-draft-links-admin-list.php:34
+msgid "Label"
+msgstr "Etiket"
+
+#: includes/class-erdo-draft-links-admin-list.php:133
+msgid "Are you sure you want to delete this draft link?"
+msgstr "Bu taslak bağlantısını silmek istediğinizden emin misiniz?"
+
+#: includes/class-erdo-draft-links-admin.php:99
+msgid "You are not allowed to manage draft links for this post."
+msgstr "Bu yazının taslak bağlantılarını yönetme izniniz yok."
+
+#: includes/class-erdo-draft-links-admin.php:126
+msgid "Draft links are not enabled for this post type."
+msgstr "Bu içerik türü için taslak bağlantıları etkin değil."
+
+#: includes/class-erdo-draft-links-admin.php:129
+msgid "Save the post first, then generate a draft link."
+msgstr "Önce yazıyı kaydedin, ardından taslak bağlantısı oluşturun."
+
+#: includes/class-erdo-draft-links-admin.php:132
+msgid "Draft links cannot be generated for posts in the trash."
+msgstr "Çöp kutusundaki yazılar için taslak bağlantısı oluşturulamaz."
+
+#: includes/class-erdo-draft-links-admin.php:215
+msgid "Expiry:"
+msgstr "Geçerlilik süresi:"
+
+#: includes/class-erdo-draft-links-admin.php:233
+#: includes/class-erdo-draft-links-admin.php:390
+#: assets/js/build/sidebar.js:1
+msgid "Generate Draft Link"
+msgstr "Taslak Bağlantısı Oluştur"
+
+#: includes/class-erdo-draft-links-admin.php:617
+msgid "Draft link revoked."
+msgstr "Taslak bağlantısı iptal edildi."
+
+#: includes/class-erdo-draft-links-admin.php:620
+msgid "Draft link deleted."
+msgstr "Taslak bağlantısı silindi."
+
+#. translators: %d: number of deleted links
+#: includes/class-erdo-draft-links-admin.php:624
+#, php-format
+msgid "%d draft link deleted."
+msgid_plural "%d draft links deleted."
+msgstr[0] "%d taslak bağlantısı silindi."
+msgstr[1] "%d taslak bağlantısı silindi."
+
+#: includes/class-erdo-draft-links-admin.php:696
+msgid "Choose which post types can have draft links generated for them."
+msgstr "Hangi içerik türleri için taslak bağlantısı oluşturulabileceğini seçin."
+
+#: includes/class-erdo-draft-links-frontend.php:205
+msgid "Private draft preview. Open this link in your browser to view it."
+msgstr "Özel taslak önizlemesi. Görüntülemek için bu bağlantıyı tarayıcınızda açın."
+
+#: includes/class-erdo-draft-links-frontend.php:596
+msgid "This draft link is not valid. Check that you copied the whole link."
+msgstr "Bu taslak bağlantısı geçerli değil. Bağlantının tamamını kopyaladığınızdan emin olun."
+
+#: includes/class-erdo-draft-links-frontend.php:597
+#: includes/class-erdo-draft-links-frontend.php:605
+#: includes/class-erdo-draft-links-frontend.php:613
+msgid "Draft preview"
+msgstr "Taslak önizlemesi"
+
+#: includes/class-erdo-draft-links-frontend.php:604
+msgid "This draft link has expired and is no longer accessible. Ask the person who shared it for a new link."
+msgstr "Bu taslak bağlantısının süresi doldu ve artık erişilemiyor. Paylaşan kişiden yeni bir bağlantı isteyin."
+
+#: includes/class-erdo-draft-links-frontend.php:612
+msgid "This draft link has been turned off by the person who shared it."
+msgstr "Bu taslak bağlantısı, paylaşan kişi tarafından kapatıldı."
+
+#: assets/js/build/sidebar.js:1
+msgid "Could not load draft links."
+msgstr "Taslak bağlantıları yüklenemedi."

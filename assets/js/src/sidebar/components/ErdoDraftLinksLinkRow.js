@@ -20,11 +20,6 @@ export default function ErdoDraftLinksLinkRow( { link, onRevoke } ) {
 		setTimeout( () => setCopied( false ), 2000 );
 	};
 
-	const formatDate = ( iso ) => {
-		if ( ! iso ) return null;
-		return new Date( iso ).toLocaleString();
-	};
-
 	return (
 		<div className="erdo-draft-links-status">
 			<div className="erdo-draft-links-link-header">
@@ -56,7 +51,7 @@ export default function ErdoDraftLinksLinkRow( { link, onRevoke } ) {
 				{ link.expires_at ? (
 					<p>
 						<strong>{ __( 'Expires:', 'erdo-draft-links' ) }</strong>{ ' ' }
-						{ formatDate( link.expires_at ) }
+						{ link.expires_display }
 					</p>
 				) : (
 					<p>{ __( 'No expiry.', 'erdo-draft-links' ) }</p>

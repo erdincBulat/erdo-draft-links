@@ -20,12 +20,6 @@
 		);
 	}
 
-	function formatDate( isoString ) {
-		if ( ! isoString ) return '';
-		const d = new Date( isoString );
-		return d.toLocaleString();
-	}
-
 	function escAttr( str ) {
 		return String( str )
 			.replace( /&/g, '&amp;' )
@@ -43,7 +37,7 @@
 
 	function renderRow( link ) {
 		const expiresText = link.expires_at
-			? i18n.expires.replace( '%s', formatDate( link.expires_at ) )
+			? i18n.expires.replace( '%s', link.expires_display )
 			: i18n.noExpiry;
 		const viewsText = i18n.views.replace( '%d', link.view_count );
 		const label = link.label ? escHtml( link.label ) : escHtml( i18n.untitled );

@@ -13,7 +13,7 @@
   <a href="https://wordpress.org/plugins/erdo-draft-links/"><img src="https://img.shields.io/wordpress/plugin/dt/erdo-draft-links.svg" alt="WordPress Plugin Downloads"></a>
   <a href="https://wordpress.org/plugins/erdo-draft-links/"><img src="https://img.shields.io/wordpress/plugin/rating/erdo-draft-links.svg" alt="WordPress Plugin Rating"></a>
   <img src="https://img.shields.io/wordpress/v/erdo-draft-links.svg" alt="Tested up to WordPress version">
-  <img src="https://img.shields.io/badge/PHP-7.4%2B-777bb4.svg" alt="Requires PHP 7.4+">
+  <img src="https://img.shields.io/badge/PHP-8.0%2B-777bb4.svg" alt="Requires PHP 8.0+">
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-GPLv2%2B-blue.svg" alt="License: GPLv2+"></a>
 </p>
 

@@ -3,40 +3,119 @@ defined( 'ABSPATH' ) || exit;
 
 class Erdo_Draft_Links_Token {
 
+	/**
+	 * Upper bound for the preview cookie lifetime, also used for links that
+	 * never expire — the visitor just reopens the link after this.
+	 */
+	const MAX_COOKIE_LIFETIME = 30 * DAY_IN_SECONDS;
+
+	/**
+	 * @return array{raw: string, hash: string, enc: string}
+	 */
 	public function generate(): array {
-		$raw  = wp_generate_password( 32, false, false );
-		$hash = $this->hash( $raw );
-		return array( 'raw' => $raw, 'hash' => $hash );
+		$raw = wp_generate_password( 32, false, false );
+		return array(
+			'raw'  => $raw,
+			'hash' => $this->hash( $raw ),
+			'enc'  => $this->encrypt( $raw ),
+		);
+	}
+
+	/**
+	 * Deterministic HMAC of the raw token — the value links are looked up by.
+	 */
+	public function hash( string $raw ): string {
+		return hash_hmac( 'sha256', $raw, AUTH_KEY );
 	}
 
 	public function verify( string $raw, string $stored_hash ): bool {
 		return hash_equals( $this->hash( $raw ), $stored_hash );
 	}
 
+	/**
+	 * The raw token is kept only so editors can copy the link again later.
+	 * It is stored encrypted (XSalsa20-Poly1305 via libsodium or WP's bundled
+	 * sodium_compat), never in plain text, with a key derived from the site's
+	 * secret salts — a database dump alone does not reveal working links.
+	 */
+	public function encrypt( string $raw ): string {
+		$nonce = random_bytes( SODIUM_CRYPTO_SECRETBOX_NONCEBYTES );
+		return base64_encode( $nonce . sodium_crypto_secretbox( $raw, $nonce, $this->encryption_key() ) ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode -- binary ciphertext storage, not obfuscation.
+	}
+
+	/**
+	 * Returns null when the value is malformed or the salts have changed since
+	 * the link was created (in which case its hash no longer matches either).
+	 */
+	public function decrypt( string $enc ): ?string {
+		$decoded = base64_decode( $enc, true ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_decode -- binary ciphertext storage, not obfuscation.
+		if ( false === $decoded || strlen( $decoded ) <= SODIUM_CRYPTO_SECRETBOX_NONCEBYTES + SODIUM_CRYPTO_SECRETBOX_MACBYTES ) {
+			return null;
+		}
+
+		$nonce  = substr( $decoded, 0, SODIUM_CRYPTO_SECRETBOX_NONCEBYTES );
+		$cipher = substr( $decoded, SODIUM_CRYPTO_SECRETBOX_NONCEBYTES );
+
+		try {
+			$raw = sodium_crypto_secretbox_open( $cipher, $nonce, $this->encryption_key() );
+		} catch ( SodiumException $e ) {
+			return null;
+		}
+
+		return false === $raw ? null : $raw;
+	}
+
+	/**
+	 * Shareable URL for a link row, or '' if its token can't be recovered.
+	 */
+	public function link_url( object $link ): string {
+		$raw = '' !== (string) $link->token_enc ? $this->decrypt( (string) $link->token_enc ) : null;
+		if ( null === $raw ) {
+			return '';
+		}
+		$permalink = get_permalink( (int) $link->post_id );
+		return $permalink ? add_query_arg( 'erdo_token', $raw, $permalink ) : '';
+	}
+
+	/**
+	 * Expiry check against a GMT MySQL datetime.
+	 */
 	public function is_expired( ?string $expires_at ): bool {
 		if ( null === $expires_at ) {
 			return false;
 		}
-		return time() > strtotime( $expires_at );
+		return time() > strtotime( $expires_at . ' UTC' );
 	}
 
 	public function compute_expires_at( string $expiry ): ?string {
 		$map = array(
-			'24h' => '+24 hours',
-			'48h' => '+48 hours',
-			'7d'  => '+7 days',
+			'24h' => DAY_IN_SECONDS,
+			'48h' => 2 * DAY_IN_SECONDS,
+			'7d'  => WEEK_IN_SECONDS,
 		);
 		if ( ! isset( $map[ $expiry ] ) ) {
 			return null;
 		}
-		return gmdate( 'Y-m-d H:i:s', strtotime( $map[ $expiry ], current_time( 'timestamp', true ) ) );
+		return gmdate( 'Y-m-d H:i:s', time() + $map[ $expiry ] );
+	}
+
+	/**
+	 * Cookie expiry timestamp: the link's own expiry, capped at
+	 * MAX_COOKIE_LIFETIME (which also applies to links without an expiry).
+	 */
+	public function cookie_expires( ?string $expires_at ): int {
+		$cap = time() + self::MAX_COOKIE_LIFETIME;
+		if ( null === $expires_at ) {
+			return $cap;
+		}
+		return min( $cap, (int) strtotime( $expires_at . ' UTC' ) );
 	}
 
 	public function cookie_value( string $token_hash ): string {
 		return hash_hmac( 'sha256', $token_hash, SECURE_AUTH_KEY );
 	}
 
-	private function hash( string $raw ): string {
-		return hash_hmac( 'sha256', $raw, AUTH_KEY );
+	private function encryption_key(): string {
+		return hash_hmac( 'sha256', 'erdo-draft-links-enc', wp_salt( 'secure_auth' ), true );
 	}
 }

@@ -9,15 +9,20 @@ class Erdo_Draft_Links_Feedback_List extends WP_List_Table {
 
 	private Erdo_Draft_Links_DB $db;
 	private int $post_id;
+	private int $author_id;
 
-	public function __construct( Erdo_Draft_Links_DB $db, int $post_id = 0 ) {
+	/**
+	 * @param int $author_id Only list feedback on this author's posts (0 = all).
+	 */
+	public function __construct( Erdo_Draft_Links_DB $db, int $post_id = 0, int $author_id = 0 ) {
 		parent::__construct( array(
 			'singular' => 'erdo_draft_feedback',
 			'plural'   => 'erdo_draft_feedbacks',
 			'ajax'     => false,
 		) );
 		$this->db      = $db;
-		$this->post_id = $post_id;
+		$this->post_id   = $post_id;
+		$this->author_id = $author_id;
 	}
 
 	public function get_columns(): array {
@@ -145,7 +150,7 @@ class Erdo_Draft_Links_Feedback_List extends WP_List_Table {
 		$current_page = $this->get_pagenum();
 
 		$this->set_pagination_args( array(
-			'total_items' => $this->db->get_feedback_count( $this->post_id ),
+			'total_items' => $this->db->get_feedback_count( $this->post_id, $this->author_id ),
 			'per_page'    => $per_page,
 		) );
 
@@ -155,6 +160,6 @@ class Erdo_Draft_Links_Feedback_List extends WP_List_Table {
 			array(),
 		);
 
-		$this->items = $this->db->get_feedback_paginated( $current_page, $per_page, $this->post_id );
+		$this->items = $this->db->get_feedback_paginated( $current_page, $per_page, $this->post_id, $this->author_id );
 	}
 }

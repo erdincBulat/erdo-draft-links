@@ -29,7 +29,7 @@ export default function ErdoDraftLinksPanel() {
 					setLoading( false );
 				} )
 				.catch( () => {
-					setError( __( 'Could not load Erdo Draft Links data.', 'erdo-draft-links' ) );
+					setError( __( 'Could not load draft links.', 'erdo-draft-links' ) );
 					setLoading( false );
 				} );
 		};
@@ -146,7 +146,7 @@ export default function ErdoDraftLinksPanel() {
 					onClick={ handleGenerate }
 					disabled={ loading }
 				>
-					{ __( 'Generate Erdo Draft Links', 'erdo-draft-links' ) }
+					{ __( 'Generate Draft Link', 'erdo-draft-links' ) }
 				</button>
 			</div>
 		</PanelBody>

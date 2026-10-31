@@ -44,8 +44,12 @@ class Erdo_Draft_Links_CLI extends WP_CLI_Command {
 	 */
 	public function generate( array $args, array $assoc_args ): void {
 		$post_id = (int) $args[0];
-		if ( ! get_post( $post_id ) ) {
+		$post = get_post( $post_id );
+		if ( ! $post ) {
 			WP_CLI::error( "Post {$post_id} not found." );
+		}
+		if ( in_array( $post->post_status, array( 'auto-draft', 'trash' ), true ) ) {
+			WP_CLI::error( "Post {$post_id} is an unsaved auto-draft or in the trash." );
 		}
 
 		$label      = isset( $assoc_args['label'] ) ? sanitize_text_field( mb_substr( (string) $assoc_args['label'], 0, 100 ) ) : '';
@@ -53,7 +57,7 @@ class Erdo_Draft_Links_CLI extends WP_CLI_Command {
 		$expires_at = $this->token->compute_expires_at( $expiry );
 
 		$token_data = $this->token->generate();
-		$link_id    = $this->db->insert_link( $post_id, $label, $token_data['hash'], $token_data['raw'], $expires_at );
+		$link_id    = $this->db->insert_link( $post_id, $label, $token_data['hash'], $token_data['enc'], $expires_at );
 
 		if ( ! $link_id ) {
 			WP_CLI::error( 'Could not save the link.' );
@@ -147,8 +151,8 @@ class Erdo_Draft_Links_CLI extends WP_CLI_Command {
 					'label'      => '' !== $row->label ? $row->label : '—',
 					'status'     => ! $row->is_active ? 'revoked' : ( $is_expired ? 'expired' : 'active' ),
 					'views'      => $row->view_count,
-					'expires_at' => $row->expires_at ?? '—',
-					'created_at' => $row->created_at,
+					'expires_at' => null !== $row->expires_at ? $row->expires_at . ' UTC' : '—',
+					'created_at' => $row->created_at . ' UTC',
 				);
 			},
 			$rows
