@@ -60,7 +60,7 @@ class Erdo_Draft_Links_Admin {
 						'expiry'        => array(
 							'type'              => 'string',
 							'default'           => '24h',
-							'enum'              => array( '24h', '48h', '7d', 'never', 'custom' ),
+							'enum'              => array( '24h', '48h', '7d', '30d', 'never', 'custom' ),
 							'sanitize_callback' => 'sanitize_text_field',
 						),
 						'custom_expiry' => array(
@@ -77,6 +77,40 @@ class Erdo_Draft_Links_Admin {
 							'type'    => 'integer',
 							'default' => 0,
 							'minimum' => 0,
+						),
+					)
+				),
+			)
+		);
+
+		register_rest_route(
+			$namespace,
+			'/link/(?P<post_id>\d+)/update',
+			array(
+				'methods'             => WP_REST_Server::CREATABLE,
+				'callback'            => array( $this, 'rest_update_link' ),
+				'permission_callback' => array( $this, 'rest_permission' ),
+				'args'                => array_merge(
+					$this->post_id_arg(),
+					array(
+						'link_id'       => array(
+							'type'              => 'integer',
+							'required'          => true,
+							'minimum'           => 1,
+							'sanitize_callback' => 'absint',
+						),
+						'label'         => array(
+							'type'              => 'string',
+							'sanitize_callback' => 'sanitize_text_field',
+						),
+						'expiry'        => array(
+							'type' => 'string',
+							'enum' => array( '24h', '48h', '7d', '30d', 'never', 'custom' ),
+						),
+						'custom_expiry' => array(
+							'type'              => 'string',
+							'default'           => '',
+							'sanitize_callback' => 'sanitize_text_field',
 						),
 					)
 				),
@@ -123,7 +157,11 @@ class Erdo_Draft_Links_Admin {
 		$links   = $this->db->get_active_links_by_post( $post_id );
 
 		return new WP_REST_Response(
-			array( 'links' => array_map( fn( $link ) => $this->link_to_response( $link ), $links ) ),
+			array(
+				'links'      => array_map( fn( $link ) => $this->link_to_response( $link ), $links ),
+				'review'     => $this->review->get_post_review( $post_id ),
+				'open_count' => $this->db->count_open_feedback( $post_id ),
+			),
 			200
 		);
 	}
@@ -144,13 +182,9 @@ class Erdo_Draft_Links_Admin {
 			return new WP_REST_Response( array( 'error' => __( 'Draft links cannot be generated for posts in the trash.', 'erdo-draft-links' ) ), 400 );
 		}
 
-		if ( 'custom' === $expiry ) {
-			$expires_at = $this->compute_custom_expires_at( (string) $request->get_param( 'custom_expiry' ) );
-			if ( null === $expires_at ) {
-				return new WP_REST_Response( array( 'error' => __( 'Please choose a valid future date and time.', 'erdo-draft-links' ) ), 400 );
-			}
-		} else {
-			$expires_at = $this->token->compute_expires_at( $expiry );
+		$expires_at = $this->expires_at_from_request( $request );
+		if ( false === $expires_at ) {
+			return new WP_REST_Response( array( 'error' => __( 'Please choose a valid future date and time.', 'erdo-draft-links' ) ), 400 );
 		}
 
 		$token_data = $this->token->generate();
@@ -174,6 +208,48 @@ class Erdo_Draft_Links_Admin {
 
 		$link = $this->db->get_link_by_id( $link_id );
 		return new WP_REST_Response( $this->link_to_response( $link ), 201 );
+	}
+
+	/**
+	 * Expiry from the request's expiry/custom_expiry params: GMT datetime,
+	 * null for "never", or false for an invalid custom date.
+	 */
+	private function expires_at_from_request( WP_REST_Request $request ): string|null|false {
+		$expiry = (string) $request->get_param( 'expiry' );
+		if ( 'custom' === $expiry ) {
+			return $this->compute_custom_expires_at( (string) $request->get_param( 'custom_expiry' ) ) ?? false;
+		}
+		return $this->token->compute_expires_at( $expiry );
+	}
+
+	public function rest_update_link( WP_REST_Request $request ): WP_REST_Response {
+		$post_id = (int) $request->get_param( 'post_id' );
+		$link    = $this->db->get_link_by_id( (int) $request->get_param( 'link_id' ) );
+
+		if ( ! $link || (int) $link->post_id !== $post_id ) {
+			return new WP_REST_Response( array( 'error' => __( 'This link does not belong to that post.', 'erdo-draft-links' ) ), 404 );
+		}
+		if ( ! $link->is_active ) {
+			return new WP_REST_Response( array( 'error' => __( 'This link was turned off. Generate a new one instead.', 'erdo-draft-links' ) ), 400 );
+		}
+
+		$fields = array();
+		if ( null !== $request->get_param( 'label' ) ) {
+			$fields['label'] = mb_substr( (string) $request->get_param( 'label' ), 0, 100 );
+		}
+		if ( null !== $request->get_param( 'expiry' ) ) {
+			$expires_at = $this->expires_at_from_request( $request );
+			if ( false === $expires_at ) {
+				return new WP_REST_Response( array( 'error' => __( 'Please choose a valid future date and time.', 'erdo-draft-links' ) ), 400 );
+			}
+			$fields['expires_at'] = $expires_at;
+		}
+
+		if ( $fields ) {
+			$this->db->update_link( (int) $link->id, $fields );
+		}
+
+		return new WP_REST_Response( $this->link_to_response( $this->db->get_link_by_id( (int) $link->id ) ), 200 );
 	}
 
 	public function rest_revoke_link( WP_REST_Request $request ): WP_REST_Response {
@@ -241,7 +317,8 @@ class Erdo_Draft_Links_Admin {
 					<select name="erdo_draft_link_expiry" id="erdo-draft-links-expiry-classic" class="widefat">
 						<option value="24h"><?php esc_html_e( '24 Hours', 'erdo-draft-links' ); ?></option>
 						<option value="48h"><?php esc_html_e( '48 Hours', 'erdo-draft-links' ); ?></option>
-						<option value="7d"><?php esc_html_e( '7 Days', 'erdo-draft-links' ); ?></option>
+						<option value="7d" selected><?php esc_html_e( '7 Days', 'erdo-draft-links' ); ?></option>
+						<option value="30d"><?php esc_html_e( '30 Days', 'erdo-draft-links' ); ?></option>
 						<option value="never"><?php esc_html_e( 'No Expiry', 'erdo-draft-links' ); ?></option>
 						<option value="custom"><?php esc_html_e( 'Custom Date & Time…', 'erdo-draft-links' ); ?></option>
 					</select>
@@ -251,6 +328,18 @@ class Erdo_Draft_Links_Admin {
 						<?php esc_html_e( 'Expires on:', 'erdo-draft-links' ); ?>
 					</label>
 					<input type="datetime-local" id="erdo-draft-links-custom-expiry-classic" class="widefat" />
+				</p>
+				<p>
+					<label for="erdo-draft-links-password-classic">
+						<?php esc_html_e( 'Password (optional)', 'erdo-draft-links' ); ?>
+					</label>
+					<input type="password" id="erdo-draft-links-password-classic" class="widefat" autocomplete="new-password" />
+				</p>
+				<p>
+					<label for="erdo-draft-links-max-views-classic">
+						<?php esc_html_e( 'Stop working after this many opens (optional)', 'erdo-draft-links' ); ?>
+					</label>
+					<input type="number" min="0" id="erdo-draft-links-max-views-classic" class="widefat" />
 				</p>
 				<div class="erdo-draft-links-actions">
 					<button type="button" class="button button-primary erdo-draft-links-generate">
@@ -349,13 +438,15 @@ class Erdo_Draft_Links_Admin {
 			'erdo-draft-links-sidebar',
 			'erdoDraftLinksData',
 			array(
-				'restUrl'   => esc_url_raw( rest_url( 'erdo-draft-links/v1' ) ),
-				'nonce'     => wp_create_nonce( 'wp_rest' ),
-				'postTypes' => Erdo_Draft_Links_Post_Types::get_supported(),
-				'expiries'  => array(
+				'restUrl'       => esc_url_raw( rest_url( 'erdo-draft-links/v1' ) ),
+				'nonce'         => wp_create_nonce( 'wp_rest' ),
+				'postTypes'     => Erdo_Draft_Links_Post_Types::get_supported(),
+				'defaultExpiry' => '7d',
+				'expiries'      => array(
 					array( 'value' => '24h',    'label' => __( '24 Hours', 'erdo-draft-links' ) ),
 					array( 'value' => '48h',    'label' => __( '48 Hours', 'erdo-draft-links' ) ),
 					array( 'value' => '7d',     'label' => __( '7 Days',   'erdo-draft-links' ) ),
+					array( 'value' => '30d',    'label' => __( '30 Days',  'erdo-draft-links' ) ),
 					array( 'value' => 'never',  'label' => __( 'No Expiry', 'erdo-draft-links' ) ),
 					array( 'value' => 'custom', 'label' => __( 'Custom Date & Time…', 'erdo-draft-links' ) ),
 				),
@@ -463,7 +554,10 @@ class Erdo_Draft_Links_Admin {
 			}
 			$this->deny_unless_can_manage_post_row( (int) $feedback->post_id );
 			$reply = isset( $_POST['reply'] ) ? sanitize_textarea_field( wp_unslash( $_POST['reply'] ) ) : '';
-			$this->db->add_feedback_reply( $feedback_id, $reply );
+			if ( '' !== $reply ) {
+				$user = wp_get_current_user();
+				$this->db->add_reply( $feedback, (int) $user->ID, $user->display_name, $reply );
+			}
 			wp_safe_redirect( add_query_arg( array( 'tab' => 'feedback', 'edl_message' => 'feedback_replied' ), admin_url( $page ) ) );
 			exit;
 		}

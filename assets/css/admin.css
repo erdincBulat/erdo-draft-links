@@ -65,98 +65,220 @@
 	font-size: 12px;
 }
 
-/* Gutenberg sidebar */
-.erdo-draft-links-status {
-	padding: 8px 16px;
-	border-bottom: 1px solid #dcdcde;
-}
-
-.erdo-draft-links-link-header {
-	margin-bottom: 8px;
-}
-
-.erdo-draft-links-link-label {
-	font-size: 13px;
-}
-
-.erdo-draft-links-description {
-	font-size: 13px;
-	color: #3c434a;
-	margin-bottom: 12px;
-}
-
-.erdo-draft-links-url-row {
-	margin-bottom: 6px;
-}
-
-.erdo-draft-links-url {
-	width: 100%;
+/* Block editor: "Share for review" panel + "Client feedback" sidebar */
+.erdo-dl-hint {
+	margin: 0 0 12px;
+	color: #757575;
 	font-size: 12px;
+}
+
+.erdo-dl-review {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	margin: 0 0 12px;
+	padding: 8px 10px;
+	border-radius: 4px;
+	font-size: 12px;
+	font-weight: 500;
+	background: #f0f0f0;
 	color: #1e1e1e;
 }
 
-.erdo-draft-links-url-actions {
-	display: flex;
-	gap: 8px;
-	align-items: center;
-	margin-bottom: 10px;
+.erdo-dl-review__dot {
+	flex: none;
+	width: 8px;
+	height: 8px;
+	border-radius: 50%;
+	background: currentColor;
 }
 
-.erdo-draft-links-open {
-	font-size: 13px;
+.erdo-dl-review--none {
+	background: none;
+	padding: 0;
+	color: #757575;
+	font-weight: 400;
 }
 
-.erdo-draft-links-meta {
-	font-size: 12px;
-	color: #666;
-	margin: 3px 0;
-}
+.erdo-dl-review--approved { background: #edfaef; color: #00692b; }
+.erdo-dl-review--changes  { background: #fcf9e8; color: #7a5200; }
+.erdo-dl-review--stale    { background: #fcf0f1; color: #a00; }
 
-.erdo-draft-links-meta p {
-	margin: 3px 0;
-}
-
-.erdo-draft-links-actions {
-	display: flex;
-	gap: 6px;
-	margin-top: 10px;
-}
-
-.erdo-draft-links-add-link {
-	padding: 8px 16px 16px;
-}
-
-.erdo-draft-links-add-link .components-base-control {
-	margin-bottom: 10px;
-}
-
-.erdo-draft-links-custom-expiry {
-	margin-bottom: 10px;
-}
-
-.erdo-draft-links-custom-expiry label {
+.erdo-dl-share .erdo-dl-share__feedback {
 	display: block;
-	margin-bottom: 4px;
+	margin: -4px 0 12px;
+}
+
+.erdo-dl-link__meta--warning {
+	color: #a00;
+}
+
+.erdo-dl-options {
+	display: flex;
+	flex-direction: column;
+	gap: 16px;
+	margin-bottom: 16px;
+}
+
+.erdo-dl-field label {
+	display: block;
+	margin-bottom: 8px;
 	font-size: 11px;
+	font-weight: 500;
+	text-transform: uppercase;
+}
+
+.erdo-dl-field input {
+	width: 100%;
+}
+
+.erdo-dl-create {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 8px;
+}
+
+.erdo-dl-create .components-button.is-primary {
+	flex: 1 1 auto;
+	justify-content: center;
+}
+
+.erdo-dl-share .erdo-dl-heading {
+	margin: 20px 0 8px;
+	font-size: 11px;
+	font-weight: 500;
+	text-transform: uppercase;
+	color: #757575;
+}
+
+.erdo-dl-links,
+.erdo-dl-fb-list,
+.erdo-dl-fb__replies {
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+.erdo-dl-link {
+	display: flex;
+	align-items: flex-start;
+	gap: 8px;
+	margin: 0;
+	padding: 10px 0;
+	border-top: 1px solid #f0f0f0;
+}
+
+.erdo-dl-link__main {
+	flex: 1;
+	min-width: 0;
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+}
+
+.erdo-dl-link__label {
+	display: flex;
+	align-items: center;
+	gap: 4px;
+	font-weight: 500;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.erdo-dl-link__lock {
+	flex: none;
+	fill: #757575;
+}
+
+.erdo-dl-link__meta {
+	font-size: 12px;
+	color: #757575;
+}
+
+.erdo-dl-link__actions {
+	flex: none;
+	display: flex;
+	align-items: center;
+	gap: 2px;
+}
+
+.erdo-dl-fb {
+	margin: 0;
+	padding: 12px 0;
+	border-top: 1px solid #f0f0f0;
+}
+
+.erdo-dl-fb:first-child {
+	border-top: 0;
+}
+
+.erdo-dl-fb.is-resolved {
+	opacity: 0.75;
+}
+
+.erdo-dl-fb__head {
+	display: flex;
+	justify-content: space-between;
+	gap: 8px;
+	margin-bottom: 4px;
+}
+
+.erdo-dl-fb__type {
+	font-size: 11px;
+	font-weight: 500;
+	text-transform: uppercase;
+	color: #757575;
+}
+
+.erdo-dl-fb--approval .erdo-dl-fb__type          { color: #00692b; }
+.erdo-dl-fb--changes_requested .erdo-dl-fb__type { color: #7a5200; }
+
+.erdo-dl-fb__when,
+.erdo-dl-fb__via {
+	font-size: 12px;
+	color: #757575;
+	font-weight: 400;
+}
+
+.erdo-dl-fb__author {
 	font-weight: 500;
 }
 
-.erdo-draft-links-custom-expiry input[type="datetime-local"] {
-	width: 100%;
+.erdo-dl-fb__message {
+	margin: 4px 0 0;
+	white-space: pre-wrap;
+	overflow-wrap: anywhere;
 }
 
-.erdo-draft-links-generate-btn {
-	width: 100%;
-	justify-content: center;
-	margin-top: 8px !important;
+.erdo-dl-fb__replies {
+	margin-top: 8px;
+	padding-left: 10px;
+	border-left: 2px solid #e0e0e0;
 }
 
-.erdo-draft-links-error {
-	color: #d63638;
-	font-size: 13px;
+.erdo-dl-fb__replies li {
+	margin: 0 0 8px;
 }
 
-/* ---- Admin Manager Page ---- */
+.erdo-dl-fb__replies li.is-staff {
+	border-left: 2px solid var(--wp-admin-theme-color, #3858e9);
+	margin-left: -12px;
+	padding-left: 10px;
+}
+
+.erdo-dl-fb__reply {
+	margin-top: 8px;
+}
+
+.erdo-dl-fb__buttons {
+	display: flex;
+	gap: 4px;
+	margin-top: 8px;
+}
+
+/* wp-admin manager page */
 .erdo-draft-links-manager .erdo-draft-links-cleanup-note {
 	color: #666;
 	font-size: 12px;
@@ -261,6 +383,12 @@
 /* ---- Feedback reply form (Feedback tab) ---- */
 .erdo-draft-feedback-reply-form {
 	margin-top: 8px;
+}
+
+.erdo-draft-feedback-thread-reply {
+	margin: 8px 0 0;
+	padding-left: 8px;
+	border-left: 2px solid #dcdcde;
 }
 
 .erdo-draft-feedback-reply-input {

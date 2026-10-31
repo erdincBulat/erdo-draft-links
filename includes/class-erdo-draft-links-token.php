@@ -117,6 +117,7 @@ class Erdo_Draft_Links_Token {
 			'24h' => DAY_IN_SECONDS,
 			'48h' => 2 * DAY_IN_SECONDS,
 			'7d'  => WEEK_IN_SECONDS,
+			'30d' => MONTH_IN_SECONDS,
 		);
 		if ( ! isset( $map[ $expiry ] ) ) {
 			return null;

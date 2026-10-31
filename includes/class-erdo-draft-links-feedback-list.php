@@ -11,6 +11,9 @@ class Erdo_Draft_Links_Feedback_List extends WP_List_Table {
 	private int $post_id;
 	private int $author_id;
 
+	/** @var array<int, object[]> Replies keyed by parent feedback id. */
+	private array $replies = array();
+
 	/**
 	 * @param int $author_id Only list feedback on this author's posts (0 = all).
 	 */
@@ -79,22 +82,24 @@ class Erdo_Draft_Links_Feedback_List extends WP_List_Table {
 	}
 
 	private function render_reply_box( object $item ): string {
-		$reply = isset( $item->reply ) ? (string) $item->reply : '';
-
 		ob_start();
+		foreach ( $this->replies[ (int) $item->id ] ?? array() as $reply ) {
+			printf(
+				'<div class="erdo-draft-feedback-thread-reply"><strong>%1$s</strong> <span class="description">%2$s</span><br />%3$s</div>',
+				esc_html( $reply->author_name ),
+				esc_html( wp_date( get_option( 'date_format' ) . ' ' . get_option( 'time_format' ), strtotime( $reply->created_at ) ) ),
+				esc_html( $reply->message )
+			);
+		}
 		?>
 		<form method="post" class="erdo-draft-feedback-reply-form">
 			<?php wp_nonce_field( 'erdo_draft_feedback_reply_' . $item->id ); ?>
 			<input type="hidden" name="action" value="erdo_draft_feedback_reply" />
 			<input type="hidden" name="feedback_id" value="<?php echo esc_attr( $item->id ); ?>" />
-			<textarea name="reply" rows="2" class="widefat erdo-draft-feedback-reply-input" placeholder="<?php esc_attr_e( 'Reply to this feedback…', 'erdo-draft-links' ); ?>"><?php echo esc_textarea( $reply ); ?></textarea>
+			<textarea name="reply" rows="2" class="widefat erdo-draft-feedback-reply-input" placeholder="<?php esc_attr_e( 'Reply to this feedback…', 'erdo-draft-links' ); ?>"></textarea>
 			<p>
 				<button type="submit" class="button button-small">
-					<?php if ( '' !== $reply ) : ?>
-						<?php esc_html_e( 'Update Reply', 'erdo-draft-links' ); ?>
-					<?php else : ?>
-						<?php esc_html_e( 'Send Reply', 'erdo-draft-links' ); ?>
-					<?php endif; ?>
+					<?php esc_html_e( 'Send Reply', 'erdo-draft-links' ); ?>
 				</button>
 			</p>
 		</form>
@@ -160,6 +165,7 @@ class Erdo_Draft_Links_Feedback_List extends WP_List_Table {
 			array(),
 		);
 
-		$this->items = $this->db->get_feedback_paginated( $current_page, $per_page, $this->post_id, $this->author_id );
+		$this->items   = $this->db->get_feedback_paginated( $current_page, $per_page, $this->post_id, $this->author_id );
+		$this->replies = $this->db->get_replies( wp_list_pluck( $this->items, 'id' ) );
 	}
 }

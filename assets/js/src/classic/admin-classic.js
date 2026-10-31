@@ -134,6 +134,8 @@
 				const expiry      = expirySelect ? expirySelect.value : '24h';
 				const label       = labelInput ? labelInput.value : '';
 				const customExpiry = customExpiryInput ? customExpiryInput.value : '';
+				const passwordInput = wrap.querySelector( '#erdo-draft-links-password-classic' );
+				const maxViewsInput = wrap.querySelector( '#erdo-draft-links-max-views-classic' );
 
 				if ( 'custom' === expiry && ! customExpiry ) {
 					showError( wrap, i18n.invalidCustomExpiry );
@@ -141,11 +143,19 @@
 				}
 
 				setLoading( wrap, true );
-				apiFetch( `/link/${ postId }/generate`, 'POST', { label, expiry, custom_expiry: customExpiry } )
+				apiFetch( `/link/${ postId }/generate`, 'POST', {
+					label,
+					expiry,
+					custom_expiry: customExpiry,
+					password: passwordInput ? passwordInput.value : '',
+					max_views: maxViewsInput ? parseInt( maxViewsInput.value, 10 ) || 0 : 0,
+				} )
 					.then( ( link ) => {
 						list.prepend( renderRow( link ) );
 						if ( labelInput ) labelInput.value = '';
 						if ( customExpiryInput ) customExpiryInput.value = '';
+						if ( passwordInput ) passwordInput.value = '';
+						if ( maxViewsInput ) maxViewsInput.value = '';
 						setLoading( wrap, false );
 					} )
 					.catch( ( err ) => {

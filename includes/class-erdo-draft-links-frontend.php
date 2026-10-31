@@ -555,7 +555,10 @@ class Erdo_Draft_Links_Frontend {
 						</p>
 					</form>
 
-					<?php $history = $this->db->get_feedback_by_link( $link_id ); ?>
+					<?php
+					$history = $this->db->get_feedback_by_link( $link_id );
+					$replies = $this->db->get_replies( wp_list_pluck( $history, 'id' ) );
+					?>
 					<div class="erdo-draft-feedback-history" id="erdo-draft-feedback-history" <?php echo empty( $history ) ? 'hidden' : ''; ?>>
 						<h4 class="erdo-draft-feedback-history-title"><?php esc_html_e( 'Past Feedback', 'erdo-draft-links' ); ?></h4>
 						<ul class="erdo-draft-feedback-history-list" id="erdo-draft-feedback-history-list">
@@ -577,12 +580,12 @@ class Erdo_Draft_Links_Frontend {
 									<span class="erdo-draft-feedback-history-date">
 										<?php echo esc_html( wp_date( get_option( 'date_format' ), strtotime( $item->created_at . ' UTC' ) ) ); ?>
 									</span>
-									<?php if ( ! empty( $item->reply ) ) : ?>
+									<?php foreach ( $replies[ (int) $item->id ] ?? array() as $reply ) : ?>
 										<div class="erdo-draft-feedback-reply">
-											<span class="erdo-draft-feedback-reply-label"><?php esc_html_e( 'Reply', 'erdo-draft-links' ); ?></span>
-											<p class="erdo-draft-feedback-reply-message"><?php echo esc_html( $item->reply ); ?></p>
+											<span class="erdo-draft-feedback-reply-label"><?php echo esc_html( $reply->author_name ); ?></span>
+											<p class="erdo-draft-feedback-reply-message"><?php echo esc_html( $reply->message ); ?></p>
 										</div>
-									<?php endif; ?>
+									<?php endforeach; ?>
 								</li>
 							<?php endforeach; ?>
 						</ul>

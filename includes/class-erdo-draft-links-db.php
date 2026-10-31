@@ -85,6 +85,7 @@ class Erdo_Draft_Links_DB {
   post_id bigint(20) UNSIGNED NOT NULL,
   link_id bigint(20) UNSIGNED NOT NULL DEFAULT 0,
   parent_id bigint(20) UNSIGNED NOT NULL DEFAULT 0,
+  user_id bigint(20) UNSIGNED NOT NULL DEFAULT 0,
   type varchar(20) NOT NULL DEFAULT 'comment',
   author_name varchar(100) NOT NULL DEFAULT '',
   author_email varchar(100) NOT NULL DEFAULT '',
@@ -237,6 +238,31 @@ class Erdo_Draft_Links_DB {
 		if ( $link ) {
 			$this->flush_link_cache( $link );
 		}
+	}
+
+	/**
+	 * Updates editable fields of a link. Pass only the keys to change.
+	 *
+	 * @param array{label?: string, expires_at?: ?string} $fields
+	 */
+	public function update_link( int $link_id, array $fields ): bool {
+		$fields = array_intersect_key( $fields, array_flip( array( 'label', 'expires_at' ) ) );
+		if ( ! $fields ) {
+			return false;
+		}
+
+		global $wpdb;
+
+		$link = $this->get_link_by_id( $link_id );
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		$result = $wpdb->update( $this->table, $fields, array( 'id' => $link_id ), array_fill( 0, count( $fields ), '%s' ), array( '%d' ) );
+
+		if ( $link ) {
+			$this->flush_link_cache( $link );
+		}
+
+		return false !== $result;
 	}
 
 	public function revoke_link_by_id( int $link_id ): bool {
@@ -420,7 +446,7 @@ class Erdo_Draft_Links_DB {
 	// -------------------------------------------------------------------------
 
 	/**
-	 * @param array{type?: string, author_email?: string, parent_id?: int, selector?: string, x_percent?: float, y_percent?: float, viewport?: string} $extra
+	 * @param array{type?: string, author_email?: string, parent_id?: int, user_id?: int, selector?: string, x_percent?: float, y_percent?: float, viewport?: string} $extra
 	 */
 	public function add_feedback( int $post_id, int $link_id, string $name, string $message, array $extra = array() ): int {
 		global $wpdb;
@@ -429,6 +455,7 @@ class Erdo_Draft_Links_DB {
 			'post_id'      => $post_id,
 			'link_id'      => $link_id,
 			'parent_id'    => (int) ( $extra['parent_id'] ?? 0 ),
+			'user_id'      => (int) ( $extra['user_id'] ?? 0 ),
 			'type'         => (string) ( $extra['type'] ?? self::FEEDBACK_TYPE_COMMENT ),
 			'author_name'  => $name,
 			'author_email' => (string) ( $extra['author_email'] ?? '' ),
@@ -437,7 +464,7 @@ class Erdo_Draft_Links_DB {
 			'viewport'     => (string) ( $extra['viewport'] ?? '' ),
 			'created_at'   => gmdate( 'Y-m-d H:i:s' ),
 		);
-		$formats = array( '%d', '%d', '%d', '%s', '%s', '%s', '%s', '%s', '%s', '%s' );
+		$formats = array( '%d', '%d', '%d', '%d', '%s', '%s', '%s', '%s', '%s', '%s', '%s' );
 
 		// Annotation position — left NULL (not 0) for plain comments.
 		foreach ( array( 'selector' => '%s', 'x_percent' => '%f', 'y_percent' => '%f' ) as $key => $format ) {
@@ -475,7 +502,7 @@ class Erdo_Draft_Links_DB {
 		$table = esc_sql( $this->feedback_table );
 
 		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-		$rows = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM `{$table}` WHERE link_id = %d ORDER BY id DESC LIMIT %d", $link_id, $limit ) );
+		$rows = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM `{$table}` WHERE link_id = %d AND parent_id = 0 ORDER BY id DESC LIMIT %d", $link_id, $limit ) );
 		// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 
 		return $rows ?: array();
@@ -500,22 +527,85 @@ class Erdo_Draft_Links_DB {
 		return false !== $result;
 	}
 
-	public function add_feedback_reply( int $feedback_id, string $reply ): bool {
+	/**
+	 * Adds a reply (a child row) to a top-level feedback item. Staff replies
+	 * carry the WordPress user id; visitor replies have user_id 0.
+	 */
+	public function add_reply( object $parent, int $user_id, string $name, string $message ): int {
+		return $this->add_feedback(
+			(int) $parent->post_id,
+			(int) $parent->link_id,
+			$name,
+			$message,
+			array(
+				'parent_id' => (int) $parent->id,
+				'user_id'   => $user_id,
+			)
+		);
+	}
+
+	/**
+	 * Replies for the given top-level items, oldest first, keyed by parent id.
+	 *
+	 * @param int[] $parent_ids
+	 * @return array<int, object[]>
+	 */
+	public function get_replies( array $parent_ids ): array {
+		$parent_ids = array_values( array_filter( array_map( 'intval', $parent_ids ) ) );
+		if ( ! $parent_ids ) {
+			return array();
+		}
+
 		global $wpdb;
 
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
-		$result = $wpdb->update(
-			$this->feedback_table,
-			array(
-				'reply'      => $reply,
-				'replied_at' => gmdate( 'Y-m-d H:i:s' ),
-			),
-			array( 'id' => $feedback_id ),
-			array( '%s', '%s' ),
-			array( '%d' )
-		);
+		$table        = esc_sql( $this->feedback_table );
+		$placeholders = implode( ',', array_fill( 0, count( $parent_ids ), '%d' ) );
 
-		return false !== $result;
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare
+		$rows = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM `{$table}` WHERE parent_id IN ( {$placeholders} ) ORDER BY id ASC", $parent_ids ) );
+		// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare
+
+		$grouped = array();
+		foreach ( (array) $rows as $row ) {
+			$grouped[ (int) $row->parent_id ][] = $row;
+		}
+		return $grouped;
+	}
+
+	/**
+	 * Top-level feedback items on a post across all its links (editor view).
+	 */
+	public function get_feedback_for_post( int $post_id, int $limit = 200 ): array {
+		global $wpdb;
+
+		$table = esc_sql( $this->feedback_table );
+
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		$rows = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM `{$table}` WHERE post_id = %d AND parent_id = 0 ORDER BY id DESC LIMIT %d", $post_id, $limit ) );
+		// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+
+		return $rows ?: array();
+	}
+
+	public function count_open_feedback( int $post_id ): int {
+		global $wpdb;
+
+		$table = esc_sql( $this->feedback_table );
+
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		$count = $wpdb->get_var(
+			$wpdb->prepare(
+				"SELECT COUNT(*) FROM `{$table}` WHERE post_id = %d AND parent_id = 0 AND type IN ( %s, %s, %s ) AND status = %s",
+				$post_id,
+				self::FEEDBACK_TYPE_COMMENT,
+				self::FEEDBACK_TYPE_ANNOTATION,
+				self::FEEDBACK_TYPE_CHANGES,
+				self::FEEDBACK_STATUS_OPEN
+			)
+		);
+		// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+
+		return (int) $count;
 	}
 
 	public static function get_feedback_status_label( string $status ): string {
@@ -562,7 +652,7 @@ class Erdo_Draft_Links_DB {
 	private function feedback_where( int $post_id, int $author_id ): array {
 		global $wpdb;
 
-		$where = array( '1=1' );
+		$where = array( 'parent_id = 0' );
 		$args  = array();
 
 		if ( $post_id > 0 ) {
@@ -581,6 +671,8 @@ class Erdo_Draft_Links_DB {
 	public function delete_feedback( int $id ): bool {
 		global $wpdb;
 
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		$wpdb->delete( $this->feedback_table, array( 'parent_id' => $id ), array( '%d' ) );
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		return (bool) $wpdb->delete( $this->feedback_table, array( 'id' => $id ), array( '%d' ) );
 	}

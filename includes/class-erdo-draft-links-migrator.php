@@ -44,6 +44,7 @@ class Erdo_Draft_Links_Migrator {
 			$this->convert_local_dates_to_gmt();
 		}
 		$this->encrypt_plaintext_tokens();
+		$this->move_legacy_replies();
 
 		update_option( self::VERSION_OPTION, ERDO_DRAFT_LINKS_DB_VERSION );
 		update_option( self::FLUSH_RULES_OPTION, 1 );
@@ -89,6 +90,31 @@ class Erdo_Draft_Links_Migrator {
 		$wpdb->query( $wpdb->prepare( "UPDATE `{$links}` SET created_at = DATE_SUB( created_at, INTERVAL %d SECOND ) WHERE created_at > '1000-01-01'", $offset ) );
 		$wpdb->query( $wpdb->prepare( "UPDATE `{$feedback}` SET created_at = DATE_SUB( created_at, INTERVAL %d SECOND ) WHERE created_at > '1000-01-01'", $offset ) );
 		$wpdb->query( $wpdb->prepare( "UPDATE `{$feedback}` SET replied_at = DATE_SUB( replied_at, INTERVAL %d SECOND ) WHERE replied_at IS NOT NULL", $offset ) );
+		// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+	}
+
+	/**
+	 * < 2.0.0 stored one admin reply per feedback item in its `reply` column.
+	 * 2.0 threads replies as child rows; move each legacy reply into one
+	 * (attributed to the post's author) and clear the column. Safe to re-run.
+	 */
+	private function move_legacy_replies(): void {
+		global $wpdb;
+		$table = esc_sql( $this->db->get_feedback_table_name() );
+
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		$rows = $wpdb->get_results( "SELECT * FROM `{$table}` WHERE reply IS NOT NULL AND reply <> ''" );
+
+		foreach ( (array) $rows as $row ) {
+			$author_id = (int) get_post_field( 'post_author', (int) $row->post_id );
+			$author    = $author_id ? get_userdata( $author_id ) : false;
+			$reply_id  = $this->db->add_reply( $row, $author_id, $author ? $author->display_name : get_bloginfo( 'name' ), (string) $row->reply );
+
+			if ( $reply_id && $row->replied_at ) {
+				$wpdb->update( $this->db->get_feedback_table_name(), array( 'created_at' => $row->replied_at ), array( 'id' => $reply_id ), array( '%s' ), array( '%d' ) );
+			}
+			$wpdb->query( $wpdb->prepare( "UPDATE `{$table}` SET reply = NULL, replied_at = NULL WHERE id = %d", (int) $row->id ) );
+		}
 		// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 	}
 

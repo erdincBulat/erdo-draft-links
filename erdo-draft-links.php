@@ -56,12 +56,14 @@ add_action( 'plugins_loaded', function (): void {
 	$notifications = new Erdo_Draft_Links_Notifications();
 	$review        = new Erdo_Draft_Links_Review( $db, $session, $notifications );
 	$admin         = new Erdo_Draft_Links_Admin( $db, $token, $review );
+	$feedback_api  = new Erdo_Draft_Links_Feedback_Api( $db, $review );
 	$frontend      = new Erdo_Draft_Links_Frontend( $db, $token, $session, new Erdo_Draft_Links_Status_Page(), $notifications );
 	$cron          = new Erdo_Draft_Links_Cron( $db );
 
 	( new Erdo_Draft_Links_Migrator( $db, $token ) )->maybe_upgrade();
 	$review->register( $loader );
 	$admin->register( $loader );
+	$feedback_api->register( $loader );
 	$frontend->register( $loader );
 	$cron->register( $loader );
 	$loader->run();

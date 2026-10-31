@@ -150,7 +150,7 @@ class Erdo_Draft_Links_Review {
 	/**
 	 * Latest decision for a post across all its links, or null if none.
 	 *
-	 * @return array{status: string, reviewer: string, at: string, link_id: int, is_stale: bool}|null
+	 * @return array{status: string, reviewer: string, at: string, link_id: int, is_stale: bool}|null `at` is ISO 8601 UTC.
 	 */
 	public function get_post_review( int $post_id ): ?array {
 		$meta = get_post_meta( $post_id, self::META_KEY, true );
@@ -161,7 +161,7 @@ class Erdo_Draft_Links_Review {
 		return array(
 			'status'   => (string) $meta['status'],
 			'reviewer' => (string) ( $meta['reviewer'] ?? '' ),
-			'at'       => (string) ( $meta['at'] ?? '' ),
+			'at'       => ! empty( $meta['at'] ) ? gmdate( 'Y-m-d\TH:i:s\Z', strtotime( $meta['at'] ) ) : '',
 			'link_id'  => (int) ( $meta['link_id'] ?? 0 ),
 			'is_stale' => $this->is_stale( $post_id, (string) ( $meta['modified'] ?? '' ) ),
 		);
