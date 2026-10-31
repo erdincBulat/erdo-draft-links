@@ -36,22 +36,31 @@ spl_autoload_register( function ( string $class ): void {
 register_activation_hook( __FILE__, static function (): void {
 	Erdo_Draft_Links_DB::activate();
 	Erdo_Draft_Links_Cron::schedule();
+	// The /review/ rewrite rule is registered on init, after this hook.
+	update_option( Erdo_Draft_Links_Migrator::FLUSH_RULES_OPTION, 1 );
 } );
 
 register_deactivation_hook( __FILE__, static function (): void {
 	Erdo_Draft_Links_DB::deactivate();
 	Erdo_Draft_Links_Cron::unschedule();
+	// Our rule is still registered during this request, so a flush would keep
+	// it; dropping the cache makes WP rebuild the rules without the plugin.
+	delete_option( 'rewrite_rules' );
 } );
 
 add_action( 'plugins_loaded', function (): void {
-	$loader   = new Erdo_Draft_Links_Loader();
-	$db       = Erdo_Draft_Links_DB::get_instance();
-	$token    = new Erdo_Draft_Links_Token();
-	$admin    = new Erdo_Draft_Links_Admin( $db, $token );
-	$frontend = new Erdo_Draft_Links_Frontend( $db, $token );
-	$cron     = new Erdo_Draft_Links_Cron( $db );
+	$loader        = new Erdo_Draft_Links_Loader();
+	$db            = Erdo_Draft_Links_DB::get_instance();
+	$token         = new Erdo_Draft_Links_Token();
+	$session       = new Erdo_Draft_Links_Session( $db, $token );
+	$notifications = new Erdo_Draft_Links_Notifications();
+	$review        = new Erdo_Draft_Links_Review( $db, $session, $notifications );
+	$admin         = new Erdo_Draft_Links_Admin( $db, $token, $review );
+	$frontend      = new Erdo_Draft_Links_Frontend( $db, $token, $session, new Erdo_Draft_Links_Status_Page(), $notifications );
+	$cron          = new Erdo_Draft_Links_Cron( $db );
 
-	$db->maybe_upgrade();
+	( new Erdo_Draft_Links_Migrator( $db, $token ) )->maybe_upgrade();
+	$review->register( $loader );
 	$admin->register( $loader );
 	$frontend->register( $loader );
 	$cron->register( $loader );

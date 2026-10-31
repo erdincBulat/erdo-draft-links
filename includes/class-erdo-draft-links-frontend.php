@@ -3,26 +3,43 @@ defined( 'ABSPATH' ) || exit;
 
 class Erdo_Draft_Links_Frontend {
 
+	const QUERY_VAR = 'erdo_review';
+
+	/** Wrong password attempts allowed per link and visitor IP per window. */
+	const UNLOCK_MAX_ATTEMPTS = 10;
+	const UNLOCK_WINDOW       = 15 * MINUTE_IN_SECONDS;
+
 	private Erdo_Draft_Links_DB $db;
 	private Erdo_Draft_Links_Token $token;
+	private Erdo_Draft_Links_Session $session;
+	private Erdo_Draft_Links_Status_Page $status_page;
+	private Erdo_Draft_Links_Notifications $notifications;
 
 	private ?int $active_link_id = null;
 	private ?int $active_post_id = null;
 
-	public function __construct( Erdo_Draft_Links_DB $db, Erdo_Draft_Links_Token $token ) {
-		$this->db    = $db;
-		$this->token = $token;
+	public function __construct( Erdo_Draft_Links_DB $db, Erdo_Draft_Links_Token $token, Erdo_Draft_Links_Session $session, Erdo_Draft_Links_Status_Page $status_page, Erdo_Draft_Links_Notifications $notifications ) {
+		$this->db            = $db;
+		$this->token         = $token;
+		$this->session       = $session;
+		$this->status_page   = $status_page;
+		$this->notifications = $notifications;
 	}
 
 	public function register( Erdo_Draft_Links_Loader $loader ): void {
+		// Pretty /review/<token>/ URLs.
+		$loader->add_action( 'init', $this, 'add_rewrite_rules' );
+		$loader->add_action( 'init', $this, 'maybe_flush_rewrite_rules', 99 );
+		$loader->add_filter( 'query_vars', $this, 'add_query_var' );
+
 		// Priority 1: intercept token URL before any other processing.
 		$loader->add_action( 'template_redirect', $this, 'handle_token_request', 1 );
 
 		// Priority 1: runs before WP_Query builds SQL; adds draft to allowed statuses.
 		$loader->add_action( 'pre_get_posts', $this, 'allow_draft_for_cookie', 1, 1 );
 
-		// Grants edit_post for the shared post only, so page builders (e.g. Elementor)
-		// render their content for non-logged-in visitors with a valid preview cookie.
+		// Grants edit_post/read_post for the shared post only, so page builders (e.g.
+		// Elementor) and block bindings render for visitors with a preview cookie.
 		$loader->add_filter( 'user_has_cap', $this, 'grant_preview_edit_cap', 10, 3 );
 
 		// Priority 5: after the token redirect (priority 1) has had a chance to run/exit.
@@ -65,7 +82,7 @@ class Erdo_Draft_Links_Frontend {
 	 * @return WP_REST_Response|WP_Error
 	 */
 	public function rest_submit_feedback( WP_REST_Request $request ) {
-		$cookie_data = $this->find_valid_cookie_data();
+		$cookie_data = $this->session->current();
 		if ( null === $cookie_data ) {
 			return new WP_Error( 'erdo_invalid_session', __( 'An error occurred. Please try again.', 'erdo-draft-links' ), array( 'status' => 403 ) );
 		}
@@ -89,7 +106,7 @@ class Erdo_Draft_Links_Frontend {
 			return new WP_Error( 'erdo_feedback_failed', __( 'An error occurred. Please try again.', 'erdo-draft-links' ), array( 'status' => 500 ) );
 		}
 
-		$this->send_feedback_notification( $post_id, $name, $message );
+		$this->notifications->feedback( $cookie_data['link'], $name, $message );
 
 		$status  = Erdo_Draft_Links_DB::FEEDBACK_STATUS_OPEN;
 		$initial = function_exists( 'mb_substr' ) ? mb_substr( $name, 0, 1 ) : substr( $name, 0, 1 );
@@ -110,15 +127,35 @@ class Erdo_Draft_Links_Frontend {
 	}
 
 	// -------------------------------------------------------------------------
+	// Pretty URLs: /review/<token>/ → same handler as ?erdo_token=.
+	// -------------------------------------------------------------------------
+
+	public function add_rewrite_rules(): void {
+		add_rewrite_rule( '^' . preg_quote( Erdo_Draft_Links_Token::review_base(), '/' ) . '/([A-Za-z0-9]{32})/?$', 'index.php?' . self::QUERY_VAR . '=$matches[1]', 'top' );
+	}
+
+	public function maybe_flush_rewrite_rules(): void {
+		if ( get_option( Erdo_Draft_Links_Migrator::FLUSH_RULES_OPTION ) ) {
+			delete_option( Erdo_Draft_Links_Migrator::FLUSH_RULES_OPTION );
+			flush_rewrite_rules( false );
+		}
+	}
+
+	public function add_query_var( array $vars ): array {
+		$vars[] = self::QUERY_VAR;
+		return $vars;
+	}
+
+	// -------------------------------------------------------------------------
 	// Step 1: Token URL → validate → set cookie → redirect to clean URL
 	// -------------------------------------------------------------------------
 
 	public function handle_token_request(): void {
-		if ( ! isset( $_GET['erdo_token'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- the token itself is the credential.
+		$raw_token = isset( $_GET['erdo_token'] ) ? sanitize_text_field( wp_unslash( $_GET['erdo_token'] ) ) : (string) get_query_var( self::QUERY_VAR );
+		if ( '' === $raw_token ) {
 			return;
 		}
-
-		$raw_token = sanitize_text_field( wp_unslash( $_GET['erdo_token'] ) ); // phpcs:ignore WordPress.Security.NonceVerification
 
 		// Keep the token URL (and whatever it answers) out of search indexes,
 		// caches and the Referer header sent to any third-party asset.
@@ -127,7 +164,7 @@ class Erdo_Draft_Links_Frontend {
 
 		// Format guard: exactly 32 alphanumeric characters.
 		if ( ! ctype_alnum( $raw_token ) || strlen( $raw_token ) !== 32 ) {
-			$this->die_invalid();
+			$this->status_page->render( Erdo_Draft_Links_Status_Page::STATE_INVALID );
 		}
 
 		// Chat apps, mail scanners and browser prefetches open links on their
@@ -140,26 +177,116 @@ class Erdo_Draft_Links_Frontend {
 		$link = $this->db->get_link_by_token_hash( $this->token->hash( $raw_token ) );
 
 		if ( ! $link || ! $this->token->verify( $raw_token, $link->token_hash ) ) {
-			$this->die_invalid();
+			$this->status_page->render( Erdo_Draft_Links_Status_Page::STATE_INVALID );
 		}
 
+		$self_url = $this->token->url_for_token( $raw_token, (int) $link->post_id );
+
+		$dead_state = null;
 		if ( ! $link->is_active ) {
-			$this->die_revoked();
+			$dead_state = Erdo_Draft_Links_Status_Page::STATE_REVOKED;
+		} elseif ( $this->token->is_expired( $link->expires_at ) ) {
+			$dead_state = Erdo_Draft_Links_Status_Page::STATE_EXPIRED;
+		} elseif ( null !== $link->max_views && (int) $link->view_count >= (int) $link->max_views ) {
+			$dead_state = Erdo_Draft_Links_Status_Page::STATE_LIMIT;
 		}
 
-		if ( $this->token->is_expired( $link->expires_at ) ) {
-			$this->die_expired();
+		if ( null !== $dead_state ) {
+			if ( $this->is_post_request() && isset( $_POST['erdo_request_link'] ) ) {
+				$this->handle_link_request( $link );
+			}
+			$this->status_page->render(
+				$dead_state,
+				array(
+					'form_action' => $self_url,
+					'link_id'     => (int) $link->id,
+					'can_request' => true,
+				)
+			);
+		}
+
+		if ( '' !== (string) $link->password_hash ) {
+			$this->require_password( $link, $self_url );
 		}
 
 		if ( 0 === (int) $link->view_count ) {
-			$this->send_first_view_notification( $link );
+			$this->notifications->first_view( $link );
 		}
 
-		$this->set_access_cookie( $link );
-		$this->db->increment_view_count( (int) $link->id );
+		$this->session->start( $link );
+		$this->db->record_view( (int) $link->id );
 
 		wp_safe_redirect( get_permalink( (int) $link->post_id ) );
 		exit;
+	}
+
+	/**
+	 * Shows the password form until the right password is POSTed. Wrong
+	 * attempts are rate limited per link and visitor IP.
+	 */
+	private function require_password( object $link, string $self_url ): void {
+		$args = array(
+			'form_action' => $self_url,
+			'link_id'     => (int) $link->id,
+		);
+
+		if ( ! $this->is_post_request() || ! isset( $_POST['erdo_link_password'] ) ) {
+			$this->status_page->render( Erdo_Draft_Links_Status_Page::STATE_PASSWORD, $args );
+		}
+
+		$nonce = isset( $_POST['erdo_unlock_nonce'] ) ? sanitize_text_field( wp_unslash( $_POST['erdo_unlock_nonce'] ) ) : '';
+		if ( ! wp_verify_nonce( $nonce, 'erdo_draft_link_unlock_' . (int) $link->id ) ) {
+			$args['error'] = __( 'The form expired. Please try again.', 'erdo-draft-links' );
+			$this->status_page->render( Erdo_Draft_Links_Status_Page::STATE_PASSWORD, $args );
+		}
+
+		$attempts_key = 'erdo_dl_unlock_' . (int) $link->id . '_' . md5( $this->client_ip() );
+		$attempts     = (int) get_transient( $attempts_key );
+		if ( $attempts >= self::UNLOCK_MAX_ATTEMPTS ) {
+			$args['status'] = 429;
+			$args['error']  = __( 'Too many attempts. Please wait a few minutes and try again.', 'erdo-draft-links' );
+			$this->status_page->render( Erdo_Draft_Links_Status_Page::STATE_PASSWORD, $args );
+		}
+
+		// Passwords are compared as typed; sanitizing could alter them.
+		$password = (string) wp_unslash( $_POST['erdo_link_password'] ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+		if ( ! wp_check_password( $password, (string) $link->password_hash ) ) {
+			set_transient( $attempts_key, $attempts + 1, self::UNLOCK_WINDOW );
+			$args['status'] = 401;
+			$args['error']  = __( 'That password is not correct.', 'erdo-draft-links' );
+			$this->status_page->render( Erdo_Draft_Links_Status_Page::STATE_PASSWORD, $args );
+		}
+
+		delete_transient( $attempts_key );
+	}
+
+	/**
+	 * "Ask for a new link" on a dead link's page — emails the link's owners,
+	 * at most once per link per hour.
+	 */
+	private function handle_link_request( object $link ): void {
+		$nonce = isset( $_POST['erdo_request_nonce'] ) ? sanitize_text_field( wp_unslash( $_POST['erdo_request_nonce'] ) ) : '';
+		if ( ! wp_verify_nonce( $nonce, 'erdo_draft_link_request_' . (int) $link->id ) ) {
+			return;
+		}
+
+		$throttle_key = 'erdo_dl_requested_' . (int) $link->id;
+		if ( ! get_transient( $throttle_key ) ) {
+			set_transient( $throttle_key, 1, HOUR_IN_SECONDS );
+			$this->notifications->link_requested( $link );
+		}
+
+		// Same answer whether or not an email went out, so the page reveals nothing.
+		$this->status_page->render( Erdo_Draft_Links_Status_Page::STATE_REQUEST_SENT );
+	}
+
+	private function is_post_request(): bool {
+		return isset( $_SERVER['REQUEST_METHOD'] ) && 'POST' === strtoupper( sanitize_text_field( wp_unslash( $_SERVER['REQUEST_METHOD'] ) ) );
+	}
+
+	private function client_ip(): string {
+		// REMOTE_ADDR only — forwarded headers are client-controlled.
+		return isset( $_SERVER['REMOTE_ADDR'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REMOTE_ADDR'] ) ) : '';
 	}
 
 	/**
@@ -215,27 +342,6 @@ class Erdo_Draft_Links_Frontend {
 		header( 'X-Robots-Tag: noindex, nofollow, noarchive, nosnippet' );
 	}
 
-	private function send_first_view_notification( object $link ): void {
-		$post_title = get_the_title( (int) $link->post_id );
-		$label      = '' !== $link->label ? $link->label : __( 'Untitled link', 'erdo-draft-links' );
-
-		$subject = sprintf(
-			/* translators: %s: post title */
-			__( 'Your draft link was opened: %s', 'erdo-draft-links' ),
-			$post_title
-		);
-
-		$body = sprintf(
-			/* translators: 1: link label, 2: post title, 3: admin URL to manage links */
-			__( "The \"%1\$s\" draft link for \"%2\$s\" was just opened for the first time.\n\nManage links: %3\$s", 'erdo-draft-links' ),
-			$label,
-			$post_title,
-			admin_url( 'tools.php?page=erdo-draft-links-manager' )
-		);
-
-		wp_mail( get_option( 'admin_email' ), $subject, $body );
-	}
-
 	// -------------------------------------------------------------------------
 	// Step 2: pre_get_posts — fires before SQL is built.
 	// If a valid erdo_draft_link cookie exists and the query targets the linked post,
@@ -248,7 +354,7 @@ class Erdo_Draft_Links_Frontend {
 			return;
 		}
 
-		$cookie_data = $this->find_valid_cookie_data();
+		$cookie_data = $this->session->current();
 		if ( null === $cookie_data ) {
 			return;
 		}
@@ -328,7 +434,7 @@ class Erdo_Draft_Links_Frontend {
 		$requested_cap = $args[0] ?? '';
 		$object_id     = isset( $args[2] ) ? (int) $args[2] : 0;
 
-		if ( 'edit_post' !== $requested_cap || $object_id !== $this->active_post_id ) {
+		if ( ! in_array( $requested_cap, array( 'edit_post', 'read_post' ), true ) || $object_id !== $this->active_post_id ) {
 			return $allcaps;
 		}
 
@@ -493,7 +599,7 @@ class Erdo_Draft_Links_Frontend {
 			return;
 		}
 
-		$cookie_data = $this->find_valid_cookie_data();
+		$cookie_data = $this->session->current();
 		if ( null === $cookie_data ) {
 			return;
 		}
@@ -514,104 +620,10 @@ class Erdo_Draft_Links_Frontend {
 		$feedback_id = $this->db->add_feedback( $post_id, $cookie_data['link_id'], $name, $message );
 
 		if ( $feedback_id ) {
-			$this->send_feedback_notification( $post_id, $name, $message );
+			$this->notifications->feedback( $cookie_data['link'], $name, $message );
 		}
 
 		wp_safe_redirect( add_query_arg( 'erdo_feedback', 'sent', get_permalink( $post_id ) ) );
 		exit;
-	}
-
-	private function send_feedback_notification( int $post_id, string $name, string $message ): void {
-		$post_title = get_the_title( $post_id );
-
-		$subject = sprintf(
-			/* translators: %s: post title */
-			__( 'New feedback on draft preview: %s', 'erdo-draft-links' ),
-			$post_title
-		);
-
-		$body = sprintf(
-			/* translators: 1: commenter name, 2: post title, 3: feedback message, 4: admin URL to manage feedback */
-			__( "%1\$s left feedback on the draft preview of \"%2\$s\":\n\n%3\$s\n\nManage feedback: %4\$s", 'erdo-draft-links' ),
-			$name,
-			$post_title,
-			$message,
-			admin_url( 'tools.php?page=erdo-draft-links-manager&tab=feedback' )
-		);
-
-		wp_mail( get_option( 'admin_email' ), $subject, $body );
-	}
-
-	// -------------------------------------------------------------------------
-	// Cookie helpers
-	// -------------------------------------------------------------------------
-
-	private function find_valid_cookie_data(): ?array {
-		foreach ( $_COOKIE as $name => $value ) {
-			if ( strpos( $name, 'erdo_draft_link_' ) !== 0 ) {
-				continue;
-			}
-			$link_id = (int) substr( $name, strlen( 'erdo_draft_link_' ) );
-			if ( $link_id <= 0 ) {
-				continue;
-			}
-			$link = $this->db->get_link_by_id( $link_id );
-			if ( ! $link || ! $link->is_active ) {
-				continue;
-			}
-			if ( $this->token->is_expired( $link->expires_at ) ) {
-				continue;
-			}
-			$expected = $this->token->cookie_value( $link->token_hash );
-			if ( hash_equals( $expected, sanitize_text_field( wp_unslash( $value ) ) ) ) {
-				return array(
-					'link_id' => $link_id,
-					'post_id' => (int) $link->post_id,
-				);
-			}
-		}
-		return null;
-	}
-
-	private function set_access_cookie( object $link ): void {
-		$name  = 'erdo_draft_link_' . (int) $link->id;
-		$value = $this->token->cookie_value( $link->token_hash );
-
-		setcookie(
-			$name,
-			$value,
-			array(
-				'expires'  => $this->token->cookie_expires( $link->expires_at ),
-				'path'     => COOKIEPATH,
-				'domain'   => COOKIE_DOMAIN,
-				'secure'   => is_ssl(),
-				'httponly' => true,
-				'samesite' => 'Lax',
-			)
-		);
-	}
-
-	private function die_invalid(): void {
-		wp_die(
-			esc_html__( 'This draft link is not valid. Check that you copied the whole link.', 'erdo-draft-links' ),
-			esc_html__( 'Draft preview', 'erdo-draft-links' ),
-			array( 'response' => 404 )
-		);
-	}
-
-	private function die_expired(): void {
-		wp_die(
-			esc_html__( 'This draft link has expired and is no longer accessible. Ask the person who shared it for a new link.', 'erdo-draft-links' ),
-			esc_html__( 'Draft preview', 'erdo-draft-links' ),
-			array( 'response' => 410 )
-		);
-	}
-
-	private function die_revoked(): void {
-		wp_die(
-			esc_html__( 'This draft link has been turned off by the person who shared it.', 'erdo-draft-links' ),
-			esc_html__( 'Draft preview', 'erdo-draft-links' ),
-			array( 'response' => 410 )
-		);
 	}
 }

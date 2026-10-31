@@ -6,7 +6,14 @@ class Erdo_Draft_Links_DB {
 	const FEEDBACK_STATUS_OPEN = 'in_progress';
 	const FEEDBACK_STATUS_DONE = 'completed';
 
-	const MIGRATION_LOCK = 'erdo_draft_link_migrating';
+	const REVIEW_PENDING   = 'pending';
+	const REVIEW_APPROVED  = 'approved';
+	const REVIEW_CHANGES   = 'changes_requested';
+
+	const FEEDBACK_TYPE_COMMENT    = 'comment';
+	const FEEDBACK_TYPE_ANNOTATION = 'annotation';
+	const FEEDBACK_TYPE_APPROVAL   = 'approval';
+	const FEEDBACK_TYPE_CHANGES    = 'changes_requested';
 
 	private static ?Erdo_Draft_Links_DB $instance = null;
 	private string $table;
@@ -29,121 +36,20 @@ class Erdo_Draft_Links_DB {
 		// Routes through the same version-gated path as the normal plugins_loaded
 		// check, so a reactivation after a manual file update (not a WP-managed
 		// auto-update, which never re-fires this hook) still runs the migrations
-		// below instead of silently skipping them.
-		self::get_instance()->maybe_upgrade();
+		// instead of silently skipping them.
+		$db = self::get_instance();
+		( new Erdo_Draft_Links_Migrator( $db, new Erdo_Draft_Links_Token() ) )->maybe_upgrade();
 	}
 
 	public static function deactivate(): void {
 		// Table is kept on deactivation; removed only on uninstall.
 	}
 
-	public function maybe_upgrade(): void {
-		$installed = get_option( 'erdo_draft_link_db_version' );
-		if ( ERDO_DRAFT_LINKS_DB_VERSION === $installed ) {
-			return;
-		}
-
-		// Two overlapping requests could otherwise both run the one-shot data
-		// migrations below. A stale lock (crashed request) is taken over after
-		// ten minutes.
-		$lock = (int) get_option( self::MIGRATION_LOCK, 0 );
-		if ( $lock && $lock > time() - 10 * MINUTE_IN_SECONDS ) {
-			return;
-		}
-		update_option( self::MIGRATION_LOCK, time(), false );
-
-		$this->drop_unique_post_id_index();
-		$this->create_table();
-
-		if ( $installed && version_compare( $installed, '2.0.0', '<' ) ) {
-			$this->convert_local_dates_to_gmt();
-		}
-		$this->encrypt_plaintext_tokens();
-
-		update_option( 'erdo_draft_link_db_version', ERDO_DRAFT_LINKS_DB_VERSION );
-		delete_option( self::MIGRATION_LOCK );
-	}
-
 	/**
-	 * dbDelta() cannot change an existing index's definition in place — it only
-	 * adds indexes it doesn't already find by name, so a `UNIQUE KEY post_id`
-	 * left over from < 1.2.0 would silently keep enforcing one link per post
-	 * forever. Drop it explicitly before dbDelta() re-adds it as a plain KEY.
+	 * Current schema. dbDelta() adds missing columns/indexes; anything it
+	 * can't do lives in Erdo_Draft_Links_Migrator. All datetimes are GMT.
 	 */
-	private function drop_unique_post_id_index(): void {
-		global $wpdb;
-		$table = esc_sql( $this->table );
-
-		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.DirectDatabaseQuery.SchemaChange, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-		$is_unique = $wpdb->get_var( "SHOW INDEX FROM `{$table}` WHERE Key_name = 'post_id' AND Non_unique = 0" );
-		if ( $is_unique ) {
-			$wpdb->query( "ALTER TABLE `{$table}` DROP INDEX post_id" );
-		}
-		// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.DirectDatabaseQuery.SchemaChange, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-	}
-
-	/**
-	 * < 2.0.0 wrote created_at/replied_at in site-local time while expires_at
-	 * was already GMT. Shift the local ones by the current site offset so every
-	 * datetime column is GMT from now on (rows written across a DST change may
-	 * be off by an hour — display-only, never used for access decisions).
-	 */
-	private function convert_local_dates_to_gmt(): void {
-		global $wpdb;
-
-		$offset = (int) round( (float) get_option( 'gmt_offset', 0 ) * HOUR_IN_SECONDS );
-		if ( 0 === $offset ) {
-			return;
-		}
-
-		$links    = esc_sql( $this->table );
-		$feedback = esc_sql( $this->feedback_table );
-
-		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-		$wpdb->query( $wpdb->prepare( "UPDATE `{$links}` SET created_at = DATE_SUB( created_at, INTERVAL %d SECOND ) WHERE created_at > '1000-01-01'", $offset ) );
-		$wpdb->query( $wpdb->prepare( "UPDATE `{$feedback}` SET created_at = DATE_SUB( created_at, INTERVAL %d SECOND ) WHERE created_at > '1000-01-01'", $offset ) );
-		$wpdb->query( $wpdb->prepare( "UPDATE `{$feedback}` SET replied_at = DATE_SUB( replied_at, INTERVAL %d SECOND ) WHERE replied_at IS NOT NULL", $offset ) );
-		// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-	}
-
-	/**
-	 * < 2.0.0 kept the raw token in a plain-text `token_raw` column. Encrypt
-	 * each one into `token_enc` (so existing shared URLs keep working and can
-	 * still be copied), then drop the plain-text column. Safe to re-run.
-	 */
-	private function encrypt_plaintext_tokens(): void {
-		global $wpdb;
-		$table = esc_sql( $this->table );
-
-		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.DirectDatabaseQuery.SchemaChange, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-		if ( ! $wpdb->get_var( "SHOW COLUMNS FROM `{$table}` LIKE 'token_raw'" ) ) {
-			return;
-		}
-
-		$token = new Erdo_Draft_Links_Token();
-		$rows  = $wpdb->get_results( "SELECT id, token_raw FROM `{$table}` WHERE token_enc = '' AND token_raw <> ''" );
-
-		foreach ( (array) $rows as $row ) {
-			$wpdb->update(
-				$this->table,
-				array( 'token_enc' => $token->encrypt( (string) $row->token_raw ) ),
-				array( 'id' => (int) $row->id ),
-				array( '%s' ),
-				array( '%d' )
-			);
-		}
-
-		$wpdb->query( "ALTER TABLE `{$table}` DROP COLUMN token_raw" );
-		// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.DirectDatabaseQuery.SchemaChange, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-
-		// Cached rows from before the migration still carry token_raw and no
-		// token_enc. Without group flushing they simply age out (≤ 5 minutes).
-		if ( wp_cache_supports( 'flush_group' ) ) {
-			wp_cache_flush_group( 'erdo_draft_link' );
-		}
-	}
-
-	private function create_table(): void {
+	public function create_tables(): void {
 		global $wpdb;
 		$charset = $wpdb->get_charset_collate();
 		$table   = $this->table;
@@ -154,10 +60,18 @@ class Erdo_Draft_Links_DB {
   label varchar(100) NOT NULL DEFAULT '',
   token_hash varchar(255) NOT NULL,
   token_enc varchar(255) NOT NULL DEFAULT '',
+  created_by bigint(20) UNSIGNED NOT NULL DEFAULT 0,
   created_at datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
   expires_at datetime DEFAULT NULL,
+  last_viewed_at datetime DEFAULT NULL,
   view_count bigint(20) UNSIGNED NOT NULL DEFAULT 0,
+  max_views int(10) UNSIGNED DEFAULT NULL,
+  password_hash varchar(255) NOT NULL DEFAULT '',
   is_active tinyint(1) NOT NULL DEFAULT 1,
+  review_status varchar(20) NOT NULL DEFAULT 'pending',
+  reviewed_at datetime DEFAULT NULL,
+  reviewer_name varchar(100) NOT NULL DEFAULT '',
+  reviewed_modified datetime DEFAULT NULL,
   PRIMARY KEY  (id),
   KEY post_id (post_id),
   KEY token_hash (token_hash(64)),
@@ -170,15 +84,23 @@ class Erdo_Draft_Links_DB {
   id bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT,
   post_id bigint(20) UNSIGNED NOT NULL,
   link_id bigint(20) UNSIGNED NOT NULL DEFAULT 0,
+  parent_id bigint(20) UNSIGNED NOT NULL DEFAULT 0,
+  type varchar(20) NOT NULL DEFAULT 'comment',
   author_name varchar(100) NOT NULL DEFAULT '',
+  author_email varchar(100) NOT NULL DEFAULT '',
   message text NOT NULL,
   status varchar(20) NOT NULL DEFAULT 'in_progress',
   reply text DEFAULT NULL,
   replied_at datetime DEFAULT NULL,
+  selector text DEFAULT NULL,
+  x_percent decimal(7,4) DEFAULT NULL,
+  y_percent decimal(7,4) DEFAULT NULL,
+  viewport varchar(20) NOT NULL DEFAULT '',
   created_at datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
   PRIMARY KEY  (id),
   KEY post_id (post_id),
-  KEY link_id (link_id)
+  KEY link_id (link_id),
+  KEY parent_id (parent_id)
 ) $charset;";
 
 		require_once ABSPATH . 'wp-admin/includes/upgrade.php';
@@ -190,23 +112,32 @@ class Erdo_Draft_Links_DB {
 	// Links
 	// -------------------------------------------------------------------------
 
-	public function insert_link( int $post_id, string $label, string $token_hash, string $token_enc, ?string $expires_at ): int|false {
+	/**
+	 * @param array{post_id: int, token_hash: string, token_enc: string, label?: string, expires_at?: ?string, created_by?: int, password_hash?: string, max_views?: ?int} $data
+	 */
+	public function insert_link( array $data ): int|false {
 		global $wpdb;
+
+		$post_id = (int) $data['post_id'];
 
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		$result = $wpdb->insert(
 			$this->table,
 			array(
-				'post_id'    => $post_id,
-				'label'      => $label,
-				'token_hash' => $token_hash,
-				'token_enc'  => $token_enc,
-				'created_at' => gmdate( 'Y-m-d H:i:s' ),
-				'expires_at' => $expires_at,
-				'view_count' => 0,
-				'is_active'  => 1,
+				'post_id'       => $post_id,
+				'label'         => (string) ( $data['label'] ?? '' ),
+				'token_hash'    => (string) $data['token_hash'],
+				'token_enc'     => (string) $data['token_enc'],
+				'created_by'    => (int) ( $data['created_by'] ?? 0 ),
+				'created_at'    => gmdate( 'Y-m-d H:i:s' ),
+				'expires_at'    => $data['expires_at'] ?? null,
+				'view_count'    => 0,
+				'max_views'     => isset( $data['max_views'] ) && $data['max_views'] > 0 ? (int) $data['max_views'] : null,
+				'password_hash' => (string) ( $data['password_hash'] ?? '' ),
+				'is_active'     => 1,
+				'review_status' => self::REVIEW_PENDING,
 			),
-			array( '%d', '%s', '%s', '%s', '%s', '%s', '%d', '%d' )
+			array( '%d', '%s', '%s', '%s', '%d', '%s', '%s', '%d', '%d', '%s', '%d', '%s' )
 		);
 
 		wp_cache_delete( "erdo_draft_link_post_{$post_id}", 'erdo_draft_link' );
@@ -291,7 +222,7 @@ class Erdo_Draft_Links_DB {
 		return $row ?: null;
 	}
 
-	public function increment_view_count( int $id ): void {
+	public function record_view( int $id ): void {
 		global $wpdb;
 
 		$link  = $this->get_link_by_id( $id );
@@ -299,7 +230,7 @@ class Erdo_Draft_Links_DB {
 
 		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 		$wpdb->query(
-			$wpdb->prepare( "UPDATE `{$table}` SET view_count = view_count + 1 WHERE id = %d", $id )
+			$wpdb->prepare( "UPDATE `{$table}` SET view_count = view_count + 1, last_viewed_at = %s WHERE id = %d", gmdate( 'Y-m-d H:i:s' ), $id )
 		);
 		// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 
@@ -319,6 +250,40 @@ class Erdo_Draft_Links_DB {
 			array( 'is_active' => 0 ),
 			array( 'id' => $link_id ),
 			array( '%d' ),
+			array( '%d' )
+		);
+
+		if ( $link ) {
+			$this->flush_link_cache( $link );
+		}
+
+		return false !== $result;
+	}
+
+	/**
+	 * Stores a reviewer's decision on the link, together with the post's
+	 * modification time at that moment so later edits can mark it as stale.
+	 */
+	public function record_review( int $link_id, string $status, string $reviewer_name, string $post_modified_gmt ): bool {
+		if ( ! in_array( $status, array( self::REVIEW_APPROVED, self::REVIEW_CHANGES, self::REVIEW_PENDING ), true ) ) {
+			return false;
+		}
+
+		global $wpdb;
+
+		$link = $this->get_link_by_id( $link_id );
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		$result = $wpdb->update(
+			$this->table,
+			array(
+				'review_status'     => $status,
+				'reviewed_at'       => gmdate( 'Y-m-d H:i:s' ),
+				'reviewer_name'     => $reviewer_name,
+				'reviewed_modified' => $post_modified_gmt,
+			),
+			array( 'id' => $link_id ),
+			array( '%s', '%s', '%s', '%s' ),
 			array( '%d' )
 		);
 
@@ -376,6 +341,10 @@ class Erdo_Draft_Links_DB {
 
 	public function get_table_name(): string {
 		return $this->table;
+	}
+
+	public function get_feedback_table_name(): string {
+		return $this->feedback_table;
 	}
 
 	// -------------------------------------------------------------------------
@@ -450,22 +419,36 @@ class Erdo_Draft_Links_DB {
 	// Preview feedback (own table — not stored as WordPress comments)
 	// -------------------------------------------------------------------------
 
-	public function add_feedback( int $post_id, int $link_id, string $name, string $message ): int {
+	/**
+	 * @param array{type?: string, author_email?: string, parent_id?: int, selector?: string, x_percent?: float, y_percent?: float, viewport?: string} $extra
+	 */
+	public function add_feedback( int $post_id, int $link_id, string $name, string $message, array $extra = array() ): int {
 		global $wpdb;
 
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
-		$result = $wpdb->insert(
-			$this->feedback_table,
-			array(
-				'post_id'     => $post_id,
-				'link_id'     => $link_id,
-				'author_name' => $name,
-				'message'     => $message,
-				'status'      => self::FEEDBACK_STATUS_OPEN,
-				'created_at'  => gmdate( 'Y-m-d H:i:s' ),
-			),
-			array( '%d', '%d', '%s', '%s', '%s', '%s' )
+		$row = array(
+			'post_id'      => $post_id,
+			'link_id'      => $link_id,
+			'parent_id'    => (int) ( $extra['parent_id'] ?? 0 ),
+			'type'         => (string) ( $extra['type'] ?? self::FEEDBACK_TYPE_COMMENT ),
+			'author_name'  => $name,
+			'author_email' => (string) ( $extra['author_email'] ?? '' ),
+			'message'      => $message,
+			'status'       => self::FEEDBACK_STATUS_OPEN,
+			'viewport'     => (string) ( $extra['viewport'] ?? '' ),
+			'created_at'   => gmdate( 'Y-m-d H:i:s' ),
 		);
+		$formats = array( '%d', '%d', '%d', '%s', '%s', '%s', '%s', '%s', '%s', '%s' );
+
+		// Annotation position — left NULL (not 0) for plain comments.
+		foreach ( array( 'selector' => '%s', 'x_percent' => '%f', 'y_percent' => '%f' ) as $key => $format ) {
+			if ( isset( $extra[ $key ] ) ) {
+				$row[ $key ] = $extra[ $key ];
+				$formats[]   = $format;
+			}
+		}
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		$result = $wpdb->insert( $this->feedback_table, $row, $formats );
 
 		return $result ? (int) $wpdb->insert_id : 0;
 	}

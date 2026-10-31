@@ -73,8 +73,33 @@ class Erdo_Draft_Links_Token {
 		if ( null === $raw ) {
 			return '';
 		}
-		$permalink = get_permalink( (int) $link->post_id );
+		return $this->url_for_token( $raw, (int) $link->post_id );
+	}
+
+	/**
+	 * `/review/<token>/` with pretty permalinks — independent of the post's own
+	 * permalink (which changes when a draft gets its slug) and immune to SEO
+	 * plugins that strip unknown query parameters. Plain-permalink sites fall
+	 * back to `?erdo_token=` on the post URL, which keeps working everywhere.
+	 */
+	public function url_for_token( string $raw, int $post_id ): string {
+		if ( '' !== (string) get_option( 'permalink_structure' ) ) {
+			return home_url( user_trailingslashit( self::review_base() . '/' . $raw ) );
+		}
+		$permalink = get_permalink( $post_id );
 		return $permalink ? add_query_arg( 'erdo_token', $raw, $permalink ) : '';
+	}
+
+	public static function review_base(): string {
+		/**
+		 * Filters the URL segment for pretty draft links (default "review").
+		 * Rewrite rules are flushed automatically only on activation/upgrade,
+		 * so visit Settings → Permalinks after changing it.
+		 *
+		 * @param string $base URL segment without slashes.
+		 */
+		$base = trim( (string) apply_filters( 'erdo_draft_links_review_base', 'review' ), '/' );
+		return '' !== $base ? $base : 'review';
 	}
 
 	/**

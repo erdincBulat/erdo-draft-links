@@ -5,10 +5,12 @@ class Erdo_Draft_Links_Admin {
 
 	private Erdo_Draft_Links_DB $db;
 	private Erdo_Draft_Links_Token $token;
+	private Erdo_Draft_Links_Review $review;
 
-	public function __construct( Erdo_Draft_Links_DB $db, Erdo_Draft_Links_Token $token ) {
-		$this->db    = $db;
-		$this->token = $token;
+	public function __construct( Erdo_Draft_Links_DB $db, Erdo_Draft_Links_Token $token, Erdo_Draft_Links_Review $review ) {
+		$this->db     = $db;
+		$this->token  = $token;
+		$this->review = $review;
 	}
 
 	public function register( Erdo_Draft_Links_Loader $loader ): void {
@@ -65,6 +67,16 @@ class Erdo_Draft_Links_Admin {
 							'type'              => 'string',
 							'default'           => '',
 							'sanitize_callback' => 'sanitize_text_field',
+						),
+						// Not sanitized: stored only as a hash, compared as typed.
+						'password'      => array(
+							'type'    => 'string',
+							'default' => '',
+						),
+						'max_views'     => array(
+							'type'    => 'integer',
+							'default' => 0,
+							'minimum' => 0,
 						),
 					)
 				),
@@ -142,7 +154,19 @@ class Erdo_Draft_Links_Admin {
 		}
 
 		$token_data = $this->token->generate();
-		$link_id    = $this->db->insert_link( $post_id, $label, $token_data['hash'], $token_data['enc'], $expires_at );
+		$password   = (string) $request->get_param( 'password' );
+		$link_id    = $this->db->insert_link(
+			array(
+				'post_id'       => $post_id,
+				'label'         => $label,
+				'token_hash'    => $token_data['hash'],
+				'token_enc'     => $token_data['enc'],
+				'expires_at'    => $expires_at,
+				'created_by'    => get_current_user_id(),
+				'password_hash' => '' !== $password ? wp_hash_password( $password ) : '',
+				'max_views'     => (int) $request->get_param( 'max_views' ),
+			)
+		);
 
 		if ( ! $link_id ) {
 			return new WP_REST_Response( array( 'error' => __( 'Could not save the link. Please try again.', 'erdo-draft-links' ) ), 500 );
@@ -763,8 +787,11 @@ class Erdo_Draft_Links_Admin {
 			'expires_at'      => $link->expires_at ? gmdate( 'Y-m-d\TH:i:s\Z', strtotime( $link->expires_at ) ) : null,
 			'expires_display' => $link->expires_at ? wp_date( get_option( 'date_format' ) . ' ' . get_option( 'time_format' ), strtotime( $link->expires_at ) ) : null,
 			'view_count'      => (int) $link->view_count,
+			'max_views'       => null !== $link->max_views ? (int) $link->max_views : null,
+			'last_viewed_at'  => $link->last_viewed_at ? gmdate( 'Y-m-d\TH:i:s\Z', strtotime( $link->last_viewed_at ) ) : null,
+			'has_password'    => '' !== (string) $link->password_hash,
 			'is_active'       => (bool) $link->is_active,
-		);
+		) + $this->review->get_link_review( $link );
 	}
 
 	/**
