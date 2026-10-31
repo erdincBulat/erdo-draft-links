@@ -5,6 +5,14 @@ class Erdo_Draft_Links_Frontend {
 
 	const QUERY_VAR = 'erdo_review';
 
+	/**
+	 * Added to the URL visitors land on after opening a link. Page caches key
+	 * on the URL, so without it a 404 cached for someone without the cookie
+	 * (or the public copy of a published post) would be served to reviewers.
+	 * Requests carrying it are never cached.
+	 */
+	const PREVIEW_ARG = 'erdo_preview';
+
 	/** Wrong password attempts allowed per link and visitor IP per window. */
 	const UNLOCK_MAX_ATTEMPTS = 10;
 	const UNLOCK_WINDOW       = 15 * MINUTE_IN_SECONDS;
@@ -82,6 +90,11 @@ class Erdo_Draft_Links_Frontend {
 	// -------------------------------------------------------------------------
 
 	public function handle_token_request(): void {
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- only switches caching off.
+		if ( isset( $_GET[ self::PREVIEW_ARG ] ) ) {
+			$this->send_private_headers();
+		}
+
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- the token itself is the credential.
 		$raw_token = isset( $_GET['erdo_token'] ) ? sanitize_text_field( wp_unslash( $_GET['erdo_token'] ) ) : (string) get_query_var( self::QUERY_VAR );
 		if ( '' === $raw_token ) {
@@ -123,6 +136,7 @@ class Erdo_Draft_Links_Frontend {
 		}
 
 		if ( null !== $dead_state ) {
+			// phpcs:ignore WordPress.Security.NonceVerification.Missing -- verified in handle_link_request().
 			if ( $this->is_post_request() && isset( $_POST['erdo_request_link'] ) ) {
 				$this->handle_link_request( $link );
 			}
@@ -147,7 +161,7 @@ class Erdo_Draft_Links_Frontend {
 		$this->session->start( $link );
 		$this->db->record_view( (int) $link->id );
 
-		wp_safe_redirect( get_permalink( (int) $link->post_id ) );
+		wp_safe_redirect( add_query_arg( self::PREVIEW_ARG, '1', get_permalink( (int) $link->post_id ) ) );
 		exit;
 	}
 
@@ -265,11 +279,22 @@ class Erdo_Draft_Links_Frontend {
 		exit;
 	}
 
+	/**
+	 * No caching anywhere (browser, page-cache plugins, LiteSpeed/CDN) and no
+	 * indexing. LiteSpeed's server cache ignores Cache-Control from PHP and
+	 * only listens to its own header, so it gets one explicitly — without it a
+	 * token redirect or a status page would keep being served after a revoke.
+	 */
 	private function send_private_headers(): void {
+		if ( ! defined( 'DONOTCACHEPAGE' ) ) {
+			// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedConstantFound -- reserved cache-buster constant name, recognized by caching plugins/CDNs; cannot be prefixed.
+			define( 'DONOTCACHEPAGE', true );
+		}
 		if ( headers_sent() ) {
 			return;
 		}
 		nocache_headers();
+		header( 'X-LiteSpeed-Cache-Control: no-cache' );
 		header( 'X-Robots-Tag: noindex, nofollow, noarchive, nosnippet' );
 	}
 
@@ -324,10 +349,6 @@ class Erdo_Draft_Links_Frontend {
 		// may include feedback status that changes over time. Prevent caching
 		// plugins, CDNs, and browsers from storing it — otherwise a revoked
 		// link or an updated feedback status would keep showing a stale copy.
-		if ( ! defined( 'DONOTCACHEPAGE' ) ) {
-			// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedConstantFound -- reserved cache-buster constant name, recognized by caching plugins/CDNs; cannot be prefixed.
-			define( 'DONOTCACHEPAGE', true );
-		}
 		$this->send_private_headers();
 	}
 
@@ -544,7 +565,15 @@ class Erdo_Draft_Links_Frontend {
 			$this->notifications->feedback( $cookie_data['link'], $name, $message );
 		}
 
-		wp_safe_redirect( add_query_arg( 'erdo_feedback', 'sent', get_permalink( $post_id ) ) );
+		wp_safe_redirect(
+			add_query_arg(
+				array(
+					self::PREVIEW_ARG => '1',
+					'erdo_feedback'   => 'sent',
+				),
+				get_permalink( $post_id )
+			)
+		);
 		exit;
 	}
 }

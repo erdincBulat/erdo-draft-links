@@ -105,8 +105,20 @@ class Erdo_Draft_Links_Migrator {
 		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 		$rows = $wpdb->get_results( "SELECT * FROM `{$table}` WHERE reply IS NOT NULL AND reply <> ''" );
 
+		// Legacy replies were always written by staff. A user id > 0 is what marks
+		// a reply as staff, so posts without an author fall back to an admin.
+		$fallback_admins = $rows ? get_users(
+			array(
+				'role'    => 'administrator',
+				'number'  => 1,
+				'orderby' => 'ID',
+				'fields'  => 'ID',
+			)
+		) : array();
+		$fallback_id     = (int) ( $fallback_admins[0] ?? 0 );
+
 		foreach ( (array) $rows as $row ) {
-			$author_id = (int) get_post_field( 'post_author', (int) $row->post_id );
+			$author_id = (int) get_post_field( 'post_author', (int) $row->post_id ) ?: $fallback_id;
 			$author    = $author_id ? get_userdata( $author_id ) : false;
 			$reply_id  = $this->db->add_reply( $row, $author_id, $author ? $author->display_name : get_bloginfo( 'name' ), (string) $row->reply );
 
