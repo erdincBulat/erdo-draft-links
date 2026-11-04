@@ -20,12 +20,6 @@
 		);
 	}
 
-	function formatDate( isoString ) {
-		if ( ! isoString ) return '';
-		const d = new Date( isoString );
-		return d.toLocaleString();
-	}
-
 	function escAttr( str ) {
 		return String( str )
 			.replace( /&/g, '&amp;' )
@@ -43,7 +37,7 @@
 
 	function renderRow( link ) {
 		const expiresText = link.expires_at
-			? i18n.expires.replace( '%s', formatDate( link.expires_at ) )
+			? i18n.expires.replace( '%s', link.expires_display )
 			: i18n.noExpiry;
 		const viewsText = i18n.views.replace( '%d', link.view_count );
 		const label = link.label ? escHtml( link.label ) : escHtml( i18n.untitled );
@@ -140,6 +134,8 @@
 				const expiry      = expirySelect ? expirySelect.value : '24h';
 				const label       = labelInput ? labelInput.value : '';
 				const customExpiry = customExpiryInput ? customExpiryInput.value : '';
+				const passwordInput = wrap.querySelector( '#erdo-draft-links-password-classic' );
+				const maxViewsInput = wrap.querySelector( '#erdo-draft-links-max-views-classic' );
 
 				if ( 'custom' === expiry && ! customExpiry ) {
 					showError( wrap, i18n.invalidCustomExpiry );
@@ -147,11 +143,19 @@
 				}
 
 				setLoading( wrap, true );
-				apiFetch( `/link/${ postId }/generate`, 'POST', { label, expiry, custom_expiry: customExpiry } )
+				apiFetch( `/link/${ postId }/generate`, 'POST', {
+					label,
+					expiry,
+					custom_expiry: customExpiry,
+					password: passwordInput ? passwordInput.value : '',
+					max_views: maxViewsInput ? parseInt( maxViewsInput.value, 10 ) || 0 : 0,
+				} )
 					.then( ( link ) => {
 						list.prepend( renderRow( link ) );
 						if ( labelInput ) labelInput.value = '';
 						if ( customExpiryInput ) customExpiryInput.value = '';
+						if ( passwordInput ) passwordInput.value = '';
+						if ( maxViewsInput ) maxViewsInput.value = '';
 						setLoading( wrap, false );
 					} )
 					.catch( ( err ) => {

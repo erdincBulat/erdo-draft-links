@@ -1,0 +1,1809 @@
+# Copyright (C) 2026 Erdinc Bulat
+# This file is distributed under the GPL v2 or later.
+msgid ""
+msgstr ""
+"Project-Id-Version: Erdo Draft Links – Share Drafts for Client Review & Approval 2.0.0\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/erdo-draft-links\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"POT-Creation-Date: 2026-11-04T08:21:12+00:00\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"X-Generator: WP-CLI 2.12.0\n"
+"X-Domain: erdo-draft-links\n"
+
+#. Plugin Name of the plugin
+#: erdo-draft-links.php
+msgid "Erdo Draft Links – Share Drafts for Client Review & Approval"
+msgstr ""
+
+#. Plugin URI of the plugin
+#: erdo-draft-links.php
+msgid "https://wordpress.org/plugins/erdo-draft-links/"
+msgstr ""
+
+#. Description of the plugin
+#: erdo-draft-links.php
+msgid "Share drafts with clients through secure, expiring links — no login needed. Collect comments, notes pinned to the page and approve/request-changes decisions."
+msgstr ""
+
+#. Author of the plugin
+#: erdo-draft-links.php
+msgid "Erdinc Bulat"
+msgstr ""
+
+#. Author URI of the plugin
+#: erdo-draft-links.php
+msgid "https://erdincbulat.com"
+msgstr ""
+
+#: includes/class-erdo-draft-links-abilities.php:27
+msgid "Draft review links"
+msgstr ""
+
+#: includes/class-erdo-draft-links-abilities.php:28
+msgid "Share unpublished posts with clients through private review links, and read their feedback and approvals."
+msgstr ""
+
+#: includes/class-erdo-draft-links-abilities.php:37
+msgid "ID of the post or page."
+msgstr ""
+
+#: includes/class-erdo-draft-links-abilities.php:42
+msgid "Create a review link"
+msgstr ""
+
+#: includes/class-erdo-draft-links-abilities.php:43
+msgid "Creates a private link that lets someone without a WordPress account view this post (even a draft) and leave feedback. Returns the shareable URL."
+msgstr ""
+
+#: includes/class-erdo-draft-links-abilities.php:53
+msgid "Who the link is for, e.g. \"Client A\"."
+msgstr ""
+
+#: includes/class-erdo-draft-links-abilities.php:58
+msgid "How long the link works. Defaults to the site setting."
+msgstr ""
+
+#: includes/class-erdo-draft-links-abilities.php:63
+msgid "Stop working after this many opens (0 = no limit)."
+msgstr ""
+
+#: includes/class-erdo-draft-links-abilities.php:85
+msgid "List review links"
+msgstr ""
+
+#: includes/class-erdo-draft-links-abilities.php:86
+msgid "Lists the review links of a post that still work, with their URL, expiry, open count and review decision, plus the post’s overall review status and number of open comments."
+msgstr ""
+
+#: includes/class-erdo-draft-links-abilities.php:94
+msgid "Turn off a review link"
+msgstr ""
+
+#: includes/class-erdo-draft-links-abilities.php:95
+msgid "Turns off one review link of a post immediately. Whoever has it can no longer open the post. This cannot be undone; create a new link instead."
+msgstr ""
+
+#: includes/class-erdo-draft-links-abilities.php:105
+msgid "ID of the link, from list-links."
+msgstr ""
+
+#: includes/class-erdo-draft-links-abilities.php:119
+msgid "List review feedback"
+msgstr ""
+
+#: includes/class-erdo-draft-links-abilities.php:120
+msgid "Lists what reviewers left on a post through its review links: comments, notes pinned to page elements, approvals and change requests, each with replies and an open/resolved status. Reviewer email addresses are not included."
+msgstr ""
+
+#: includes/class-erdo-draft-links-abilities.php:128
+msgid "Get review status"
+msgstr ""
+
+#: includes/class-erdo-draft-links-abilities.php:129
+msgid "Returns the latest review decision for a post (approved or changes requested), who made it and when, and whether the post was edited after that decision."
+msgstr ""
+
+#: includes/class-erdo-draft-links-abilities.php:201
+msgid "The request failed."
+msgstr ""
+
+#: includes/class-erdo-draft-links-admin-list.php:43
+#: includes/class-erdo-draft-links-feedback-list.php:55
+msgid "Post"
+msgstr ""
+
+#: includes/class-erdo-draft-links-admin-list.php:44
+msgid "Link"
+msgstr ""
+
+#: includes/class-erdo-draft-links-admin-list.php:45
+#: includes/class-erdo-draft-links-feedback-list.php:56
+msgid "Status"
+msgstr ""
+
+#: includes/class-erdo-draft-links-admin-list.php:46
+msgid "Opened"
+msgstr ""
+
+#: includes/class-erdo-draft-links-admin-list.php:47
+#: includes/class-erdo-draft-links-frontend.php:465
+#: includes/class-erdo-draft-links-post-list.php:45
+#: includes/class-erdo-draft-links-post-list.php:50
+msgid "Review"
+msgstr ""
+
+#: includes/class-erdo-draft-links-admin-list.php:48
+msgid "Open comments"
+msgstr ""
+
+#: includes/class-erdo-draft-links-admin-list.php:49
+msgid "Created"
+msgstr ""
+
+#: includes/class-erdo-draft-links-admin-list.php:67
+#: includes/class-erdo-draft-links-admin-list.php:163
+msgid "Turn off"
+msgstr ""
+
+#: includes/class-erdo-draft-links-admin-list.php:68
+#: includes/class-erdo-draft-links-admin-list.php:170
+#: includes/class-erdo-draft-links-feedback-list.php:69
+#: includes/class-erdo-draft-links-feedback-list.php:247
+msgid "Delete"
+msgstr ""
+
+#: includes/class-erdo-draft-links-admin-list.php:74
+#: includes/class-erdo-draft-links-feedback-list.php:99
+msgid "All"
+msgstr ""
+
+#: includes/class-erdo-draft-links-admin-list.php:75
+#: includes/class-erdo-draft-links-admin-list.php:212
+#: includes/class-erdo-draft-links-admin-list.php:214
+msgid "Active"
+msgstr ""
+
+#: includes/class-erdo-draft-links-admin-list.php:76
+#: includes/class-erdo-draft-links-admin-list.php:206
+msgid "Expired"
+msgstr ""
+
+#: includes/class-erdo-draft-links-admin-list.php:77
+#: includes/class-erdo-draft-links-admin-list.php:203
+msgid "Turned off"
+msgstr ""
+
+#: includes/class-erdo-draft-links-admin-list.php:103
+msgid "No share links yet. Open a draft and use “Create share link” in the Share for review panel."
+msgstr ""
+
+#: includes/class-erdo-draft-links-admin-list.php:110
+msgid "Select link"
+msgstr ""
+
+#. translators: %d: post ID number
+#: includes/class-erdo-draft-links-admin-list.php:132
+#: includes/class-erdo-draft-links-feedback-list.php:256
+#, php-format
+msgid "(Post #%d — deleted)"
+msgstr ""
+
+#: includes/class-erdo-draft-links-admin-list.php:136
+#: includes/class-erdo-draft-links-dashboard.php:57
+#: includes/class-erdo-draft-links-feedback-list.php:127
+#: includes/class-erdo-draft-links-feedback-list.php:261
+msgid "(no title)"
+msgstr ""
+
+#: includes/class-erdo-draft-links-admin-list.php:152
+#: includes/class-erdo-draft-links-admin.php:503
+#: includes/class-erdo-draft-links-post-list.php:111
+msgid "Copied!"
+msgstr ""
+
+#: includes/class-erdo-draft-links-admin-list.php:153
+msgid "Copy link"
+msgstr ""
+
+#: includes/class-erdo-draft-links-admin-list.php:155
+#: includes/class-erdo-draft-links-db.php:685
+#: includes/class-erdo-draft-links-feedback-list.php:96
+#: includes/class-erdo-draft-links-feedback-list.php:283
+msgid "Open"
+msgstr ""
+
+#: includes/class-erdo-draft-links-admin-list.php:155
+msgid "(opens in a new tab)"
+msgstr ""
+
+#: includes/class-erdo-draft-links-admin-list.php:158
+msgid "Expire in 7 days"
+msgstr ""
+
+#: includes/class-erdo-draft-links-admin-list.php:162
+#: assets/js/build/sidebar.js:5
+msgid "Turn off this link? Anyone who has it will no longer be able to open the draft."
+msgstr ""
+
+#: includes/class-erdo-draft-links-admin-list.php:169
+msgid "Delete this link? Its feedback stays on the post."
+msgstr ""
+
+#: includes/class-erdo-draft-links-admin-list.php:179
+#: includes/class-erdo-draft-links-admin.php:357
+#: includes/class-erdo-draft-links-admin.php:507
+#: includes/class-erdo-draft-links-feedback-list.php:130
+#: includes/class-erdo-draft-links-notifications.php:207
+#: assets/js/build/sidebar.js:4
+msgid "Untitled link"
+msgstr ""
+
+#: includes/class-erdo-draft-links-admin-list.php:183
+#: templates/status.php:115
+msgid "Password"
+msgstr ""
+
+#. translators: %d: maximum number of opens
+#: includes/class-erdo-draft-links-admin-list.php:187
+#, php-format
+msgid "Opens %d time"
+msgid_plural "Opens %d times"
+msgstr[0] ""
+msgstr[1] ""
+
+#: includes/class-erdo-draft-links-admin-list.php:209
+msgid "Open limit reached"
+msgstr ""
+
+#: includes/class-erdo-draft-links-admin-list.php:212
+#: assets/js/build/sidebar.js:2
+msgid "No expiry"
+msgstr ""
+
+#. translators: %s: human-readable time, e.g. "2 days"
+#: includes/class-erdo-draft-links-admin-list.php:228
+#, php-format
+msgid "Expired %s ago"
+msgstr ""
+
+#. translators: %s: human-readable time, e.g. "3 days"
+#: includes/class-erdo-draft-links-admin-list.php:230
+#, php-format
+msgid "Expires in %s"
+msgstr ""
+
+#: includes/class-erdo-draft-links-admin-list.php:241
+msgid "Not yet"
+msgstr ""
+
+#. translators: %s: number of times opened
+#: includes/class-erdo-draft-links-admin-list.php:244
+#, php-format
+msgid "%s time"
+msgid_plural "%s times"
+msgstr[0] ""
+msgstr[1] ""
+
+#. translators: %s: human-readable time, e.g. "2 hours"
+#: includes/class-erdo-draft-links-admin-list.php:247
+#, php-format
+msgid "Last %s ago"
+msgstr ""
+
+#: includes/class-erdo-draft-links-admin-list.php:258
+#: includes/class-erdo-draft-links-post-list.php:67
+msgid "Approved, then edited"
+msgstr ""
+
+#: includes/class-erdo-draft-links-admin-list.php:259
+#: includes/class-erdo-draft-links-feedback-list.php:162
+#: includes/class-erdo-draft-links-frontend.php:489
+#: includes/class-erdo-draft-links-post-list.php:68
+#: assets/js/build/sidebar.js:12
+msgid "Approved"
+msgstr ""
+
+#: includes/class-erdo-draft-links-admin-list.php:262
+#: includes/class-erdo-draft-links-feedback-list.php:163
+#: includes/class-erdo-draft-links-post-list.php:70
+#: assets/js/build/sidebar.js:12
+msgid "Changes requested"
+msgstr ""
+
+#: includes/class-erdo-draft-links-admin-list.php:265
+msgid "Waiting"
+msgstr ""
+
+#. translators: %s: reviewer name
+#. translators: %s: user display name
+#: includes/class-erdo-draft-links-admin-list.php:270
+#: includes/class-erdo-draft-links-admin-list.php:296
+#, php-format
+msgid "by %s"
+msgstr ""
+
+#: includes/class-erdo-draft-links-admin-list.php:280
+msgid "None"
+msgstr ""
+
+#. translators: %d: number of open comments
+#. translators: %d: number of open feedback items
+#: includes/class-erdo-draft-links-admin-list.php:287
+#: includes/class-erdo-draft-links-admin-pages.php:68
+#: includes/class-erdo-draft-links-post-list.php:79
+#: assets/js/build/sidebar.js:10
+#, php-format,js-format
+msgid "%d open comment"
+msgid_plural "%d open comments"
+msgstr[0] ""
+msgstr[1] ""
+
+#: includes/class-erdo-draft-links-admin-pages.php:72
+#: includes/class-erdo-draft-links-admin-pages.php:73
+msgid "Draft Links"
+msgstr ""
+
+#: includes/class-erdo-draft-links-admin-pages.php:81
+#: includes/class-erdo-draft-links-admin-pages.php:330
+#: assets/js/build/sidebar.js:11
+msgid "Share links"
+msgstr ""
+
+#: includes/class-erdo-draft-links-admin-pages.php:81
+msgid "Links"
+msgstr ""
+
+#: includes/class-erdo-draft-links-admin-pages.php:82
+#: includes/class-erdo-draft-links-admin-pages.php:365
+#: includes/class-erdo-draft-links-feedback-list.php:54
+msgid "Feedback"
+msgstr ""
+
+#: includes/class-erdo-draft-links-admin-pages.php:83
+#: includes/class-erdo-draft-links-settings.php:155
+msgid "Draft Links settings"
+msgstr ""
+
+#: includes/class-erdo-draft-links-admin-pages.php:83
+#: includes/class-erdo-draft-links-admin-pages.php:121
+msgid "Settings"
+msgstr ""
+
+#. translators: %s: search terms
+#: includes/class-erdo-draft-links-admin-pages.php:336
+#, php-format
+msgid "Search results for: %s"
+msgstr ""
+
+#: includes/class-erdo-draft-links-admin-pages.php:341
+msgid "Links are created from the post editor’s “Share for review” panel. Anyone with an active link can open the draft without logging in."
+msgstr ""
+
+#: includes/class-erdo-draft-links-admin-pages.php:351
+msgid "Search links"
+msgstr ""
+
+#: includes/class-erdo-draft-links-admin-pages.php:397
+#: assets/js/build/sidebar.js:5
+msgid "Link turned off."
+msgstr ""
+
+#: includes/class-erdo-draft-links-admin-pages.php:398
+msgid "Link deleted."
+msgstr ""
+
+#: includes/class-erdo-draft-links-admin-pages.php:399
+#: assets/js/build/sidebar.js:5
+msgid "Link now expires in 7 days."
+msgstr ""
+
+#. translators: %d: number of links
+#: includes/class-erdo-draft-links-admin-pages.php:401
+#, php-format
+msgid "%d link deleted."
+msgid_plural "%d links deleted."
+msgstr[0] ""
+msgstr[1] ""
+
+#. translators: %d: number of links
+#: includes/class-erdo-draft-links-admin-pages.php:403
+#, php-format
+msgid "%d link turned off."
+msgid_plural "%d links turned off."
+msgstr[0] ""
+msgstr[1] ""
+
+#: includes/class-erdo-draft-links-admin-pages.php:404
+msgid "Reply sent."
+msgstr ""
+
+#: includes/class-erdo-draft-links-admin-pages.php:405
+msgid "Marked as resolved."
+msgstr ""
+
+#: includes/class-erdo-draft-links-admin-pages.php:406
+msgid "Reopened."
+msgstr ""
+
+#: includes/class-erdo-draft-links-admin-pages.php:407
+msgid "Feedback deleted."
+msgstr ""
+
+#. translators: %d: number of feedback items
+#: includes/class-erdo-draft-links-admin-pages.php:409
+#, php-format
+msgid "%d item updated."
+msgid_plural "%d items updated."
+msgstr[0] ""
+msgstr[1] ""
+
+#. translators: %d: number of feedback items
+#: includes/class-erdo-draft-links-admin-pages.php:411
+#, php-format
+msgid "%d item deleted."
+msgid_plural "%d items deleted."
+msgstr[0] ""
+msgstr[1] ""
+
+#. translators: %d: number of days
+#: includes/class-erdo-draft-links-admin-pages.php:423
+#, php-format
+msgid "Expired links are deleted automatically %d day after they expire."
+msgid_plural "Expired links are deleted automatically %d days after they expire."
+msgstr[0] ""
+msgstr[1] ""
+
+#. translators: 1: date of the last cleanup, 2: number of links removed
+#: includes/class-erdo-draft-links-admin-pages.php:427
+#, php-format
+msgid "Last run: %1$s (%2$d removed)."
+msgstr ""
+
+#: includes/class-erdo-draft-links-admin-pages.php:430
+#: includes/class-erdo-draft-links-frontend.php:475
+msgid "Change"
+msgstr ""
+
+#: includes/class-erdo-draft-links-admin-pages.php:459
+msgid "You do not have permission to perform this action."
+msgstr ""
+
+#: includes/class-erdo-draft-links-admin.php:143
+msgid "You are not allowed to manage draft links for this post."
+msgstr ""
+
+#: includes/class-erdo-draft-links-admin.php:174
+msgid "Draft links are not enabled for this post type."
+msgstr ""
+
+#: includes/class-erdo-draft-links-admin.php:177
+msgid "Save the post first, then generate a draft link."
+msgstr ""
+
+#: includes/class-erdo-draft-links-admin.php:180
+msgid "Draft links cannot be generated for posts in the trash."
+msgstr ""
+
+#: includes/class-erdo-draft-links-admin.php:185
+#: includes/class-erdo-draft-links-admin.php:241
+#: includes/class-erdo-draft-links-admin.php:513
+#: assets/js/build/sidebar.js:10
+msgid "Please choose a valid future date and time."
+msgstr ""
+
+#: includes/class-erdo-draft-links-admin.php:204
+msgid "Could not save the link. Please try again."
+msgstr ""
+
+#: includes/class-erdo-draft-links-admin.php:228
+#: includes/class-erdo-draft-links-admin.php:259
+#: includes/class-erdo-draft-links-ai.php:329
+msgid "This link does not belong to that post."
+msgstr ""
+
+#: includes/class-erdo-draft-links-admin.php:231
+msgid "This link was turned off. Generate a new one instead."
+msgstr ""
+
+#: includes/class-erdo-draft-links-admin.php:283
+#: includes/class-erdo-draft-links-privacy.php:37
+msgid "Erdo Draft Links"
+msgstr ""
+
+#: includes/class-erdo-draft-links-admin.php:307
+msgid "Label (optional):"
+msgstr ""
+
+#: includes/class-erdo-draft-links-admin.php:309
+msgid "e.g. Client A"
+msgstr ""
+
+#: includes/class-erdo-draft-links-admin.php:313
+msgid "Expiry:"
+msgstr ""
+
+#: includes/class-erdo-draft-links-admin.php:317
+#: includes/class-erdo-draft-links-admin.php:445
+msgid "24 Hours"
+msgstr ""
+
+#: includes/class-erdo-draft-links-admin.php:318
+#: includes/class-erdo-draft-links-admin.php:446
+msgid "48 Hours"
+msgstr ""
+
+#: includes/class-erdo-draft-links-admin.php:319
+#: includes/class-erdo-draft-links-admin.php:447
+msgid "7 Days"
+msgstr ""
+
+#: includes/class-erdo-draft-links-admin.php:320
+#: includes/class-erdo-draft-links-admin.php:448
+msgid "30 Days"
+msgstr ""
+
+#: includes/class-erdo-draft-links-admin.php:321
+#: includes/class-erdo-draft-links-admin.php:449
+msgid "No Expiry"
+msgstr ""
+
+#: includes/class-erdo-draft-links-admin.php:322
+#: includes/class-erdo-draft-links-admin.php:450
+msgid "Custom Date & Time…"
+msgstr ""
+
+#: includes/class-erdo-draft-links-admin.php:327
+msgid "Expires on:"
+msgstr ""
+
+#: includes/class-erdo-draft-links-admin.php:333
+#: assets/js/build/sidebar.js:10
+msgid "Password (optional)"
+msgstr ""
+
+#: includes/class-erdo-draft-links-admin.php:339
+#: assets/js/build/sidebar.js:10
+msgid "Stop working after this many opens (optional)"
+msgstr ""
+
+#: includes/class-erdo-draft-links-admin.php:345
+#: includes/class-erdo-draft-links-admin.php:504
+msgid "Generate Draft Link"
+msgstr ""
+
+#: includes/class-erdo-draft-links-admin.php:365
+#: includes/class-erdo-draft-links-admin.php:505
+msgid "Revoke"
+msgstr ""
+
+#: includes/class-erdo-draft-links-admin.php:375
+#: includes/class-erdo-draft-links-admin.php:502
+#: assets/js/build/sidebar.js:5
+msgid "Copy"
+msgstr ""
+
+#. translators: %s: formatted expiry date
+#. translators: %s: formatted date
+#: includes/class-erdo-draft-links-admin.php:383
+#: includes/class-erdo-draft-links-admin.php:509
+#, php-format
+msgid "Expires: %s"
+msgstr ""
+
+#: includes/class-erdo-draft-links-admin.php:392
+#: includes/class-erdo-draft-links-admin.php:506
+msgid "No expiry."
+msgstr ""
+
+#. translators: %d: number of views
+#. translators: %d: view count
+#: includes/class-erdo-draft-links-admin.php:400
+#: includes/class-erdo-draft-links-admin.php:511
+#, php-format
+msgid "Views: %d"
+msgstr ""
+
+#: includes/class-erdo-draft-links-admin.php:512
+#: includes/class-erdo-draft-links-frontend.php:506
+#: includes/class-erdo-draft-links-review.php:94
+#: includes/class-erdo-draft-links-visitor-api.php:199
+msgid "An error occurred. Please try again."
+msgstr ""
+
+#: includes/class-erdo-draft-links-ai.php:192
+msgid "The AI helpers are switched off on Draft Links → Settings."
+msgstr ""
+
+#: includes/class-erdo-draft-links-ai.php:209
+msgid "There is no open feedback to summarise."
+msgstr ""
+
+#: includes/class-erdo-draft-links-ai.php:368
+msgid "There is no saved version from the last review to compare with. Revisions may be switched off for this post type."
+msgstr ""
+
+#: includes/class-erdo-draft-links-ai.php:374
+msgid "The text hasn’t changed since the last review."
+msgstr ""
+
+#: includes/class-erdo-draft-links-ai.php:434
+msgid "No AI provider is connected. Add your own API key under Settings → Connectors."
+msgstr ""
+
+#. translators: %s: error message from the AI provider
+#: includes/class-erdo-draft-links-ai.php:470
+#, php-format
+msgid "The AI request failed: %s"
+msgstr ""
+
+#: includes/class-erdo-draft-links-ai.php:479
+msgid "The AI answer could not be read. Please try again."
+msgstr ""
+
+#: includes/class-erdo-draft-links-ai.php:494
+msgid "That feedback item was not found on this post."
+msgstr ""
+
+#: includes/class-erdo-draft-links-dashboard.php:26
+#: assets/js/build/sidebar.js:13
+msgid "Client feedback"
+msgstr ""
+
+#: includes/class-erdo-draft-links-dashboard.php:46
+msgid "No open feedback. When a client comments on a shared draft, it shows up here."
+msgstr ""
+
+#: includes/class-erdo-draft-links-dashboard.php:56
+msgctxt "feedback on a post"
+msgid "on"
+msgstr ""
+
+#. translators: %s: human-readable time, e.g. "2 hours"
+#: includes/class-erdo-draft-links-dashboard.php:59
+#: includes/class-erdo-draft-links-feedback-list.php:297
+#, php-format
+msgid "%s ago"
+msgstr ""
+
+#. translators: %d: number of open feedback items
+#: includes/class-erdo-draft-links-dashboard.php:69
+#, php-format
+msgid "View %d open item"
+msgid_plural "View all %d open items"
+msgstr[0] ""
+msgstr[1] ""
+
+#: includes/class-erdo-draft-links-db.php:588
+msgid "Anonymous"
+msgstr ""
+
+#: includes/class-erdo-draft-links-db.php:682
+#: includes/class-erdo-draft-links-feedback-list.php:97
+#: includes/class-erdo-draft-links-feedback-list.php:282
+#: includes/class-erdo-draft-links-frontend.php:487
+msgid "Resolved"
+msgstr ""
+
+#: includes/class-erdo-draft-links-feedback-api.php:90
+msgid "You are not allowed to see feedback on this post."
+msgstr ""
+
+#: includes/class-erdo-draft-links-feedback-api.php:124
+msgid "Write a reply first."
+msgstr ""
+
+#: includes/class-erdo-draft-links-feedback-api.php:130
+msgid "Could not save the reply. Please try again."
+msgstr ""
+
+#: includes/class-erdo-draft-links-feedback-api.php:173
+msgid "This feedback no longer exists."
+msgstr ""
+
+#: includes/class-erdo-draft-links-feedback-list.php:57
+msgid "Received"
+msgstr ""
+
+#: includes/class-erdo-draft-links-feedback-list.php:67
+#: includes/class-erdo-draft-links-feedback-list.php:240
+#: assets/js/build/sidebar.js:12
+msgid "Mark resolved"
+msgstr ""
+
+#: includes/class-erdo-draft-links-feedback-list.php:68
+#: includes/class-erdo-draft-links-feedback-list.php:240
+#: assets/js/build/sidebar.js:12
+msgid "Reopen"
+msgstr ""
+
+#: includes/class-erdo-draft-links-feedback-list.php:98
+msgid "Decisions"
+msgstr ""
+
+#: includes/class-erdo-draft-links-feedback-list.php:135
+msgid "Showing feedback on"
+msgstr ""
+
+#: includes/class-erdo-draft-links-feedback-list.php:138
+msgid "Show all"
+msgstr ""
+
+#: includes/class-erdo-draft-links-feedback-list.php:144
+msgid "Nothing waiting for you. New comments from reviewers show up here."
+msgstr ""
+
+#: includes/class-erdo-draft-links-feedback-list.php:147
+msgid "No feedback here."
+msgstr ""
+
+#: includes/class-erdo-draft-links-feedback-list.php:154
+msgid "Select feedback"
+msgstr ""
+
+#: includes/class-erdo-draft-links-feedback-list.php:160
+#: assets/js/build/sidebar.js:12
+msgid "Comment"
+msgstr ""
+
+#: includes/class-erdo-draft-links-feedback-list.php:161
+#: includes/class-erdo-draft-links-frontend.php:461
+#: assets/js/build/sidebar.js:12
+msgid "Note on page"
+msgstr ""
+
+#: includes/class-erdo-draft-links-feedback-list.php:195
+#: includes/class-erdo-draft-links-frontend.php:488
+msgid "Team"
+msgstr ""
+
+#: includes/class-erdo-draft-links-feedback-list.php:206
+#: includes/class-erdo-draft-links-frontend.php:470
+#: assets/js/build/sidebar.js:12
+msgid "Reply"
+msgstr ""
+
+#. translators: %s: reviewer name
+#: includes/class-erdo-draft-links-feedback-list.php:209
+#, php-format
+msgid "Reply to %s"
+msgstr ""
+
+#: includes/class-erdo-draft-links-feedback-list.php:211
+msgid "The reviewer gets an email with your reply and sees it on the draft."
+msgstr ""
+
+#: includes/class-erdo-draft-links-feedback-list.php:212
+msgid "The reviewer sees your reply next time they open the draft."
+msgstr ""
+
+#: includes/class-erdo-draft-links-feedback-list.php:213
+#: includes/class-erdo-draft-links-frontend.php:471
+#: assets/js/build/sidebar.js:12
+msgid "Send reply"
+msgstr ""
+
+#: includes/class-erdo-draft-links-feedback-list.php:246
+msgid "Delete this feedback and its replies?"
+msgstr ""
+
+#. translators: %s: share link label
+#: includes/class-erdo-draft-links-feedback-list.php:267
+#, php-format
+msgid "via “%s”"
+msgstr ""
+
+#: includes/class-erdo-draft-links-feedback-list.php:272
+msgid "All feedback on this post"
+msgstr ""
+
+#: includes/class-erdo-draft-links-frontend.php:184
+msgid "The form expired. Please try again."
+msgstr ""
+
+#: includes/class-erdo-draft-links-frontend.php:192
+msgid "Too many attempts. Please wait a few minutes and try again."
+msgstr ""
+
+#: includes/class-erdo-draft-links-frontend.php:201
+msgid "That password is not correct."
+msgstr ""
+
+#: includes/class-erdo-draft-links-frontend.php:277
+msgid "Private draft preview. Open this link in your browser to view it."
+msgstr ""
+
+#: includes/class-erdo-draft-links-frontend.php:454
+msgid "Draft preview"
+msgstr ""
+
+#: includes/class-erdo-draft-links-frontend.php:455
+msgid "What’s new since your last review"
+msgstr ""
+
+#: includes/class-erdo-draft-links-frontend.php:456
+msgid "Preview"
+msgstr ""
+
+#. translators: %s: relative time, e.g. "in 3 days"
+#: includes/class-erdo-draft-links-frontend.php:458
+#, php-format
+msgid "Link expires %s"
+msgstr ""
+
+#: includes/class-erdo-draft-links-frontend.php:459
+msgid "Review toolbar"
+msgstr ""
+
+#: includes/class-erdo-draft-links-frontend.php:460
+msgid "Comments"
+msgstr ""
+
+#: includes/class-erdo-draft-links-frontend.php:462
+msgid "Approve"
+msgstr ""
+
+#: includes/class-erdo-draft-links-frontend.php:463
+#: includes/class-erdo-draft-links-frontend.php:494
+msgid "Request changes"
+msgstr ""
+
+#: includes/class-erdo-draft-links-frontend.php:464
+msgid "Hide toolbar"
+msgstr ""
+
+#: includes/class-erdo-draft-links-frontend.php:466
+msgid "Close"
+msgstr ""
+
+#: includes/class-erdo-draft-links-frontend.php:467
+#: assets/js/build/sidebar.js:12
+msgid "Cancel"
+msgstr ""
+
+#: includes/class-erdo-draft-links-frontend.php:468
+#: includes/class-erdo-draft-links-frontend.php:535
+msgid "Send"
+msgstr ""
+
+#: includes/class-erdo-draft-links-frontend.php:469
+msgid "Sending…"
+msgstr ""
+
+#: includes/class-erdo-draft-links-frontend.php:472
+#: includes/class-erdo-draft-links-frontend.php:528
+msgid "Your name"
+msgstr ""
+
+#: includes/class-erdo-draft-links-frontend.php:473
+msgid "Email (optional)"
+msgstr ""
+
+#: includes/class-erdo-draft-links-frontend.php:474
+msgid "Only used to let you know when someone replies."
+msgstr ""
+
+#. translators: %s: reviewer name
+#: includes/class-erdo-draft-links-frontend.php:477
+#, php-format
+msgid "Commenting as %s"
+msgstr ""
+
+#: includes/class-erdo-draft-links-frontend.php:478
+#: includes/class-erdo-draft-links-frontend.php:532
+msgid "Your comment"
+msgstr ""
+
+#: includes/class-erdo-draft-links-frontend.php:479
+msgid "What do you think?"
+msgstr ""
+
+#: includes/class-erdo-draft-links-frontend.php:480
+msgid "What should change here?"
+msgstr ""
+
+#: includes/class-erdo-draft-links-frontend.php:481
+msgid "Click the part of the page you want to comment on. Press Esc to cancel."
+msgstr ""
+
+#. translators: %d: note number
+#: includes/class-erdo-draft-links-frontend.php:483
+#, php-format
+msgid "Note %d"
+msgstr ""
+
+#: includes/class-erdo-draft-links-frontend.php:484
+msgid "Show on page"
+msgstr ""
+
+#: includes/class-erdo-draft-links-frontend.php:485
+msgid "This part of the page has changed since the note was left."
+msgstr ""
+
+#: includes/class-erdo-draft-links-frontend.php:486
+msgid "No comments yet. Write one below, or use “Note on page” to point at something specific."
+msgstr ""
+
+#: includes/class-erdo-draft-links-frontend.php:490
+msgid "Requested changes"
+msgstr ""
+
+#: includes/class-erdo-draft-links-frontend.php:491
+msgid "Approve this draft?"
+msgstr ""
+
+#: includes/class-erdo-draft-links-frontend.php:492
+msgid "The author will be told it is good to go."
+msgstr ""
+
+#: includes/class-erdo-draft-links-frontend.php:493
+msgid "Message (optional)"
+msgstr ""
+
+#: includes/class-erdo-draft-links-frontend.php:495
+msgid "Tell the author what should change. Your comments and notes stay attached."
+msgstr ""
+
+#: includes/class-erdo-draft-links-frontend.php:496
+msgid "What should change?"
+msgstr ""
+
+#. translators: %s: reviewer name
+#: includes/class-erdo-draft-links-frontend.php:498
+#, php-format
+msgid "Approved by %s"
+msgstr ""
+
+#. translators: %s: reviewer name
+#: includes/class-erdo-draft-links-frontend.php:500
+#, php-format
+msgid "Changes requested by %s"
+msgstr ""
+
+#: includes/class-erdo-draft-links-frontend.php:501
+msgid "Updated since the last review"
+msgstr ""
+
+#: includes/class-erdo-draft-links-frontend.php:502
+msgid "Thanks! The author has been told you approved it."
+msgstr ""
+
+#: includes/class-erdo-draft-links-frontend.php:503
+msgid "Thanks! The author has your change requests."
+msgstr ""
+
+#: includes/class-erdo-draft-links-frontend.php:504
+msgid "Comment sent."
+msgstr ""
+
+#: includes/class-erdo-draft-links-frontend.php:505
+msgid "Note added."
+msgstr ""
+
+#: includes/class-erdo-draft-links-frontend.php:507
+msgid "Could not load the conversation."
+msgstr ""
+
+#: includes/class-erdo-draft-links-frontend.php:524
+msgid "Thanks! Your feedback has been sent."
+msgstr ""
+
+#. translators: %s: post title
+#: includes/class-erdo-draft-links-notifications.php:19
+#, php-format
+msgid "Your draft link was opened: %s"
+msgstr ""
+
+#. translators: 1: link label, 2: post title, 3: admin URL to manage links
+#: includes/class-erdo-draft-links-notifications.php:24
+#, php-format
+msgid ""
+"The \"%1$s\" draft link for \"%2$s\" was just opened for the first time.\n"
+"\n"
+"Manage links: %3$s"
+msgstr ""
+
+#. translators: %s: post title
+#: includes/class-erdo-draft-links-notifications.php:40
+#, php-format
+msgid "New feedback on draft preview: %s"
+msgstr ""
+
+#. translators: 1: commenter name, 2: post title, 3: feedback message, 4: admin URL to manage feedback
+#: includes/class-erdo-draft-links-notifications.php:45
+#, php-format
+msgid ""
+"%1$s left feedback on the draft preview of \"%2$s\":\n"
+"\n"
+"%3$s\n"
+"\n"
+"Manage feedback: %4$s"
+msgstr ""
+
+#. translators: %s: post title
+#: includes/class-erdo-draft-links-notifications.php:60
+#, php-format
+msgid "Draft approved: %s"
+msgstr ""
+
+#. translators: %s: post title
+#: includes/class-erdo-draft-links-notifications.php:62
+#, php-format
+msgid "Changes requested: %s"
+msgstr ""
+
+#. translators: 1: reviewer name, 2: post title
+#: includes/class-erdo-draft-links-notifications.php:66
+#, php-format
+msgid "%1$s approved the draft \"%2$s\"."
+msgstr ""
+
+#. translators: 1: reviewer name, 2: post title
+#: includes/class-erdo-draft-links-notifications.php:68
+#, php-format
+msgid "%1$s requested changes to the draft \"%2$s\"."
+msgstr ""
+
+#. translators: %s: URL of the post editor
+#: includes/class-erdo-draft-links-notifications.php:76
+#, php-format
+msgid "Open the post: %s"
+msgstr ""
+
+#. translators: %s: post title
+#: includes/class-erdo-draft-links-notifications.php:90
+#, php-format
+msgid "Someone asked for a new draft link: %s"
+msgstr ""
+
+#. translators: 1: link label, 2: post title, 3: URL of the post editor
+#: includes/class-erdo-draft-links-notifications.php:95
+#, php-format
+msgid ""
+"Someone opened the \"%1$s\" draft link for \"%2$s\" after it stopped working, and asked for a new one.\n"
+"\n"
+"Generate a new link from the post editor: %3$s"
+msgstr ""
+
+#. translators: 1: link label, 2: post title, 3: time left, e.g. "23 hours", 4: date and time in the site's timezone
+#: includes/class-erdo-draft-links-notifications.php:109
+#, php-format
+msgid "The \"%1$s\" draft link for \"%2$s\" stops working in %3$s (%4$s)."
+msgstr ""
+
+#: includes/class-erdo-draft-links-notifications.php:116
+msgid "The reviewer asked for changes and has not approved it yet."
+msgstr ""
+
+#: includes/class-erdo-draft-links-notifications.php:117
+msgid "The draft has not been approved yet."
+msgstr ""
+
+#. translators: %s: admin URL of the links screen
+#: includes/class-erdo-draft-links-notifications.php:120
+#, php-format
+msgid "To give the reviewer more time, extend it here: %s"
+msgstr ""
+
+#. translators: %s: post title
+#: includes/class-erdo-draft-links-notifications.php:129
+#, php-format
+msgid "Draft link expires soon: %s"
+msgstr ""
+
+#. translators: 1: name of the person who replied, 2: post title, 3: reply text
+#: includes/class-erdo-draft-links-notifications.php:148
+#, php-format
+msgid ""
+"%1$s replied to your feedback on \"%2$s\":\n"
+"\n"
+"%3$s"
+msgstr ""
+
+#. translators: %s: the reviewer's draft link
+#: includes/class-erdo-draft-links-notifications.php:155
+#, php-format
+msgid "See the conversation: %s"
+msgstr ""
+
+#. translators: %s: post title
+#: includes/class-erdo-draft-links-notifications.php:161
+#, php-format
+msgid "New reply about \"%s\""
+msgstr ""
+
+#: includes/class-erdo-draft-links-post-list.php:85
+msgid "Shared, waiting"
+msgstr ""
+
+#: includes/class-erdo-draft-links-post-list.php:86
+msgid "Not shared"
+msgstr ""
+
+#: includes/class-erdo-draft-links-post-list.php:112
+#: assets/js/build/sidebar.js:11
+msgid "Copy share link"
+msgstr ""
+
+#: includes/class-erdo-draft-links-privacy.php:31
+msgid "Erdo Draft Links lets you share unpublished content with reviewers through private links. Suggested text for your policy:"
+msgstr ""
+
+#: includes/class-erdo-draft-links-privacy.php:32
+msgid "Suggested text:"
+msgstr ""
+
+#: includes/class-erdo-draft-links-privacy.php:33
+msgid "When you review a draft through a private review link, we store the name you enter, your comments and notes, your approval or change request, and — only if you choose to give it — your email address, so we can tell you when someone replies. Your name and email are also kept in your browser so you don’t have to type them again. A cookie remembers that you opened the review link; it lasts until the link expires, at most 30 days."
+msgstr ""
+
+#: includes/class-erdo-draft-links-privacy.php:34
+msgid "Your feedback is kept until the reviewed page is deleted, or until you ask us to erase it."
+msgstr ""
+
+#: includes/class-erdo-draft-links-privacy.php:35
+msgid "If the site’s editors use the optional AI helpers (for example to summarise or translate feedback), the text of the comments is sent to the AI provider the site has connected. Your email address and IP address are never sent, and your name is replaced with “Reviewer”."
+msgstr ""
+
+#: includes/class-erdo-draft-links-privacy.php:42
+#: includes/class-erdo-draft-links-privacy.php:50
+#: includes/class-erdo-draft-links-privacy.php:75
+msgid "Draft review feedback"
+msgstr ""
+
+#: includes/class-erdo-draft-links-privacy.php:65
+msgid "Page"
+msgstr ""
+
+#: includes/class-erdo-draft-links-privacy.php:66
+msgid "Name"
+msgstr ""
+
+#: includes/class-erdo-draft-links-privacy.php:67
+msgid "Email"
+msgstr ""
+
+#: includes/class-erdo-draft-links-privacy.php:68
+msgid "Type"
+msgstr ""
+
+#: includes/class-erdo-draft-links-privacy.php:69
+#: assets/js/build/sidebar.js:1
+msgid "Message"
+msgstr ""
+
+#: includes/class-erdo-draft-links-privacy.php:70
+msgid "Date"
+msgstr ""
+
+#: includes/class-erdo-draft-links-privacy.php:76
+msgid "Comments, notes and decisions left on shared drafts."
+msgstr ""
+
+#: includes/class-erdo-draft-links-review.php:90
+#: includes/class-erdo-draft-links-visitor-api.php:242
+msgid "Your preview session has ended. Open the draft link again."
+msgstr ""
+
+#: includes/class-erdo-draft-links-review.php:102
+#: includes/class-erdo-draft-links-visitor-api.php:158
+msgid "Please enter your name."
+msgstr ""
+
+#: includes/class-erdo-draft-links-review.php:105
+msgid "Please describe the changes you would like."
+msgstr ""
+
+#: includes/class-erdo-draft-links-settings.php:85
+msgid "Sharing"
+msgstr ""
+
+#: includes/class-erdo-draft-links-settings.php:86
+msgid "Email notifications"
+msgstr ""
+
+#: includes/class-erdo-draft-links-settings.php:87
+#: includes/class-erdo-draft-links-settings.php:96
+msgid "AI helpers"
+msgstr ""
+
+#: includes/class-erdo-draft-links-settings.php:88
+msgid "Data"
+msgstr ""
+
+#: includes/class-erdo-draft-links-settings.php:91
+msgid "Where links can be shared"
+msgstr ""
+
+#: includes/class-erdo-draft-links-settings.php:92
+msgid "Links expire after"
+msgstr ""
+
+#: includes/class-erdo-draft-links-settings.php:93
+msgid "When a post is published"
+msgstr ""
+
+#: includes/class-erdo-draft-links-settings.php:94
+msgid "Email me when"
+msgstr ""
+
+#: includes/class-erdo-draft-links-settings.php:95
+msgid "Also notify"
+msgstr ""
+
+#: includes/class-erdo-draft-links-settings.php:97
+msgid "Expired links"
+msgstr ""
+
+#: includes/class-erdo-draft-links-settings.php:98
+msgid "When the plugin is deleted"
+msgstr ""
+
+#: includes/class-erdo-draft-links-settings.php:126
+msgid "Some of the extra email addresses were not valid and were removed."
+msgstr ""
+
+#: includes/class-erdo-draft-links-settings.php:151
+msgid "You do not have permission to view this page."
+msgstr ""
+
+#: includes/class-erdo-draft-links-settings.php:172
+msgid "Emails go to whoever created the link and the post’s author (or the site admin email if neither has one)."
+msgstr ""
+
+#: includes/class-erdo-draft-links-settings.php:195
+msgid "A theme or plugin also changes this list with the erdo_draft_links_supported_post_types filter, which takes precedence."
+msgstr ""
+
+#: includes/class-erdo-draft-links-settings.php:201
+msgid "24 hours"
+msgstr ""
+
+#: includes/class-erdo-draft-links-settings.php:202
+msgid "48 hours"
+msgstr ""
+
+#: includes/class-erdo-draft-links-settings.php:203
+msgid "7 days"
+msgstr ""
+
+#: includes/class-erdo-draft-links-settings.php:204
+msgid "30 days"
+msgstr ""
+
+#: includes/class-erdo-draft-links-settings.php:211
+msgid "Used by “Create share link”. You can still pick another duration for any link."
+msgstr ""
+
+#: includes/class-erdo-draft-links-settings.php:219
+msgid "Turn off its share links automatically"
+msgstr ""
+
+#: includes/class-erdo-draft-links-settings.php:221
+msgid "Otherwise the editor offers to turn them off right after publishing."
+msgstr ""
+
+#: includes/class-erdo-draft-links-settings.php:226
+msgid "A link is opened for the first time"
+msgstr ""
+
+#: includes/class-erdo-draft-links-settings.php:227
+msgid "A reviewer comments or leaves a note"
+msgstr ""
+
+#: includes/class-erdo-draft-links-settings.php:228
+msgid "A reviewer approves or requests changes"
+msgstr ""
+
+#: includes/class-erdo-draft-links-settings.php:229
+msgid "Someone asks for a new link after one stopped working"
+msgstr ""
+
+#: includes/class-erdo-draft-links-settings.php:230
+msgid "A link that hasn’t been approved expires within a day"
+msgstr ""
+
+#: includes/class-erdo-draft-links-settings.php:243
+msgid "Reviewers who leave their email are always told when someone replies to them."
+msgstr ""
+
+#: includes/class-erdo-draft-links-settings.php:251
+msgid "pm@example.com, team@example.com"
+msgstr ""
+
+#: includes/class-erdo-draft-links-settings.php:253
+msgid "Comma-separated addresses that get every notification above."
+msgstr ""
+
+#: includes/class-erdo-draft-links-settings.php:257
+msgid "Summarise feedback into a to-do list, draft replies, translate comments, write the message to send with a link and a “what changed” note for reviewers. They run only when you click them, on your own AI provider account."
+msgstr ""
+
+#: includes/class-erdo-draft-links-settings.php:265
+msgid "Show the AI helpers in the editor"
+msgstr ""
+
+#: includes/class-erdo-draft-links-settings.php:269
+msgid "Needs WordPress 7.0 or newer."
+msgstr ""
+
+#: includes/class-erdo-draft-links-settings.php:273
+msgid "An AI provider is connected."
+msgstr ""
+
+#: includes/class-erdo-draft-links-settings.php:274
+msgid "No AI provider is connected yet."
+msgstr ""
+
+#. translators: %s: link to the Settings → Connectors screen
+#: includes/class-erdo-draft-links-settings.php:281
+#, php-format
+msgid "Add or change your own API key under %s. Draft Links never stores it."
+msgstr ""
+
+#: includes/class-erdo-draft-links-settings.php:282
+msgid "Settings → Connectors"
+msgstr ""
+
+#: includes/class-erdo-draft-links-settings.php:285
+msgid "Comment text and the page’s text are sent to your provider; reviewer emails and IP addresses never are, and names are replaced with “Reviewer”."
+msgstr ""
+
+#. translators: %s: number input for days
+#: includes/class-erdo-draft-links-settings.php:291
+#, php-format
+msgid "Delete expired links after %s days"
+msgstr ""
+
+#: includes/class-erdo-draft-links-settings.php:298
+msgid "Feedback on a post is kept until the post itself is deleted."
+msgstr ""
+
+#: includes/class-erdo-draft-links-settings.php:306
+msgid "Remove all links, feedback and settings"
+msgstr ""
+
+#: includes/class-erdo-draft-links-settings.php:308
+msgid "Untick to keep the data if you plan to reinstall."
+msgstr ""
+
+#: includes/class-erdo-draft-links-status-page.php:51
+msgid "This link has expired"
+msgstr ""
+
+#: includes/class-erdo-draft-links-status-page.php:52
+msgid "The draft you were invited to review is no longer available through this link. Ask the person who shared it for a new one."
+msgstr ""
+
+#: includes/class-erdo-draft-links-status-page.php:57
+msgid "This link was turned off"
+msgstr ""
+
+#: includes/class-erdo-draft-links-status-page.php:58
+msgid "The person who shared this draft has turned the link off. If you still need access, ask them for a new link."
+msgstr ""
+
+#: includes/class-erdo-draft-links-status-page.php:63
+msgid "This link has been used up"
+msgstr ""
+
+#: includes/class-erdo-draft-links-status-page.php:64
+msgid "This link could only be opened a limited number of times, and that limit has been reached. Ask the person who shared it for a new link."
+msgstr ""
+
+#: includes/class-erdo-draft-links-status-page.php:69
+msgid "This draft is password protected"
+msgstr ""
+
+#: includes/class-erdo-draft-links-status-page.php:70
+msgid "Enter the password you were given together with the link."
+msgstr ""
+
+#: includes/class-erdo-draft-links-status-page.php:75
+msgid "Request sent"
+msgstr ""
+
+#: includes/class-erdo-draft-links-status-page.php:76
+msgid "We let the person who shared this draft know that you need a new link."
+msgstr ""
+
+#: includes/class-erdo-draft-links-status-page.php:81
+msgid "This link doesn’t work"
+msgstr ""
+
+#: includes/class-erdo-draft-links-status-page.php:82
+msgid "The link may be incomplete. Check that you copied the whole address, or ask the person who shared it to send it again."
+msgstr ""
+
+#: includes/class-erdo-draft-links-visitor-api.php:161
+msgid "Please write a message."
+msgstr ""
+
+#: includes/class-erdo-draft-links-visitor-api.php:167
+msgid "You have sent a lot of feedback in a short time. Please wait a few minutes."
+msgstr ""
+
+#: includes/class-erdo-draft-links-visitor-api.php:175
+msgid "This conversation no longer exists."
+msgstr ""
+
+#: includes/class-erdo-draft-links-visitor-api.php:188
+msgid "Pick a spot on the page for your note."
+msgstr ""
+
+#: includes/class-erdo-draft-links-visitor-api.php:246
+msgid "This page has been open for a long time. Reload it and try again."
+msgstr ""
+
+#: templates/status.php:121
+msgid "View draft"
+msgstr ""
+
+#: templates/status.php:127
+msgid "Ask for a new link"
+msgstr ""
+
+#: assets/js/build/sidebar.js:1
+msgid "Could not write the message."
+msgstr ""
+
+#: assets/js/build/sidebar.js:1
+msgid "Message to send with the link"
+msgstr ""
+
+#: assets/js/build/sidebar.js:1
+msgid "Written by your AI provider. Check it, edit it, then paste it into your email or chat."
+msgstr ""
+
+#: assets/js/build/sidebar.js:1
+msgid "Message copied."
+msgstr ""
+
+#: assets/js/build/sidebar.js:1
+msgid "Copy message"
+msgstr ""
+
+#: assets/js/build/sidebar.js:1
+msgid "Write again"
+msgstr ""
+
+#: assets/js/build/sidebar.js:1
+msgid "Could not rename the link."
+msgstr ""
+
+#. translators: %s: relative time, e.g. "in 3 days"
+#: assets/js/build/sidebar.js:2
+#, js-format
+msgid "Expires %s"
+msgstr ""
+
+#: assets/js/build/sidebar.js:2
+msgid "Not opened yet"
+msgstr ""
+
+#. translators: 1: number of times opened, 2: relative time of the last open
+#: assets/js/build/sidebar.js:3
+#, js-format
+msgid "Opened %1$d time, last %2$s"
+msgid_plural "Opened %1$d times, last %2$s"
+msgstr[0] ""
+msgstr[1] ""
+
+#. translators: %d: number of times opened
+#: assets/js/build/sidebar.js:4
+#, js-format
+msgid "Opened %d time"
+msgid_plural "Opened %d times"
+msgstr[0] ""
+msgstr[1] ""
+
+#: assets/js/build/sidebar.js:4
+#: assets/js/build/sidebar.js:10
+msgid "Label"
+msgstr ""
+
+#: assets/js/build/sidebar.js:4
+msgid "Password protected"
+msgstr ""
+
+#: assets/js/build/sidebar.js:4
+msgid "Open limit reached — the link no longer opens"
+msgstr ""
+
+#. translators: %d: maximum number of opens
+#: assets/js/build/sidebar.js:5
+#, js-format
+msgid "limit %d"
+msgstr ""
+
+#: assets/js/build/sidebar.js:5
+msgid "Link copied."
+msgstr ""
+
+#: assets/js/build/sidebar.js:5
+msgid "Could not copy. Select the link and copy it manually."
+msgstr ""
+
+#: assets/js/build/sidebar.js:5
+msgid "Link actions"
+msgstr ""
+
+#: assets/js/build/sidebar.js:5
+msgid "Open in new tab"
+msgstr ""
+
+#: assets/js/build/sidebar.js:5
+msgid "Rename"
+msgstr ""
+
+#: assets/js/build/sidebar.js:5
+msgid "Write a message to send (AI)"
+msgstr ""
+
+#: assets/js/build/sidebar.js:5
+msgid "Could not extend the link."
+msgstr ""
+
+#: assets/js/build/sidebar.js:5
+msgid "Expire in 7 days from now"
+msgstr ""
+
+#: assets/js/build/sidebar.js:5
+msgid "Could not turn off the link."
+msgstr ""
+
+#: assets/js/build/sidebar.js:5
+#: assets/js/build/sidebar.js:12
+msgid "Turn off link"
+msgid_plural "Turn off all links"
+msgstr[0] ""
+msgstr[1] ""
+
+#: assets/js/build/sidebar.js:5
+msgid "No review decision yet."
+msgstr ""
+
+#. translators: 1: reviewer name, 2: relative time, e.g. "2 hours ago"
+#: assets/js/build/sidebar.js:6
+#, js-format
+msgid "Approved by %1$s · %2$s"
+msgstr ""
+
+#. translators: 1: reviewer name, 2: relative time, e.g. "2 hours ago"
+#: assets/js/build/sidebar.js:7
+#, js-format
+msgid "Changes requested by %1$s · %2$s"
+msgstr ""
+
+#. translators: %s: reviewer name
+#: assets/js/build/sidebar.js:8
+#, js-format
+msgid "Edited since %s approved it"
+msgstr ""
+
+#. translators: %s: reviewer name
+#: assets/js/build/sidebar.js:9
+#, js-format
+msgid "Edited since %s requested changes"
+msgstr ""
+
+#: assets/js/build/sidebar.js:9
+msgid "Reviewers will see the note."
+msgstr ""
+
+#: assets/js/build/sidebar.js:9
+msgid "Note removed."
+msgstr ""
+
+#: assets/js/build/sidebar.js:9
+msgid "Could not save the note."
+msgstr ""
+
+#: assets/js/build/sidebar.js:9
+msgid "Note for reviewers"
+msgstr ""
+
+#: assets/js/build/sidebar.js:9
+msgid "Edit note"
+msgstr ""
+
+#: assets/js/build/sidebar.js:9
+msgid "Add a “what changed” note for reviewers"
+msgstr ""
+
+#: assets/js/build/sidebar.js:9
+msgid "What changed since the last review"
+msgstr ""
+
+#: assets/js/build/sidebar.js:9
+msgid "Note"
+msgstr ""
+
+#: assets/js/build/sidebar.js:9
+msgid "Shown at the top of the comments panel on the review page, so returning reviewers know what to look at."
+msgstr ""
+
+#: assets/js/build/sidebar.js:9
+msgid "Could not write the note."
+msgstr ""
+
+#: assets/js/build/sidebar.js:9
+msgid "Write from the changes with AI"
+msgstr ""
+
+#: assets/js/build/sidebar.js:9
+msgid "Save note"
+msgstr ""
+
+#: assets/js/build/sidebar.js:9
+msgid "Remove note"
+msgstr ""
+
+#: assets/js/build/sidebar.js:9
+msgid "Share for review"
+msgstr ""
+
+#: assets/js/build/sidebar.js:10
+msgid "Save the draft first, then you can create a link to share it."
+msgstr ""
+
+#: assets/js/build/sidebar.js:10
+msgid "Anyone with the link can view this draft and leave feedback — no login needed."
+msgstr ""
+
+#: assets/js/build/sidebar.js:10
+msgid "Only you see this, e.g. the client’s name."
+msgstr ""
+
+#: assets/js/build/sidebar.js:10
+msgid "Expires"
+msgstr ""
+
+#: assets/js/build/sidebar.js:10
+msgid "Expires on"
+msgstr ""
+
+#: assets/js/build/sidebar.js:10
+msgid "Send it to the reviewer separately from the link."
+msgstr ""
+
+#: assets/js/build/sidebar.js:10
+msgid "Share link created and copied."
+msgstr ""
+
+#: assets/js/build/sidebar.js:10
+#: assets/js/build/sidebar.js:11
+msgid "Share link created."
+msgstr ""
+
+#: assets/js/build/sidebar.js:10
+#: assets/js/build/sidebar.js:11
+msgid "Could not create the link. Please try again."
+msgstr ""
+
+#: assets/js/build/sidebar.js:10
+msgid "Create share link"
+msgstr ""
+
+#: assets/js/build/sidebar.js:10
+msgid "Hide options"
+msgstr ""
+
+#: assets/js/build/sidebar.js:10
+msgid "Link options"
+msgstr ""
+
+#. translators: %d: number of active links
+#: assets/js/build/sidebar.js:11
+#, js-format
+msgid "%d active link"
+msgid_plural "%d active links"
+msgstr[0] ""
+msgstr[1] ""
+
+#: assets/js/build/sidebar.js:11
+msgid "Share link copied."
+msgstr ""
+
+#. translators: %d: number of active share links
+#: assets/js/build/sidebar.js:12
+#, js-format
+msgid "%d share link for this post is still active. Now that the post is public you may not need it anymore."
+msgid_plural "%d share links for this post are still active. Now that the post is public you may not need them anymore."
+msgstr[0] ""
+msgstr[1] ""
+
+#: assets/js/build/sidebar.js:12
+msgid "Share links turned off."
+msgstr ""
+
+#: assets/js/build/sidebar.js:12
+msgid "Could not turn off every link. Check the Share for review panel."
+msgstr ""
+
+#: assets/js/build/sidebar.js:12
+msgid "The AI request failed."
+msgstr ""
+
+#: assets/js/build/sidebar.js:12
+msgid "Translation"
+msgstr ""
+
+#: assets/js/build/sidebar.js:12
+msgid "Translate"
+msgstr ""
+
+#: assets/js/build/sidebar.js:12
+msgid "The reviewer sees your reply the next time they open the link."
+msgstr ""
+
+#: assets/js/build/sidebar.js:12
+msgid "Suggest another reply"
+msgstr ""
+
+#: assets/js/build/sidebar.js:12
+msgid "Suggest a reply"
+msgstr ""
+
+#: assets/js/build/sidebar.js:12
+msgid "Could not send the reply."
+msgstr ""
+
+#: assets/js/build/sidebar.js:12
+msgid "Could not update the status."
+msgstr ""
+
+#: assets/js/build/sidebar.js:12
+msgid "Could not summarise the feedback."
+msgstr ""
+
+#: assets/js/build/sidebar.js:12
+msgid "Summarise again"
+msgstr ""
+
+#: assets/js/build/sidebar.js:12
+msgid "Summarise into a to-do list"
+msgstr ""
+
+#: assets/js/build/sidebar.js:12
+msgid "Nothing to do found in the open feedback."
+msgstr ""
+
+#. translators: %d: number of feedback items the task came from
+#: assets/js/build/sidebar.js:13
+#, js-format
+msgid "Done — resolve %d comment"
+msgid_plural "Done — resolve %d comments"
+msgstr[0] ""
+msgstr[1] ""
+
+#: assets/js/build/sidebar.js:13
+msgid "Could not load feedback."
+msgstr ""
+
+#: assets/js/build/sidebar.js:13
+msgid "Save the draft and share a link to start collecting feedback."
+msgstr ""
+
+#: assets/js/build/sidebar.js:13
+msgid "No feedback yet. Reviewers can comment, pin notes on the page, approve or request changes from the share link."
+msgstr ""
+
+#: assets/js/build/sidebar.js:13
+msgid "Want help summarising, replying or translating? Connect your own AI provider under <a>Settings → Connectors</a>."
+msgstr ""
+
+#. translators: %d: number of resolved feedback items
+#: assets/js/build/sidebar.js:14
+#, js-format
+msgid "%d resolved"
+msgid_plural "%d resolved"
+msgstr[0] ""
+msgstr[1] ""
+
+#: assets/js/build/sidebar.js:14
+msgid "Could not load draft links."
+msgstr ""

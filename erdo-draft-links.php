@@ -1,12 +1,12 @@
 <?php
 /**
- * Plugin Name:       Erdo Draft Links
+ * Plugin Name:       Erdo Draft Links – Share Drafts for Client Review & Approval
  * Plugin URI:        https://wordpress.org/plugins/erdo-draft-links/
- * Description:       Share draft posts with non-logged-in users via a secure, temporary link — no login required.
- * Version:           1.2.0
- * Requires at least: 6.0
+ * Description:       Share drafts with clients through secure, expiring links — no login needed. Collect comments, notes pinned to the page and approve/request-changes decisions.
+ * Version:           2.0.0
+ * Requires at least: 6.6
  * Tested up to:      7.1
- * Requires PHP:      7.4
+ * Requires PHP:      8.0
  * Author:            Erdinc Bulat
  * Author URI:        https://erdincbulat.com
  * License:           GPL v2 or later
@@ -17,8 +17,8 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'ERDO_DRAFT_LINKS_VERSION',     '1.2.0' );
-define( 'ERDO_DRAFT_LINKS_DB_VERSION',  '1.2.0' );
+define( 'ERDO_DRAFT_LINKS_VERSION',     '2.0.0' );
+define( 'ERDO_DRAFT_LINKS_DB_VERSION',  '2.0.1' );
 define( 'ERDO_DRAFT_LINKS_PLUGIN_FILE', __FILE__ );
 define( 'ERDO_DRAFT_LINKS_PLUGIN_DIR',  plugin_dir_path( __FILE__ ) );
 
@@ -33,28 +33,64 @@ spl_autoload_register( function ( string $class ): void {
 	}
 } );
 
+// Bundled translations (languages/) as a fallback: WordPress loads
+// translate.wordpress.org language packs on its own, but only looks inside
+// the plugin folder when told to. A language pack, if present, still wins.
+if ( isset( $GLOBALS['wp_textdomain_registry'] ) && method_exists( $GLOBALS['wp_textdomain_registry'], 'set_custom_path' ) ) {
+	$GLOBALS['wp_textdomain_registry']->set_custom_path( 'erdo-draft-links', ERDO_DRAFT_LINKS_PLUGIN_DIR . 'languages' );
+}
+
 register_activation_hook( __FILE__, static function (): void {
 	Erdo_Draft_Links_DB::activate();
 	Erdo_Draft_Links_Cron::schedule();
+	// The /review/ rewrite rule is registered on init, after this hook.
+	update_option( Erdo_Draft_Links_Migrator::FLUSH_RULES_OPTION, 1 );
 } );
 
 register_deactivation_hook( __FILE__, static function (): void {
 	Erdo_Draft_Links_DB::deactivate();
 	Erdo_Draft_Links_Cron::unschedule();
+	// Our rule is still registered during this request, so a flush would keep
+	// it; dropping the cache makes WP rebuild the rules without the plugin.
+	delete_option( 'rewrite_rules' );
 } );
 
 add_action( 'plugins_loaded', function (): void {
-	$loader   = new Erdo_Draft_Links_Loader();
-	$db       = Erdo_Draft_Links_DB::get_instance();
-	$token    = new Erdo_Draft_Links_Token();
-	$admin    = new Erdo_Draft_Links_Admin( $db, $token );
-	$frontend = new Erdo_Draft_Links_Frontend( $db, $token );
-	$cron     = new Erdo_Draft_Links_Cron( $db );
+	$loader        = new Erdo_Draft_Links_Loader();
+	$db            = Erdo_Draft_Links_DB::get_instance();
+	$token         = new Erdo_Draft_Links_Token();
+	$session       = new Erdo_Draft_Links_Session( $db, $token );
+	$notifications = new Erdo_Draft_Links_Notifications();
+	$review        = new Erdo_Draft_Links_Review( $db, $session, $notifications );
+	$admin         = new Erdo_Draft_Links_Admin( $db, $token, $review );
+	$settings      = new Erdo_Draft_Links_Settings();
+	$admin_pages   = new Erdo_Draft_Links_Admin_Pages( $db, $token, $review, $settings );
+	$post_list     = new Erdo_Draft_Links_Post_List( $db, $token, $review );
+	$dashboard     = new Erdo_Draft_Links_Dashboard( $db );
+	$feedback_api  = new Erdo_Draft_Links_Feedback_Api( $db, $review );
+	$visitor_api   = new Erdo_Draft_Links_Visitor_Api( $db, $token, $session, $review, $notifications );
+	$frontend      = new Erdo_Draft_Links_Frontend( $db, $token, $session, new Erdo_Draft_Links_Status_Page(), $notifications );
+	$cron          = new Erdo_Draft_Links_Cron( $db, $notifications );
+	$privacy       = new Erdo_Draft_Links_Privacy( $db );
+	$abilities     = new Erdo_Draft_Links_Abilities();
+	$ai            = new Erdo_Draft_Links_AI( $db, $token );
+	$compat        = new Erdo_Draft_Links_Compat();
 
-	$db->maybe_upgrade();
+	( new Erdo_Draft_Links_Migrator( $db, $token ) )->maybe_upgrade();
+	$review->register( $loader );
 	$admin->register( $loader );
+	$settings->register( $loader );
+	$admin_pages->register( $loader );
+	$post_list->register( $loader );
+	$dashboard->register( $loader );
+	$feedback_api->register( $loader );
+	$visitor_api->register( $loader );
 	$frontend->register( $loader );
 	$cron->register( $loader );
+	$privacy->register( $loader );
+	$abilities->register( $loader );
+	$ai->register( $loader );
+	$compat->register( $loader );
 	$loader->run();
 
 	if ( defined( 'WP_CLI' ) && WP_CLI ) {

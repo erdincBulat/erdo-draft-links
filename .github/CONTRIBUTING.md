@@ -30,7 +30,7 @@ This is a dependency-free PHP codebase (no Composer) with a small `@wordpress/sc
 - **PHP**: follow [WordPress Coding Standards](https://developer.wordpress.org/coding-standards/wordpress-coding-standards/). New classes go in `includes/` as `Erdo_Draft_Links_Foo_Bar` → `includes/class-erdo-draft-links-foo-bar.php` (autoloaded by naming convention).
 - **Security**: any new endpoint must follow the patterns already in use — `hash_equals()` for token comparisons, `check_admin_referer()`/capability checks (`current_user_can( 'edit_post', $post_id )`), `$wpdb->prepare()` for all raw queries, and `sanitize_text_field( wp_unslash( ... ) )` (or a more specific sanitizer) on all superglobal access.
 - **Hooks**: register actions/filters inside a class's `register()` method against the shared `Erdo_Draft_Links_Loader`, not with a top-level `add_action()` call.
-- **JS/CSS**: `assets/js/src/` (Block Editor sidebar + Classic Editor) is built via `npm install && npm run build`, which regenerates `assets/js/build/*.js` and the matching `*.asset.php` — editing `src/` alone does not change plugin behavior, always run the build before committing. `assets/js/admin-list.js` and `assets/js/frontend.js` are plain, unbuilt JS edited directly.
+- **JS/CSS**: `assets/js/src/` (Block Editor sidebar + Classic Editor) is built via `npm install && npm run build`, which regenerates `assets/js/build/*.js` and the matching `*.asset.php` — editing `src/` alone does not change plugin behavior, always run the build before committing. `assets/js/admin-list.js` and `assets/js/review-bar.js` are plain, unbuilt JS edited directly.
 
 ## Security issues
 

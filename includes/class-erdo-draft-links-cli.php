@@ -25,6 +25,12 @@ class Erdo_Draft_Links_CLI extends WP_CLI_Command {
 	 * [--label=<label>]
 	 * : An optional label for the link (e.g. "Client A").
 	 *
+	 * [--password=<password>]
+	 * : Require this password before the draft is shown.
+	 *
+	 * [--max-views=<count>]
+	 * : Stop working after the link was opened this many times.
+	 *
 	 * [--expiry=<expiry>]
 	 * : Expiry preset.
 	 * ---
@@ -44,8 +50,12 @@ class Erdo_Draft_Links_CLI extends WP_CLI_Command {
 	 */
 	public function generate( array $args, array $assoc_args ): void {
 		$post_id = (int) $args[0];
-		if ( ! get_post( $post_id ) ) {
+		$post = get_post( $post_id );
+		if ( ! $post ) {
 			WP_CLI::error( "Post {$post_id} not found." );
+		}
+		if ( in_array( $post->post_status, array( 'auto-draft', 'trash' ), true ) ) {
+			WP_CLI::error( "Post {$post_id} is an unsaved auto-draft or in the trash." );
 		}
 
 		$label      = isset( $assoc_args['label'] ) ? sanitize_text_field( mb_substr( (string) $assoc_args['label'], 0, 100 ) ) : '';
@@ -53,13 +63,25 @@ class Erdo_Draft_Links_CLI extends WP_CLI_Command {
 		$expires_at = $this->token->compute_expires_at( $expiry );
 
 		$token_data = $this->token->generate();
-		$link_id    = $this->db->insert_link( $post_id, $label, $token_data['hash'], $token_data['raw'], $expires_at );
+		$password   = (string) ( $assoc_args['password'] ?? '' );
+		$link_id    = $this->db->insert_link(
+			array(
+				'post_id'       => $post_id,
+				'label'         => $label,
+				'token_hash'    => $token_data['hash'],
+				'token_enc'     => $token_data['enc'],
+				'expires_at'    => $expires_at,
+				'created_by'    => get_current_user_id(),
+				'password_hash' => '' !== $password ? wp_hash_password( $password ) : '',
+				'max_views'     => (int) ( $assoc_args['max-views'] ?? 0 ),
+			)
+		);
 
 		if ( ! $link_id ) {
 			WP_CLI::error( 'Could not save the link.' );
 		}
 
-		$url = add_query_arg( 'erdo_token', $token_data['raw'], get_permalink( $post_id ) );
+		$url = $this->token->url_for_token( $token_data['raw'], $post_id );
 
 		WP_CLI::success( "Link #{$link_id} generated." );
 		WP_CLI::line( $url );
@@ -130,7 +152,7 @@ class Erdo_Draft_Links_CLI extends WP_CLI_Command {
 	 */
 	public function list_( array $args, array $assoc_args ): void {
 		$status = $assoc_args['status'] ?? 'all';
-		$rows   = $this->db->get_links_paginated( 1, 10000, $status );
+		$rows   = $this->db->get_links_paginated( 1, 10000, array( 'status' => $status ) );
 
 		if ( isset( $assoc_args['post_id'] ) ) {
 			$post_id = (int) $assoc_args['post_id'];
@@ -147,8 +169,9 @@ class Erdo_Draft_Links_CLI extends WP_CLI_Command {
 					'label'      => '' !== $row->label ? $row->label : '—',
 					'status'     => ! $row->is_active ? 'revoked' : ( $is_expired ? 'expired' : 'active' ),
 					'views'      => $row->view_count,
-					'expires_at' => $row->expires_at ?? '—',
-					'created_at' => $row->created_at,
+					'review'     => $row->review_status,
+					'expires_at' => null !== $row->expires_at ? $row->expires_at . ' UTC' : '—',
+					'created_at' => $row->created_at . ' UTC',
 				);
 			},
 			$rows
@@ -157,7 +180,7 @@ class Erdo_Draft_Links_CLI extends WP_CLI_Command {
 		WP_CLI\Utils\format_items(
 			$assoc_args['format'] ?? 'table',
 			$items,
-			array( 'id', 'post_id', 'post_title', 'label', 'status', 'views', 'expires_at', 'created_at' )
+			array( 'id', 'post_id', 'post_title', 'label', 'status', 'views', 'review', 'expires_at', 'created_at' )
 		);
 	}
 }
