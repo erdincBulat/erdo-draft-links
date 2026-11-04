@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://ps.w.org/erdo-draft-links/assets/banner-1544x500.png" alt="Erdo Draft Links" width="100%">
+  <img src="https://ps.w.org/erdo-draft-links/assets/banner-1544x500.png?rev=2.0.0" alt="Erdo Draft Links" width="100%">
 </p>
 
 <h1 align="center">Erdo Draft Links</h1>
@@ -34,11 +34,11 @@ Built for freelancers and agencies who share drafts with clients, and for teams 
 
 | Share for review panel | What your client sees |
 |---|---|
-| ![Share for review panel in the block editor](https://ps.w.org/erdo-draft-links/assets/screenshot-1.png) | ![Review bar with comments and a note pinned to the page](https://ps.w.org/erdo-draft-links/assets/screenshot-2.png) |
+| ![Share for review panel in the block editor](https://ps.w.org/erdo-draft-links/assets/screenshot-1.png?rev=2.0.0) | ![Review bar with comments and a note pinned to the page](https://ps.w.org/erdo-draft-links/assets/screenshot-2.png?rev=2.0.0) |
 
 | Client feedback sidebar with AI to-do list | Feedback inbox |
 |---|---|
-| ![Client feedback sidebar in the editor](https://ps.w.org/erdo-draft-links/assets/screenshot-3.png) | ![Feedback inbox under Draft Links](https://ps.w.org/erdo-draft-links/assets/screenshot-4.png) |
+| ![Client feedback sidebar in the editor](https://ps.w.org/erdo-draft-links/assets/screenshot-3.png?rev=2.0.0) | ![Feedback inbox under Draft Links](https://ps.w.org/erdo-draft-links/assets/screenshot-4.png?rev=2.0.0) |
 
 ## How it works
 
