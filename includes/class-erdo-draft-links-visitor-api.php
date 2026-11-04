@@ -237,12 +237,14 @@ class Erdo_Draft_Links_Visitor_Api {
 	 * @return array{link_id: int, post_id: int, link: object}|WP_Error
 	 */
 	private function verify( WP_REST_Request $request ) {
-		$session = $this->session->current();
-		if ( null === $session ) {
+		if ( ! $this->session->all() ) {
 			return new WP_Error( 'erdo_invalid_session', __( 'Your preview session has ended. Open the draft link again.', 'erdo-draft-links' ), array( 'status' => 403 ) );
 		}
 
-		if ( ! wp_verify_nonce( (string) $request->get_param( 'nonce' ), 'erdo_draft_feedback_' . $session['link_id'] ) ) {
+		// The nonce was made for the link the page was rendered with; with
+		// several preview cookies it is what picks the right one.
+		$session = $this->session->for_nonce( (string) $request->get_param( 'nonce' ) );
+		if ( null === $session ) {
 			return new WP_Error( 'erdo_invalid_nonce', __( 'This page has been open for a long time. Reload it and try again.', 'erdo-draft-links' ), array( 'status' => 403 ) );
 		}
 

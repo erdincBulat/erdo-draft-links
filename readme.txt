@@ -204,6 +204,7 @@ Erdo Draft Links is now a client review and approval tool.
 
 * Link previews in Slack, WhatsApp, Teams, iMessage and email link scanners no longer count as views or trigger the "first opened" email.
 * Revoked links now show "turned off" instead of a generic "invalid" message.
+* A reviewer who received links to several drafts can now open all of them in the same browser; comments and decisions go to the link the page was opened with.
 * The preview cookie now lasts until the link expires (at most 30 days) instead of 1 hour.
 * Dates are stored and compared in UTC everywhere; expiry times in the editor are shown in the site's timezone.
 * Draft links can no longer be generated for unsaved (auto-draft) or trashed posts, or for post types that are not enabled.

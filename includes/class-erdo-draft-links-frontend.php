@@ -310,32 +310,20 @@ class Erdo_Draft_Links_Frontend {
 			return;
 		}
 
-		$cookie_data = $this->session->current();
+		// A reviewer may hold cookies for several links (e.g. two drafts sent
+		// to the same client); use the one issued for the post being queried.
+		$cookie_data = null;
+		foreach ( $this->session->all() as $session ) {
+			if ( $this->query_targets_post( $query, $session['post_id'] ) ) {
+				$cookie_data = $session;
+				break;
+			}
+		}
 		if ( null === $cookie_data ) {
 			return;
 		}
 
 		$active_post_id = $cookie_data['post_id'];
-
-		// Security: only expand status for the specific post ID this cookie grants access to.
-		$queried_p       = absint( $query->get( 'p' ) );
-		$queried_page_id = absint( $query->get( 'page_id' ) );
-
-		if ( $queried_p !== $active_post_id && $queried_page_id !== $active_post_id ) {
-			// Try slug-based matching only if the post is known and has a real slug.
-			// Draft posts commonly have an empty post_name until first published, and
-			// 'name'/'pagename' are also empty on ID-based queries — comparing empty
-			// strings would otherwise false-match an unrelated post and leak it.
-			$post = get_post( $active_post_id );
-			if ( ! $post || '' === $post->post_name ) {
-				return;
-			}
-			$name     = $query->get( 'name' );
-			$pagename = $query->get( 'pagename' );
-			if ( $name !== $post->post_name && $pagename !== $post->post_name ) {
-				return;
-			}
-		}
 
 		// Expand post_status to include non-public statuses.
 		$statuses = array( 'publish', 'draft', 'private', 'pending', 'future' );
@@ -350,6 +338,25 @@ class Erdo_Draft_Links_Frontend {
 		// plugins, CDNs, and browsers from storing it — otherwise a revoked
 		// link or an updated feedback status would keep showing a stale copy.
 		$this->send_private_headers();
+	}
+
+	/**
+	 * Security: a cookie only ever expands visibility for the exact post it
+	 * was issued for, matched by ID or by its real slug.
+	 */
+	private function query_targets_post( WP_Query $query, int $post_id ): bool {
+		if ( absint( $query->get( 'p' ) ) === $post_id || absint( $query->get( 'page_id' ) ) === $post_id ) {
+			return true;
+		}
+		// Try slug-based matching only if the post is known and has a real slug.
+		// Draft posts commonly have an empty post_name until first published, and
+		// 'name'/'pagename' are also empty on ID-based queries — comparing empty
+		// strings would otherwise false-match an unrelated post and leak it.
+		$post = get_post( $post_id );
+		if ( ! $post || '' === $post->post_name ) {
+			return false;
+		}
+		return $query->get( 'name' ) === $post->post_name || $query->get( 'pagename' ) === $post->post_name;
 	}
 
 	public function filter_robots( array $robots ): array {
@@ -543,13 +550,11 @@ class Erdo_Draft_Links_Frontend {
 			return;
 		}
 
-		$cookie_data = $this->session->current();
-		if ( null === $cookie_data ) {
-			return;
-		}
-
-		$nonce = isset( $_POST['erdo_feedback_nonce'] ) ? sanitize_text_field( wp_unslash( $_POST['erdo_feedback_nonce'] ) ) : '';
-		if ( ! wp_verify_nonce( $nonce, 'erdo_draft_feedback_' . $cookie_data['link_id'] ) ) {
+		$nonce       = isset( $_POST['erdo_feedback_nonce'] ) ? sanitize_text_field( wp_unslash( $_POST['erdo_feedback_nonce'] ) ) : '';
+		// The nonce picks the link this page was rendered for (several preview
+		// cookies can be present); verify it again here for clarity.
+		$cookie_data = $this->session->for_nonce( $nonce );
+		if ( null === $cookie_data || ! wp_verify_nonce( $nonce, 'erdo_draft_feedback_' . $cookie_data['link_id'] ) ) {
 			return;
 		}
 

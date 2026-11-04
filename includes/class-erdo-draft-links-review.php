@@ -85,12 +85,13 @@ class Erdo_Draft_Links_Review {
 	 * @return WP_REST_Response|WP_Error
 	 */
 	public function rest_submit_review( WP_REST_Request $request ) {
-		$session = $this->session->current();
-		if ( null === $session ) {
+		if ( ! $this->session->all() ) {
 			return new WP_Error( 'erdo_invalid_session', __( 'Your preview session has ended. Open the draft link again.', 'erdo-draft-links' ), array( 'status' => 403 ) );
 		}
 
-		if ( ! wp_verify_nonce( (string) $request->get_param( 'nonce' ), 'erdo_draft_feedback_' . $session['link_id'] ) ) {
+		// The nonce picks the link the page was rendered for (see Session::for_nonce()).
+		$session = $this->session->for_nonce( (string) $request->get_param( 'nonce' ) );
+		if ( null === $session ) {
 			return new WP_Error( 'erdo_invalid_nonce', __( 'An error occurred. Please try again.', 'erdo-draft-links' ), array( 'status' => 403 ) );
 		}
 

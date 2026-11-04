@@ -19,17 +19,20 @@ class Erdo_Draft_Links_Session {
 	}
 
 	/**
-	 * The first cookie that maps to a link which is still active and unexpired.
+	 * Every preview session in this browser whose link is still active and
+	 * unexpired. A reviewer can hold several (one per link they opened), so
+	 * callers pick the one that matches the post or nonce they act on.
 	 *
-	 * @return array{link_id: int, post_id: int, link: object}|null
+	 * @return array<int, array{link_id: int, post_id: int, link: object}>
 	 */
-	public function current(): ?array {
+	public function all(): array {
+		$sessions = array();
 		foreach ( $_COOKIE as $name => $value ) {
 			if ( strpos( (string) $name, self::COOKIE_PREFIX ) !== 0 ) {
 				continue;
 			}
 			$link_id = (int) substr( (string) $name, strlen( self::COOKIE_PREFIX ) );
-			if ( $link_id <= 0 ) {
+			if ( $link_id <= 0 || isset( $sessions[ $link_id ] ) || ! is_string( $value ) ) {
 				continue;
 			}
 			$link = $this->db->get_link_by_id( $link_id );
@@ -41,11 +44,30 @@ class Erdo_Draft_Links_Session {
 			}
 			$expected = $this->token->cookie_value( $link->token_hash );
 			if ( hash_equals( $expected, sanitize_text_field( wp_unslash( $value ) ) ) ) {
-				return array(
+				$sessions[ $link_id ] = array(
 					'link_id' => $link_id,
 					'post_id' => (int) $link->post_id,
 					'link'    => $link,
 				);
+			}
+		}
+		return array_values( $sessions );
+	}
+
+	/**
+	 * The session for a visitor request that carries a nonce made for
+	 * `erdo_draft_feedback_{link_id}`: the nonce says which link the page
+	 * was rendered for, so a reviewer with several links acts on the right one.
+	 *
+	 * @return array{link_id: int, post_id: int, link: object}|null
+	 */
+	public function for_nonce( string $nonce ): ?array {
+		if ( '' === $nonce ) {
+			return null;
+		}
+		foreach ( $this->all() as $session ) {
+			if ( wp_verify_nonce( $nonce, 'erdo_draft_feedback_' . $session['link_id'] ) ) {
+				return $session;
 			}
 		}
 		return null;
