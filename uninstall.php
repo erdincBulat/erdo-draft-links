@@ -23,6 +23,8 @@ delete_option( 'erdo_draft_link_supported_post_types' );
 delete_option( 'erdo_draft_link_last_cleanup' );
 delete_option( 'erdo_draft_link_migrating' );
 delete_option( 'erdo_draft_link_flush_rules' );
+delete_option( 'erdo_draft_link_cache_rules' );
+delete_option( 'erdo_draft_link_cache_rules_for' );
 delete_post_meta_by_key( '_erdo_dl_review' );
 delete_post_meta_by_key( '_erdo_dl_changes_note' );
 delete_transient( 'erdo_draft_link_ai_status' );
