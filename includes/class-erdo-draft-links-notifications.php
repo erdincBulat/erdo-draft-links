@@ -112,15 +112,14 @@ class Erdo_Draft_Links_Notifications {
 			human_time_diff( time(), $expires ),
 			wp_date( get_option( 'date_format' ) . ' ' . get_option( 'time_format' ), $expires )
 		);
-		$body .= "
-
-" . ( Erdo_Draft_Links_DB::REVIEW_CHANGES === $link->review_status
+		$body .= "\n\n" . ( Erdo_Draft_Links_DB::REVIEW_CHANGES === $link->review_status
 			? __( 'The reviewer asked for changes and has not approved it yet.', 'erdo-draft-links' )
 			: __( 'The draft has not been approved yet.', 'erdo-draft-links' ) );
-		/* translators: %s: admin URL of the links screen */
-		$body .= "
-
-" . sprintf( __( 'To give the reviewer more time, extend it here: %s', 'erdo-draft-links' ), Erdo_Draft_Links_Admin_Pages::url( 'links', array( 's' => rawurlencode( $post_title ) ) ) );
+		$body .= "\n\n" . sprintf(
+			/* translators: %s: admin URL of the links screen */
+			__( 'To give the reviewer more time, extend it here: %s', 'erdo-draft-links' ),
+			Erdo_Draft_Links_Admin_Pages::url( 'links', array( 's' => rawurlencode( $post_title ) ) )
+		);
 
 		$this->send(
 			'expiring',

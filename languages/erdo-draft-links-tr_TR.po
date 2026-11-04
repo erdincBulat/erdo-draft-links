@@ -1,294 +1,197 @@
+#
 msgid ""
 msgstr ""
 "Project-Id-Version: Ghost Link 1.0.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/ghost-link\n"
+"POT-Creation-Date: 2025-01-01 00:00:00+00:00\n"
+"PO-Revision-Date: 2025-01-01 00:00:00+00:00\n"
 "Last-Translator: \n"
 "Language-Team: Turkish\n"
+"Language: tr_TR\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2025-01-01 00:00:00+00:00\n"
-"PO-Revision-Date: 2025-01-01 00:00:00+00:00\n"
-"Language: tr_TR\n"
-"Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: Hand-crafted\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
 "X-Domain: erdo-draft-links\n"
+"X-Generator: Hand-crafted\n"
 
-#. Description of the plugin
-#: erdo-draft-links.php
-msgid "Share draft posts with non-logged-in users via a secure, temporary link — no login required."
-msgstr "Taslak yazıları giriş yapmayan kullanıcılarla güvenli, geçici bir bağlantı aracılığıyla paylaşın — giriş gerekmez."
-
-#: assets/js/build/sidebar.js:1
-msgid "Generate a secure link to share this draft with anyone — no login required."
-msgstr "Bu taslağı herkesle paylaşmak için güvenli bir bağlantı oluşturun — giriş gerekmez."
-
-#: assets/js/build/sidebar.js:1
-msgid "Link Expiry"
-msgstr "Bağlantı Süresi"
-
-#: includes/class-erdo-draft-links-admin.php:218
-#: includes/class-erdo-draft-links-admin.php:332
+#: includes/class-erdo-draft-links-admin.php:317
+#: includes/class-erdo-draft-links-admin.php:445
 msgid "24 Hours"
 msgstr "24 Saat"
 
-#: includes/class-erdo-draft-links-admin.php:219
-#: includes/class-erdo-draft-links-admin.php:333
+#: includes/class-erdo-draft-links-admin.php:318
+#: includes/class-erdo-draft-links-admin.php:446
 msgid "48 Hours"
 msgstr "48 Saat"
 
-#: includes/class-erdo-draft-links-admin.php:220
-#: includes/class-erdo-draft-links-admin.php:334
+#: includes/class-erdo-draft-links-admin.php:319
+#: includes/class-erdo-draft-links-admin.php:447
 msgid "7 Days"
 msgstr "7 Gün"
 
-#: includes/class-erdo-draft-links-admin.php:221
-#: includes/class-erdo-draft-links-admin.php:335
+#: includes/class-erdo-draft-links-admin.php:321
+#: includes/class-erdo-draft-links-admin.php:449
 msgid "No Expiry"
 msgstr "Süresiz"
 
-#: includes/class-erdo-draft-links-admin-list.php:156
-#: includes/class-erdo-draft-links-admin.php:263
-#: includes/class-erdo-draft-links-admin.php:388
-#: assets/js/build/sidebar.js:1
+#: includes/class-erdo-draft-links-admin.php:375
+#: includes/class-erdo-draft-links-admin.php:502 assets/js/build/sidebar.js:5
 msgid "Copy"
 msgstr "Kopyala"
 
-#: includes/class-erdo-draft-links-admin.php:389
-#: assets/js/build/sidebar.js:1
+#: includes/class-erdo-draft-links-admin-list.php:152
+#: includes/class-erdo-draft-links-admin.php:503
+#: includes/class-erdo-draft-links-post-list.php:111
 msgid "Copied!"
 msgstr "Kopyalandı!"
 
-#: assets/js/build/sidebar.js:1
+#: includes/class-erdo-draft-links-admin-list.php:155
+#: includes/class-erdo-draft-links-db.php:685
+#: includes/class-erdo-draft-links-feedback-list.php:96
+#: includes/class-erdo-draft-links-feedback-list.php:283
 msgid "Open"
 msgstr "Aç"
 
-#: includes/class-erdo-draft-links-admin-list.php:127
-#: includes/class-erdo-draft-links-admin.php:253
-#: includes/class-erdo-draft-links-admin.php:391
-#: assets/js/build/sidebar.js:1
+#: includes/class-erdo-draft-links-admin.php:365
+#: includes/class-erdo-draft-links-admin.php:505
 msgid "Revoke"
 msgstr "İptal Et"
 
 #. translators: %s: formatted expiry date
 #. translators: %s: formatted date
-#: includes/class-erdo-draft-links-admin.php:271
-#: includes/class-erdo-draft-links-admin.php:395
+#: includes/class-erdo-draft-links-admin.php:383
+#: includes/class-erdo-draft-links-admin.php:509
 #, php-format
 msgid "Expires: %s"
 msgstr "Son kullanma: %s"
 
-#: includes/class-erdo-draft-links-admin.php:280
 #: includes/class-erdo-draft-links-admin.php:392
-#: assets/js/build/sidebar.js:1
+#: includes/class-erdo-draft-links-admin.php:506
 msgid "No expiry."
 msgstr "Süresiz."
 
 #. translators: %d: number of views
 #. translators: %d: view count
-#: includes/class-erdo-draft-links-admin.php:288
-#: includes/class-erdo-draft-links-admin.php:397
+#: includes/class-erdo-draft-links-admin.php:400
+#: includes/class-erdo-draft-links-admin.php:511
 #, php-format
 msgid "Views: %d"
 msgstr "Görüntülenme: %d"
 
-#: assets/js/build/sidebar.js:1
-msgid "Views:"
-msgstr "Görüntülenme:"
-
-#: assets/js/build/sidebar.js:1
-msgid "Expires:"
-msgstr "Son kullanma:"
-
-#: includes/class-erdo-draft-links-admin.php:148
+#: includes/class-erdo-draft-links-admin.php:204
 msgid "Could not save the link. Please try again."
 msgstr "Bağlantı kaydedilemedi. Lütfen tekrar deneyin."
 
-#: assets/js/build/sidebar.js:1
-msgid "Could not generate the link. Please try again."
-msgstr "Bağlantı oluşturulamadı. Lütfen tekrar deneyin."
-
-#: assets/js/build/sidebar.js:1
-msgid "Could not revoke the link. Please try again."
-msgstr "Bağlantı iptal edilemedi. Lütfen tekrar deneyin."
-
-#: includes/class-erdo-draft-links-admin.php:398
-#: includes/class-erdo-draft-links-frontend.php:70
-#: includes/class-erdo-draft-links-frontend.php:75
-#: includes/class-erdo-draft-links-frontend.php:82
-#: includes/class-erdo-draft-links-frontend.php:89
-#: includes/class-erdo-draft-links-frontend.php:377
+#: includes/class-erdo-draft-links-admin.php:512
+#: includes/class-erdo-draft-links-frontend.php:506
+#: includes/class-erdo-draft-links-review.php:94
+#: includes/class-erdo-draft-links-visitor-api.php:199
 msgid "An error occurred. Please try again."
 msgstr "Bir hata oluştu. Lütfen tekrar deneyin."
 
-#: includes/class-erdo-draft-links-admin-list.php:33
-#: includes/class-erdo-draft-links-feedback-list.php:30
+#: includes/class-erdo-draft-links-admin-list.php:43
+#: includes/class-erdo-draft-links-feedback-list.php:55
 msgid "Post"
 msgstr "Yazı"
 
-#: includes/class-erdo-draft-links-admin-list.php:35
+#: includes/class-erdo-draft-links-admin-list.php:44
 msgid "Link"
 msgstr "Bağlantı"
 
-#: includes/class-erdo-draft-links-admin-list.php:36
-#: includes/class-erdo-draft-links-feedback-list.php:33
+#: includes/class-erdo-draft-links-admin-list.php:45
+#: includes/class-erdo-draft-links-feedback-list.php:56
 msgid "Status"
 msgstr "Durum"
 
-#: includes/class-erdo-draft-links-admin-list.php:37
-msgid "Views"
-msgstr "Görüntüleme"
-
-#: includes/class-erdo-draft-links-admin-list.php:38
+#: assets/js/build/sidebar.js:10
 msgid "Expires"
 msgstr "Bitiş"
 
-#: includes/class-erdo-draft-links-admin-list.php:39
+#: includes/class-erdo-draft-links-admin-list.php:49
 msgid "Created"
 msgstr "Oluşturuldu"
 
-#: includes/class-erdo-draft-links-admin-list.php:69
+#: includes/class-erdo-draft-links-admin-list.php:74
+#: includes/class-erdo-draft-links-feedback-list.php:99
 msgid "All"
 msgstr "Tümü"
 
-#: includes/class-erdo-draft-links-admin-list.php:70
-#: includes/class-erdo-draft-links-admin-list.php:176
+#: includes/class-erdo-draft-links-admin-list.php:75
+#: includes/class-erdo-draft-links-admin-list.php:212
+#: includes/class-erdo-draft-links-admin-list.php:214
 msgid "Active"
 msgstr "Aktif"
 
-#: includes/class-erdo-draft-links-admin-list.php:71
-#: includes/class-erdo-draft-links-admin-list.php:174
+#: includes/class-erdo-draft-links-admin-list.php:76
+#: includes/class-erdo-draft-links-admin-list.php:206
 msgid "Expired"
 msgstr "Süresi Dolmuş"
 
-#: includes/class-erdo-draft-links-admin-list.php:72
-#: includes/class-erdo-draft-links-admin-list.php:171
-msgid "Revoked"
-msgstr "İptal Edilmiş"
-
-#: includes/class-erdo-draft-links-admin-list.php:114
-#: includes/class-erdo-draft-links-feedback-list.php:48
-msgid "Edit Post"
-msgstr "Yazıyı Düzenle"
-
-#: includes/class-erdo-draft-links-admin-list.php:120
-msgid "View Page"
-msgstr "Sayfayı Gör"
-
-#: includes/class-erdo-draft-links-admin-list.php:155
-msgid "View Link"
-msgstr "Bağlantıyı Gör"
-
-#: includes/class-erdo-draft-links-admin-list.php:53
-#: includes/class-erdo-draft-links-admin-list.php:134
-#: includes/class-erdo-draft-links-feedback-list.php:67
+#: includes/class-erdo-draft-links-admin-list.php:68
+#: includes/class-erdo-draft-links-admin-list.php:170
+#: includes/class-erdo-draft-links-feedback-list.php:69
+#: includes/class-erdo-draft-links-feedback-list.php:247
 msgid "Delete"
 msgstr "Sil"
 
-#: includes/class-erdo-draft-links-admin-list.php:185
-msgid "Never"
-msgstr "Hiçbir Zaman"
-
-#. translators: 1: cleanup date, 2: number of links deleted
-#: includes/class-erdo-draft-links-admin.php:665
-#, php-format
-msgid "Last auto-cleanup: %1$s (%2$d expired link(s) removed)."
-msgstr "Son otomatik temizleme: %1$s (%2$d süresi dolmuş bağlantı kaldırıldı)."
-
-#: includes/class-erdo-draft-links-admin.php:450
-#: includes/class-erdo-draft-links-admin.php:790
+#: includes/class-erdo-draft-links-admin-pages.php:459
 msgid "You do not have permission to perform this action."
 msgstr "Bu işlemi gerçekleştirme yetkiniz yok."
 
-#: includes/class-erdo-draft-links-admin.php:572
+#: includes/class-erdo-draft-links-settings.php:151
 msgid "You do not have permission to view this page."
 msgstr "Bu sayfayı görüntüleme yetkiniz yok."
 
 #. translators: %d: post ID number
-#: includes/class-erdo-draft-links-admin-list.php:98
-#: includes/class-erdo-draft-links-feedback-list.php:41
+#: includes/class-erdo-draft-links-admin-list.php:132
+#: includes/class-erdo-draft-links-feedback-list.php:256
 #, php-format
 msgid "(Post #%d — deleted)"
 msgstr "(Yazı #%d — silindi)"
 
-#. translators: %s: human-readable time ago
-#: includes/class-erdo-draft-links-admin-list.php:197
+#. translators: %s: human-readable time, e.g. "2 hours"
+#: includes/class-erdo-draft-links-dashboard.php:59
+#: includes/class-erdo-draft-links-feedback-list.php:297
 #, php-format
 msgid "%s ago"
 msgstr "%s önce"
 
-#. translators: %s: human-readable time remaining
-#: includes/class-erdo-draft-links-admin-list.php:199
-#, php-format
-msgid "in %s"
-msgstr "%s içinde"
-
-#: includes/class-erdo-draft-links-admin.php:681
-msgid "Search"
-msgstr "Ara"
-
-#: includes/class-erdo-draft-links-admin.php:594
+#: includes/class-erdo-draft-links-admin-pages.php:81
 msgid "Links"
 msgstr "Bağlantılar"
 
-#. translators: %d: number of feedback entries
-#: includes/class-erdo-draft-links-admin.php:600
-#, php-format
-msgid "Feedback (%d)"
-msgstr "Geri Bildirimler (%d)"
-
-#: includes/class-erdo-draft-links-admin.php:627
+#: includes/class-erdo-draft-links-admin-pages.php:407
 msgid "Feedback deleted."
 msgstr "Geri bildirim silindi."
 
-#: includes/class-erdo-draft-links-feedback-list.php:32
-#: includes/class-erdo-draft-links-frontend.php:406
+#: includes/class-erdo-draft-links-admin-pages.php:82
+#: includes/class-erdo-draft-links-admin-pages.php:365
+#: includes/class-erdo-draft-links-feedback-list.php:54
 msgid "Feedback"
 msgstr "Geri Bildirim"
 
-#: includes/class-erdo-draft-links-feedback-list.php:31
-#: includes/class-erdo-draft-links-frontend.php:438
+#: includes/class-erdo-draft-links-privacy.php:66
 msgid "Name"
 msgstr "İsim"
 
-#: includes/class-erdo-draft-links-feedback-list.php:34
+#: includes/class-erdo-draft-links-privacy.php:70
 msgid "Date"
 msgstr "Tarih"
 
-#: includes/class-erdo-draft-links-feedback-list.php:66
-msgid "Are you sure you want to delete this feedback?"
-msgstr "Bu geri bildirimi silmek istediğinizden emin misiniz?"
-
-#: includes/class-erdo-draft-links-frontend.php:411
-msgid "Leave Feedback"
-msgstr "Geri Bildirim Bırak"
-
-#: includes/class-erdo-draft-links-frontend.php:413
-msgid "Have comments about this draft? Let the author know below."
-msgstr "Bu taslakla ilgili düşünceleriniz mi var? Aşağıdan yazara iletin."
-
-#: includes/class-erdo-draft-links-frontend.php:442
-msgid "Your feedback"
-msgstr "Geri bildiriminiz"
-
-#: includes/class-erdo-draft-links-frontend.php:374
-#: includes/class-erdo-draft-links-frontend.php:447
-msgid "Send Feedback"
-msgstr "Gönder"
-
-#: includes/class-erdo-draft-links-frontend.php:376
-#: includes/class-erdo-draft-links-frontend.php:430
+#: includes/class-erdo-draft-links-frontend.php:524
 msgid "Thanks! Your feedback has been sent."
 msgstr "Teşekkürler! Geri bildiriminiz gönderildi."
 
 #. translators: %s: post title
-#: includes/class-erdo-draft-links-frontend.php:529
+#: includes/class-erdo-draft-links-notifications.php:40
 #, php-format
 msgid "New feedback on draft preview: %s"
 msgstr "Taslak önizlemesine yeni geri bildirim: %s"
 
-#. translators: 1: commenter name, 2: post title, 3: feedback message, 4: admin URL to manage feedback
-#: includes/class-erdo-draft-links-frontend.php:535
+#. translators: 1: commenter name, 2: post title, 3: feedback message, 4:
+#. admin URL to manage feedback
+#: includes/class-erdo-draft-links-notifications.php:45
 #, php-format
 msgid ""
 "%1$s left feedback on the draft preview of \"%2$s\":\n"
@@ -303,106 +206,66 @@ msgstr ""
 "\n"
 "Geri bildirimleri yönet: %4$s"
 
-#: includes/class-erdo-draft-links-frontend.php:454
-msgid "Past Feedback"
-msgstr "Geçmiş Geri Bildirimler"
-
-#: includes/class-erdo-draft-links-db.php:543
-msgid "In Progress"
-msgstr "Devam Ediyor"
-
-#: includes/class-erdo-draft-links-db.php:540
-msgid "Completed"
-msgstr "Tamamlandı"
-
-#: includes/class-erdo-draft-links-feedback-list.php:114
-msgid "Mark as Completed"
-msgstr "Tamamlandı Olarak İşaretle"
-
-#: includes/class-erdo-draft-links-feedback-list.php:115
-msgid "Mark as In Progress"
-msgstr "Devam Ediyor Olarak İşaretle"
-
-#: includes/class-erdo-draft-links-admin.php:630
-msgid "Feedback status updated."
-msgstr "Geri bildirim durumu güncellendi."
-
-#: includes/class-erdo-draft-links-frontend.php:416
+#: includes/class-erdo-draft-links-frontend.php:466
 msgid "Close"
 msgstr "Kapat"
 
-#: includes/class-erdo-draft-links-frontend.php:375
+#: includes/class-erdo-draft-links-frontend.php:469
 msgid "Sending…"
 msgstr "Gönderiliyor…"
 
-#: includes/class-erdo-draft-links-admin.php:209
+#: includes/class-erdo-draft-links-admin.php:307
 msgid "Label (optional):"
 msgstr "Etiket (isteğe bağlı):"
 
-#: assets/js/build/sidebar.js:1
-msgid "Label (optional)"
-msgstr "Etiket (isteğe bağlı)"
-
-#: includes/class-erdo-draft-links-admin.php:211
-#: assets/js/build/sidebar.js:1
+#: includes/class-erdo-draft-links-admin.php:309
 msgid "e.g. Client A"
 msgstr "örn. Müşteri A"
 
-#: includes/class-erdo-draft-links-admin.php:245
-#: includes/class-erdo-draft-links-admin.php:393
-#: includes/class-erdo-draft-links-frontend.php:220
-#: assets/js/build/sidebar.js:1
+#: includes/class-erdo-draft-links-admin-list.php:179
+#: includes/class-erdo-draft-links-admin.php:357
+#: includes/class-erdo-draft-links-admin.php:507
+#: includes/class-erdo-draft-links-feedback-list.php:130
+#: includes/class-erdo-draft-links-notifications.php:207
+#: assets/js/build/sidebar.js:4
 msgid "Untitled link"
 msgstr "Adsız bağlantı"
 
-#: includes/class-erdo-draft-links-feedback-list.php:90
-msgid "Reply to this feedback…"
-msgstr "Bu geri bildirime yanıt ver…"
-
-#: includes/class-erdo-draft-links-feedback-list.php:94
-msgid "Update Reply"
-msgstr "Yanıtı Güncelle"
-
-#: includes/class-erdo-draft-links-feedback-list.php:96
-msgid "Send Reply"
-msgstr "Yanıtı Gönder"
-
-#: includes/class-erdo-draft-links-frontend.php:476
+#: includes/class-erdo-draft-links-feedback-list.php:206
+#: includes/class-erdo-draft-links-frontend.php:470
+#: assets/js/build/sidebar.js:12
 msgid "Reply"
 msgstr "Yanıt"
 
-#: includes/class-erdo-draft-links-admin.php:633
-msgid "Reply saved."
-msgstr "Yanıt kaydedildi."
-
-#: includes/class-erdo-draft-links-admin.php:161
+#: includes/class-erdo-draft-links-admin.php:228
+#: includes/class-erdo-draft-links-admin.php:259
+#: includes/class-erdo-draft-links-ai.php:329
 msgid "This link does not belong to that post."
 msgstr "Bu bağlantı o yazıya ait değil."
 
-#: includes/class-erdo-draft-links-admin.php:222
-#: includes/class-erdo-draft-links-admin.php:336
+#: includes/class-erdo-draft-links-admin.php:322
+#: includes/class-erdo-draft-links-admin.php:450
 msgid "Custom Date & Time…"
 msgstr "Özel Tarih ve Saat…"
 
-#: includes/class-erdo-draft-links-admin.php:227
-#: assets/js/build/sidebar.js:1
+#: includes/class-erdo-draft-links-admin.php:327
 msgid "Expires on:"
 msgstr "Bitiş tarihi:"
 
-#: includes/class-erdo-draft-links-admin.php:138
-#: includes/class-erdo-draft-links-admin.php:399
-#: assets/js/build/sidebar.js:1
+#: includes/class-erdo-draft-links-admin.php:185
+#: includes/class-erdo-draft-links-admin.php:241
+#: includes/class-erdo-draft-links-admin.php:513 assets/js/build/sidebar.js:10
 msgid "Please choose a valid future date and time."
 msgstr "Lütfen geçerli, gelecekte bir tarih ve saat seçin."
 
 #. translators: %s: post title
-#: includes/class-erdo-draft-links-frontend.php:224
+#: includes/class-erdo-draft-links-notifications.php:19
 #, php-format
 msgid "Your draft link was opened: %s"
 msgstr "Taslak bağlantınız açıldı: %s"
 
 #. translators: 1: link label, 2: post title, 3: admin URL to manage links
-#: includes/class-erdo-draft-links-frontend.php:230
+#: includes/class-erdo-draft-links-notifications.php:24
 #, php-format
 msgid ""
 "The \"%1$s\" draft link for \"%2$s\" was just opened for the first time.\n"
@@ -413,127 +276,1741 @@ msgstr ""
 "\n"
 "Bağlantıları yönet: %3$s"
 
-#: includes/class-erdo-draft-links-admin.php:607
+#: includes/class-erdo-draft-links-admin-pages.php:83
+#: includes/class-erdo-draft-links-admin-pages.php:121
 msgid "Settings"
 msgstr "Ayarlar"
 
-#: includes/class-erdo-draft-links-admin.php:694
-msgid "Supported Post Types"
-msgstr "Desteklenen İçerik Türleri"
-
-#: includes/class-erdo-draft-links-admin.php:714
-msgid "Save Changes"
-msgstr "Değişiklikleri Kaydet"
-
-#: includes/class-erdo-draft-links-admin.php:720
-msgid "Note: the erdo_draft_links_supported_post_types filter is also active in code and may override these settings."
-msgstr "Not: erdo_draft_links_supported_post_types filtresi kodda da aktif ve bu ayarları geçersiz kılabilir."
-
-#: includes/class-erdo-draft-links-admin.php:636
-msgid "Settings saved."
-msgstr "Ayarlar kaydedildi."
-
-#. Plugin Name of the plugin
-#: erdo-draft-links.php
-#: includes/class-erdo-draft-links-admin.php:185
-#: includes/class-erdo-draft-links-admin.php:418
-#: includes/class-erdo-draft-links-admin.php:419
-#: includes/class-erdo-draft-links-admin.php:588
-#: assets/js/build/sidebar.js:1
+#: includes/class-erdo-draft-links-admin.php:283
+#: includes/class-erdo-draft-links-privacy.php:37
 msgid "Erdo Draft Links"
 msgstr "Erdo Draft Links"
 
 #. Plugin URI of the plugin
 #: erdo-draft-links.php
 msgid "https://wordpress.org/plugins/erdo-draft-links/"
-msgstr ""
+msgstr "https://wordpress.org/plugins/erdo-draft-links/"
 
 #. Author of the plugin
 #: erdo-draft-links.php
 msgid "Erdinc Bulat"
-msgstr ""
+msgstr "Erdinc Bulat"
 
 #. Author URI of the plugin
 #: erdo-draft-links.php
 msgid "https://erdincbulat.com"
-msgstr ""
+msgstr "https://erdincbulat.com"
 
-#: includes/class-erdo-draft-links-admin-list.php:34
+#: assets/js/build/sidebar.js:4 assets/js/build/sidebar.js:10
 msgid "Label"
 msgstr "Etiket"
 
-#: includes/class-erdo-draft-links-admin-list.php:133
-msgid "Are you sure you want to delete this draft link?"
-msgstr "Bu taslak bağlantısını silmek istediğinizden emin misiniz?"
-
-#: includes/class-erdo-draft-links-admin.php:99
+#: includes/class-erdo-draft-links-admin.php:143
 msgid "You are not allowed to manage draft links for this post."
 msgstr "Bu yazının taslak bağlantılarını yönetme izniniz yok."
 
-#: includes/class-erdo-draft-links-admin.php:126
+#: includes/class-erdo-draft-links-admin.php:174
 msgid "Draft links are not enabled for this post type."
 msgstr "Bu içerik türü için taslak bağlantıları etkin değil."
 
-#: includes/class-erdo-draft-links-admin.php:129
+#: includes/class-erdo-draft-links-admin.php:177
 msgid "Save the post first, then generate a draft link."
 msgstr "Önce yazıyı kaydedin, ardından taslak bağlantısı oluşturun."
 
-#: includes/class-erdo-draft-links-admin.php:132
+#: includes/class-erdo-draft-links-admin.php:180
 msgid "Draft links cannot be generated for posts in the trash."
 msgstr "Çöp kutusundaki yazılar için taslak bağlantısı oluşturulamaz."
 
-#: includes/class-erdo-draft-links-admin.php:215
+#: includes/class-erdo-draft-links-admin.php:313
 msgid "Expiry:"
 msgstr "Geçerlilik süresi:"
 
-#: includes/class-erdo-draft-links-admin.php:233
-#: includes/class-erdo-draft-links-admin.php:390
-#: assets/js/build/sidebar.js:1
+#: includes/class-erdo-draft-links-admin.php:345
+#: includes/class-erdo-draft-links-admin.php:504
 msgid "Generate Draft Link"
 msgstr "Taslak Bağlantısı Oluştur"
 
-#: includes/class-erdo-draft-links-admin.php:617
-msgid "Draft link revoked."
-msgstr "Taslak bağlantısı iptal edildi."
-
-#: includes/class-erdo-draft-links-admin.php:620
-msgid "Draft link deleted."
-msgstr "Taslak bağlantısı silindi."
-
-#. translators: %d: number of deleted links
-#: includes/class-erdo-draft-links-admin.php:624
-#, php-format
-msgid "%d draft link deleted."
-msgid_plural "%d draft links deleted."
-msgstr[0] "%d taslak bağlantısı silindi."
-msgstr[1] "%d taslak bağlantısı silindi."
-
-#: includes/class-erdo-draft-links-admin.php:696
-msgid "Choose which post types can have draft links generated for them."
-msgstr "Hangi içerik türleri için taslak bağlantısı oluşturulabileceğini seçin."
-
-#: includes/class-erdo-draft-links-frontend.php:205
+#: includes/class-erdo-draft-links-frontend.php:277
 msgid "Private draft preview. Open this link in your browser to view it."
-msgstr "Özel taslak önizlemesi. Görüntülemek için bu bağlantıyı tarayıcınızda açın."
+msgstr ""
+"Özel taslak önizlemesi. Görüntülemek için bu bağlantıyı tarayıcınızda açın."
 
-#: includes/class-erdo-draft-links-frontend.php:596
-msgid "This draft link is not valid. Check that you copied the whole link."
-msgstr "Bu taslak bağlantısı geçerli değil. Bağlantının tamamını kopyaladığınızdan emin olun."
-
-#: includes/class-erdo-draft-links-frontend.php:597
-#: includes/class-erdo-draft-links-frontend.php:605
-#: includes/class-erdo-draft-links-frontend.php:613
+#: includes/class-erdo-draft-links-frontend.php:454
 msgid "Draft preview"
 msgstr "Taslak önizlemesi"
 
-#: includes/class-erdo-draft-links-frontend.php:604
-msgid "This draft link has expired and is no longer accessible. Ask the person who shared it for a new link."
-msgstr "Bu taslak bağlantısının süresi doldu ve artık erişilemiyor. Paylaşan kişiden yeni bir bağlantı isteyin."
-
-#: includes/class-erdo-draft-links-frontend.php:612
-msgid "This draft link has been turned off by the person who shared it."
-msgstr "Bu taslak bağlantısı, paylaşan kişi tarafından kapatıldı."
-
-#: assets/js/build/sidebar.js:1
+#: assets/js/build/sidebar.js:14
 msgid "Could not load draft links."
 msgstr "Taslak bağlantıları yüklenemedi."
+
+#. Plugin Name of the plugin
+#: erdo-draft-links.php
+msgid "Erdo Draft Links – Share Drafts for Client Review & Approval"
+msgstr ""
+"Erdo Draft Links – Taslakları Müşteri İncelemesi ve Onayı İçin Paylaşın"
+
+#. Description of the plugin
+#: erdo-draft-links.php
+msgid ""
+"Share drafts with clients through secure, expiring links — no login needed. "
+"Collect comments, notes pinned to the page and approve/request-changes "
+"decisions."
+msgstr ""
+"Taslakları müşterilerinizle güvenli, süreli linklerle paylaşın — giriş "
+"gerekmez. Yorumları, sayfaya iğnelenen notları ve onay/değişiklik isteği "
+"kararlarını toplayın."
+
+#: includes/class-erdo-draft-links-abilities.php:27
+msgid "Draft review links"
+msgstr "Taslak inceleme linkleri"
+
+#: includes/class-erdo-draft-links-abilities.php:28
+msgid ""
+"Share unpublished posts with clients through private review links, and read "
+"their feedback and approvals."
+msgstr ""
+"Yayınlanmamış yazıları müşterilerle özel inceleme linkleriyle paylaşın; geri"
+" bildirimlerini ve onaylarını okuyun."
+
+#: includes/class-erdo-draft-links-abilities.php:37
+msgid "ID of the post or page."
+msgstr "Yazının veya sayfanın kimliği (ID)."
+
+#: includes/class-erdo-draft-links-abilities.php:42
+msgid "Create a review link"
+msgstr "İnceleme linki oluştur"
+
+#: includes/class-erdo-draft-links-abilities.php:43
+msgid ""
+"Creates a private link that lets someone without a WordPress account view "
+"this post (even a draft) and leave feedback. Returns the shareable URL."
+msgstr ""
+"WordPress hesabı olmayan birinin bu yazıyı (taslak olsa bile) görmesini ve "
+"geri bildirim bırakmasını sağlayan özel bir link oluşturur. Paylaşılabilir "
+"adresi döndürür."
+
+#: includes/class-erdo-draft-links-abilities.php:53
+msgid "Who the link is for, e.g. \"Client A\"."
+msgstr "Linkin kimin için olduğu, ör. \"Müşteri A\"."
+
+#: includes/class-erdo-draft-links-abilities.php:58
+msgid "How long the link works. Defaults to the site setting."
+msgstr "Linkin ne kadar süre çalışacağı. Varsayılan, site ayarıdır."
+
+#: includes/class-erdo-draft-links-abilities.php:63
+msgid "Stop working after this many opens (0 = no limit)."
+msgstr "Bu kadar açılıştan sonra çalışmayı durdur (0 = sınırsız)."
+
+#: includes/class-erdo-draft-links-abilities.php:85
+msgid "List review links"
+msgstr "İnceleme linklerini listele"
+
+#: includes/class-erdo-draft-links-abilities.php:86
+msgid ""
+"Lists the review links of a post that still work, with their URL, expiry, "
+"open count and review decision, plus the post’s overall review status and "
+"number of open comments."
+msgstr ""
+"Bir yazının hâlâ çalışan inceleme linklerini adres, bitiş zamanı, açılma "
+"sayısı ve inceleme kararıyla; ayrıca yazının genel inceleme durumu ve açık "
+"yorum sayısıyla listeler."
+
+#: includes/class-erdo-draft-links-abilities.php:94
+msgid "Turn off a review link"
+msgstr "İnceleme linkini kapat"
+
+#: includes/class-erdo-draft-links-abilities.php:95
+msgid ""
+"Turns off one review link of a post immediately. Whoever has it can no "
+"longer open the post. This cannot be undone; create a new link instead."
+msgstr ""
+"Bir yazının inceleme linkini hemen kapatır. Linke sahip olan kişi yazıyı "
+"artık açamaz. Geri alınamaz; bunun yerine yeni bir link oluşturun."
+
+#: includes/class-erdo-draft-links-abilities.php:105
+msgid "ID of the link, from list-links."
+msgstr "Linkin kimliği (list-links çıktısından)."
+
+#: includes/class-erdo-draft-links-abilities.php:119
+msgid "List review feedback"
+msgstr "İnceleme geri bildirimlerini listele"
+
+#: includes/class-erdo-draft-links-abilities.php:120
+msgid ""
+"Lists what reviewers left on a post through its review links: comments, "
+"notes pinned to page elements, approvals and change requests, each with "
+"replies and an open/resolved status. Reviewer email addresses are not "
+"included."
+msgstr ""
+"İnceleyenlerin bir yazıya inceleme linkleri üzerinden bıraktıklarını "
+"listeler: yorumlar, sayfa öğelerine iğnelenen notlar, onaylar ve değişiklik "
+"istekleri; her biri yanıtları ve açık/çözüldü durumuyla. İnceleyenlerin "
+"e-posta adresleri dahil edilmez."
+
+#: includes/class-erdo-draft-links-abilities.php:128
+msgid "Get review status"
+msgstr "İnceleme durumunu getir"
+
+#: includes/class-erdo-draft-links-abilities.php:129
+msgid ""
+"Returns the latest review decision for a post (approved or changes "
+"requested), who made it and when, and whether the post was edited after that"
+" decision."
+msgstr ""
+"Bir yazı için en son inceleme kararını (onaylandı veya değişiklik istendi), "
+"kararı kimin ne zaman verdiğini ve yazının bu karardan sonra düzenlenip "
+"düzenlenmediğini döndürür."
+
+#: includes/class-erdo-draft-links-abilities.php:201
+msgid "The request failed."
+msgstr "İstek başarısız oldu."
+
+#: includes/class-erdo-draft-links-admin-list.php:46
+msgid "Opened"
+msgstr "Açılma"
+
+#: includes/class-erdo-draft-links-admin-list.php:47
+#: includes/class-erdo-draft-links-frontend.php:465
+#: includes/class-erdo-draft-links-post-list.php:45
+#: includes/class-erdo-draft-links-post-list.php:50
+msgid "Review"
+msgstr "İnceleme"
+
+#: includes/class-erdo-draft-links-admin-list.php:48
+msgid "Open comments"
+msgstr "Açık yorumlar"
+
+#: includes/class-erdo-draft-links-admin-list.php:67
+#: includes/class-erdo-draft-links-admin-list.php:163
+msgid "Turn off"
+msgstr "Kapat"
+
+#: includes/class-erdo-draft-links-admin-list.php:77
+#: includes/class-erdo-draft-links-admin-list.php:203
+msgid "Turned off"
+msgstr "Kapatıldı"
+
+#: includes/class-erdo-draft-links-admin-list.php:103
+msgid ""
+"No share links yet. Open a draft and use “Create share link” in the Share "
+"for review panel."
+msgstr ""
+"Henüz paylaşım linki yok. Bir taslağı açın ve İnceleme için paylaş "
+"panelindeki “Paylaşım linki oluştur” düğmesini kullanın."
+
+#: includes/class-erdo-draft-links-admin-list.php:110
+msgid "Select link"
+msgstr "Linki seç"
+
+#: includes/class-erdo-draft-links-admin-list.php:136
+#: includes/class-erdo-draft-links-dashboard.php:57
+#: includes/class-erdo-draft-links-feedback-list.php:127
+#: includes/class-erdo-draft-links-feedback-list.php:261
+msgid "(no title)"
+msgstr "(başlık yok)"
+
+#: includes/class-erdo-draft-links-admin-list.php:153
+msgid "Copy link"
+msgstr "Linki kopyala"
+
+#: includes/class-erdo-draft-links-admin-list.php:155
+msgid "(opens in a new tab)"
+msgstr "(yeni sekmede açılır)"
+
+#: includes/class-erdo-draft-links-admin-list.php:158
+msgid "Expire in 7 days"
+msgstr "7 gün sonra bitsin"
+
+#: includes/class-erdo-draft-links-admin-list.php:162
+#: assets/js/build/sidebar.js:5
+msgid ""
+"Turn off this link? Anyone who has it will no longer be able to open the "
+"draft."
+msgstr ""
+"Bu link kapatılsın mı? Linke sahip olan kişi taslağı artık açamayacak."
+
+#: includes/class-erdo-draft-links-admin-list.php:169
+msgid "Delete this link? Its feedback stays on the post."
+msgstr "Bu link silinsin mi? Geri bildirimleri yazıda kalır."
+
+#: includes/class-erdo-draft-links-admin-list.php:183 templates/status.php:115
+msgid "Password"
+msgstr "Şifre"
+
+#. translators: %d: maximum number of opens
+#: includes/class-erdo-draft-links-admin-list.php:187
+#, php-format
+msgid "Opens %d time"
+msgid_plural "Opens %d times"
+msgstr[0] "%d kez açılabilir"
+msgstr[1] "%d kez açılabilir"
+
+#: includes/class-erdo-draft-links-admin-list.php:209
+msgid "Open limit reached"
+msgstr "Açılma sınırına ulaşıldı"
+
+#: includes/class-erdo-draft-links-admin-list.php:212
+#: assets/js/build/sidebar.js:2
+msgid "No expiry"
+msgstr "Süresiz"
+
+#. translators: %s: human-readable time, e.g. "2 days"
+#: includes/class-erdo-draft-links-admin-list.php:228
+#, php-format
+msgid "Expired %s ago"
+msgstr "%s önce sona erdi"
+
+#. translators: %s: human-readable time, e.g. "3 days"
+#: includes/class-erdo-draft-links-admin-list.php:230
+#, php-format
+msgid "Expires in %s"
+msgstr "%s içinde sona erer"
+
+#: includes/class-erdo-draft-links-admin-list.php:241
+msgid "Not yet"
+msgstr "Henüz değil"
+
+#. translators: %s: number of times opened
+#: includes/class-erdo-draft-links-admin-list.php:244
+#, php-format
+msgid "%s time"
+msgid_plural "%s times"
+msgstr[0] "%s kez"
+msgstr[1] "%s kez"
+
+#. translators: %s: human-readable time, e.g. "2 hours"
+#: includes/class-erdo-draft-links-admin-list.php:247
+#, php-format
+msgid "Last %s ago"
+msgstr "Son: %s önce"
+
+#: includes/class-erdo-draft-links-admin-list.php:258
+#: includes/class-erdo-draft-links-post-list.php:67
+msgid "Approved, then edited"
+msgstr "Onaylandı, sonra düzenlendi"
+
+#: includes/class-erdo-draft-links-admin-list.php:259
+#: includes/class-erdo-draft-links-feedback-list.php:162
+#: includes/class-erdo-draft-links-frontend.php:489
+#: includes/class-erdo-draft-links-post-list.php:68
+#: assets/js/build/sidebar.js:12
+msgid "Approved"
+msgstr "Onaylandı"
+
+#: includes/class-erdo-draft-links-admin-list.php:262
+#: includes/class-erdo-draft-links-feedback-list.php:163
+#: includes/class-erdo-draft-links-post-list.php:70
+#: assets/js/build/sidebar.js:12
+msgid "Changes requested"
+msgstr "Değişiklik istendi"
+
+#: includes/class-erdo-draft-links-admin-list.php:265
+msgid "Waiting"
+msgstr "Bekliyor"
+
+#. translators: %s: reviewer name
+#. translators: %s: user display name
+#: includes/class-erdo-draft-links-admin-list.php:270
+#: includes/class-erdo-draft-links-admin-list.php:296
+#, php-format
+msgid "by %s"
+msgstr "%s tarafından"
+
+#: includes/class-erdo-draft-links-admin-list.php:280
+msgid "None"
+msgstr "Yok"
+
+#. translators: %d: number of open comments
+#. translators: %d: number of open feedback items
+#: includes/class-erdo-draft-links-admin-list.php:287
+#: includes/class-erdo-draft-links-admin-pages.php:68
+#: includes/class-erdo-draft-links-post-list.php:79
+#: assets/js/build/sidebar.js:10
+#, php-format, js-format
+msgid "%d open comment"
+msgid_plural "%d open comments"
+msgstr[0] "%d açık yorum"
+msgstr[1] "%d açık yorum"
+
+#: includes/class-erdo-draft-links-admin-pages.php:72
+#: includes/class-erdo-draft-links-admin-pages.php:73
+msgid "Draft Links"
+msgstr "Draft Links"
+
+#: includes/class-erdo-draft-links-admin-pages.php:81
+#: includes/class-erdo-draft-links-admin-pages.php:330
+#: assets/js/build/sidebar.js:11
+msgid "Share links"
+msgstr "Paylaşım linkleri"
+
+#: includes/class-erdo-draft-links-admin-pages.php:83
+#: includes/class-erdo-draft-links-settings.php:155
+msgid "Draft Links settings"
+msgstr "Draft Links ayarları"
+
+#. translators: %s: search terms
+#: includes/class-erdo-draft-links-admin-pages.php:336
+#, php-format
+msgid "Search results for: %s"
+msgstr "Arama sonuçları: %s"
+
+#: includes/class-erdo-draft-links-admin-pages.php:341
+msgid ""
+"Links are created from the post editor’s “Share for review” panel. Anyone "
+"with an active link can open the draft without logging in."
+msgstr ""
+"Linkler yazı düzenleyicideki “İnceleme için paylaş” panelinden oluşturulur. "
+"Etkin bir linke sahip olan herkes taslağı giriş yapmadan açabilir."
+
+#: includes/class-erdo-draft-links-admin-pages.php:351
+msgid "Search links"
+msgstr "Linklerde ara"
+
+#: includes/class-erdo-draft-links-admin-pages.php:397
+#: assets/js/build/sidebar.js:5
+msgid "Link turned off."
+msgstr "Link kapatıldı."
+
+#: includes/class-erdo-draft-links-admin-pages.php:398
+msgid "Link deleted."
+msgstr "Link silindi."
+
+#: includes/class-erdo-draft-links-admin-pages.php:399
+#: assets/js/build/sidebar.js:5
+msgid "Link now expires in 7 days."
+msgstr "Link artık 7 gün sonra sona erecek."
+
+#. translators: %d: number of links
+#: includes/class-erdo-draft-links-admin-pages.php:401
+#, php-format
+msgid "%d link deleted."
+msgid_plural "%d links deleted."
+msgstr[0] "%d link silindi."
+msgstr[1] "%d link silindi."
+
+#. translators: %d: number of links
+#: includes/class-erdo-draft-links-admin-pages.php:403
+#, php-format
+msgid "%d link turned off."
+msgid_plural "%d links turned off."
+msgstr[0] "%d link kapatıldı."
+msgstr[1] "%d link kapatıldı."
+
+#: includes/class-erdo-draft-links-admin-pages.php:404
+msgid "Reply sent."
+msgstr "Yanıt gönderildi."
+
+#: includes/class-erdo-draft-links-admin-pages.php:405
+msgid "Marked as resolved."
+msgstr "Çözüldü olarak işaretlendi."
+
+#: includes/class-erdo-draft-links-admin-pages.php:406
+msgid "Reopened."
+msgstr "Yeniden açıldı."
+
+#. translators: %d: number of feedback items
+#: includes/class-erdo-draft-links-admin-pages.php:409
+#, php-format
+msgid "%d item updated."
+msgid_plural "%d items updated."
+msgstr[0] "%d öğe güncellendi."
+msgstr[1] "%d öğe güncellendi."
+
+#. translators: %d: number of feedback items
+#: includes/class-erdo-draft-links-admin-pages.php:411
+#, php-format
+msgid "%d item deleted."
+msgid_plural "%d items deleted."
+msgstr[0] "%d öğe silindi."
+msgstr[1] "%d öğe silindi."
+
+#. translators: %d: number of days
+#: includes/class-erdo-draft-links-admin-pages.php:423
+#, php-format
+msgid "Expired links are deleted automatically %d day after they expire."
+msgid_plural ""
+"Expired links are deleted automatically %d days after they expire."
+msgstr[0] ""
+"Süresi dolan linkler, süreleri dolduktan %d gün sonra otomatik olarak "
+"silinir."
+msgstr[1] ""
+"Süresi dolan linkler, süreleri dolduktan %d gün sonra otomatik olarak "
+"silinir."
+
+#. translators: 1: date of the last cleanup, 2: number of links removed
+#: includes/class-erdo-draft-links-admin-pages.php:427
+#, php-format
+msgid "Last run: %1$s (%2$d removed)."
+msgstr "Son çalışma: %1$s (%2$d silindi)."
+
+#: includes/class-erdo-draft-links-admin-pages.php:430
+#: includes/class-erdo-draft-links-frontend.php:475
+msgid "Change"
+msgstr "Değiştir"
+
+#: includes/class-erdo-draft-links-admin.php:231
+msgid "This link was turned off. Generate a new one instead."
+msgstr "Bu link kapatılmış. Bunun yerine yeni bir link oluşturun."
+
+#: includes/class-erdo-draft-links-admin.php:320
+#: includes/class-erdo-draft-links-admin.php:448
+msgid "30 Days"
+msgstr "30 Gün"
+
+#: includes/class-erdo-draft-links-admin.php:333 assets/js/build/sidebar.js:10
+msgid "Password (optional)"
+msgstr "Şifre (isteğe bağlı)"
+
+#: includes/class-erdo-draft-links-admin.php:339 assets/js/build/sidebar.js:10
+msgid "Stop working after this many opens (optional)"
+msgstr "Bu kadar açılıştan sonra çalışmayı durdur (isteğe bağlı)"
+
+#: includes/class-erdo-draft-links-ai.php:192
+msgid "The AI helpers are switched off on Draft Links → Settings."
+msgstr "Yapay zekâ yardımcıları Draft Links → Ayarlar sayfasında kapatılmış."
+
+#: includes/class-erdo-draft-links-ai.php:209
+msgid "There is no open feedback to summarise."
+msgstr "Özetlenecek açık geri bildirim yok."
+
+#: includes/class-erdo-draft-links-ai.php:368
+msgid ""
+"There is no saved version from the last review to compare with. Revisions "
+"may be switched off for this post type."
+msgstr ""
+"Son incelemeden kalma, karşılaştırılacak kayıtlı bir sürüm yok. Bu yazı türü"
+" için revizyonlar kapalı olabilir."
+
+#: includes/class-erdo-draft-links-ai.php:374
+msgid "The text hasn’t changed since the last review."
+msgstr "Metin son incelemeden bu yana değişmedi."
+
+#: includes/class-erdo-draft-links-ai.php:434
+msgid ""
+"No AI provider is connected. Add your own API key under Settings → "
+"Connectors."
+msgstr ""
+"Bağlı bir yapay zekâ sağlayıcısı yok. Kendi API anahtarınızı Ayarlar → "
+"Bağlayıcılar altında ekleyin."
+
+#. translators: %s: error message from the AI provider
+#: includes/class-erdo-draft-links-ai.php:470
+#, php-format
+msgid "The AI request failed: %s"
+msgstr "Yapay zekâ isteği başarısız oldu: %s"
+
+#: includes/class-erdo-draft-links-ai.php:479
+msgid "The AI answer could not be read. Please try again."
+msgstr "Yapay zekâ yanıtı okunamadı. Lütfen tekrar deneyin."
+
+#: includes/class-erdo-draft-links-ai.php:494
+msgid "That feedback item was not found on this post."
+msgstr "Bu geri bildirim öğesi bu yazıda bulunamadı."
+
+#: includes/class-erdo-draft-links-dashboard.php:26
+#: assets/js/build/sidebar.js:13
+msgid "Client feedback"
+msgstr "Müşteri geri bildirimi"
+
+#: includes/class-erdo-draft-links-dashboard.php:46
+msgid ""
+"No open feedback. When a client comments on a shared draft, it shows up "
+"here."
+msgstr ""
+"Açık geri bildirim yok. Bir müşteri paylaşılan bir taslağa yorum yaptığında "
+"burada görünür."
+
+#: includes/class-erdo-draft-links-dashboard.php:56
+msgctxt "feedback on a post"
+msgid "on"
+msgstr "yazısında"
+
+#. translators: %d: number of open feedback items
+#: includes/class-erdo-draft-links-dashboard.php:69
+#, php-format
+msgid "View %d open item"
+msgid_plural "View all %d open items"
+msgstr[0] "%d açık öğeyi görüntüle"
+msgstr[1] "%d açık öğenin tümünü görüntüle"
+
+#: includes/class-erdo-draft-links-db.php:588
+msgid "Anonymous"
+msgstr "Anonim"
+
+#: includes/class-erdo-draft-links-db.php:682
+#: includes/class-erdo-draft-links-feedback-list.php:97
+#: includes/class-erdo-draft-links-feedback-list.php:282
+#: includes/class-erdo-draft-links-frontend.php:487
+msgid "Resolved"
+msgstr "Çözüldü"
+
+#: includes/class-erdo-draft-links-feedback-api.php:90
+msgid "You are not allowed to see feedback on this post."
+msgstr "Bu yazıdaki geri bildirimleri görme izniniz yok."
+
+#: includes/class-erdo-draft-links-feedback-api.php:124
+msgid "Write a reply first."
+msgstr "Önce bir yanıt yazın."
+
+#: includes/class-erdo-draft-links-feedback-api.php:130
+msgid "Could not save the reply. Please try again."
+msgstr "Yanıt kaydedilemedi. Lütfen tekrar deneyin."
+
+#: includes/class-erdo-draft-links-feedback-api.php:173
+msgid "This feedback no longer exists."
+msgstr "Bu geri bildirim artık mevcut değil."
+
+#: includes/class-erdo-draft-links-feedback-list.php:57
+msgid "Received"
+msgstr "Alındı"
+
+#: includes/class-erdo-draft-links-feedback-list.php:67
+#: includes/class-erdo-draft-links-feedback-list.php:240
+#: assets/js/build/sidebar.js:12
+msgid "Mark resolved"
+msgstr "Çözüldü olarak işaretle"
+
+#: includes/class-erdo-draft-links-feedback-list.php:68
+#: includes/class-erdo-draft-links-feedback-list.php:240
+#: assets/js/build/sidebar.js:12
+msgid "Reopen"
+msgstr "Yeniden aç"
+
+#: includes/class-erdo-draft-links-feedback-list.php:98
+msgid "Decisions"
+msgstr "Kararlar"
+
+#: includes/class-erdo-draft-links-feedback-list.php:135
+msgid "Showing feedback on"
+msgstr "Gösterilen geri bildirimler:"
+
+#: includes/class-erdo-draft-links-feedback-list.php:138
+msgid "Show all"
+msgstr "Tümünü göster"
+
+#: includes/class-erdo-draft-links-feedback-list.php:144
+msgid "Nothing waiting for you. New comments from reviewers show up here."
+msgstr ""
+"Sizi bekleyen bir şey yok. İnceleyenlerden gelen yeni yorumlar burada "
+"görünür."
+
+#: includes/class-erdo-draft-links-feedback-list.php:147
+msgid "No feedback here."
+msgstr "Burada geri bildirim yok."
+
+#: includes/class-erdo-draft-links-feedback-list.php:154
+msgid "Select feedback"
+msgstr "Geri bildirimi seç"
+
+#: includes/class-erdo-draft-links-feedback-list.php:160
+#: assets/js/build/sidebar.js:12
+msgid "Comment"
+msgstr "Yorum"
+
+#: includes/class-erdo-draft-links-feedback-list.php:161
+#: includes/class-erdo-draft-links-frontend.php:461
+#: assets/js/build/sidebar.js:12
+msgid "Note on page"
+msgstr "Sayfada not"
+
+#: includes/class-erdo-draft-links-feedback-list.php:195
+#: includes/class-erdo-draft-links-frontend.php:488
+msgid "Team"
+msgstr "Ekip"
+
+#. translators: %s: reviewer name
+#: includes/class-erdo-draft-links-feedback-list.php:209
+#, php-format
+msgid "Reply to %s"
+msgstr "%s adlı kişiye yanıt ver"
+
+#: includes/class-erdo-draft-links-feedback-list.php:211
+msgid "The reviewer gets an email with your reply and sees it on the draft."
+msgstr ""
+"İnceleyen kişiye yanıtınız e-postayla gönderilir ve taslakta da görür."
+
+#: includes/class-erdo-draft-links-feedback-list.php:212
+msgid "The reviewer sees your reply next time they open the draft."
+msgstr "İnceleyen kişi yanıtınızı taslağı bir sonraki açışında görür."
+
+#: includes/class-erdo-draft-links-feedback-list.php:213
+#: includes/class-erdo-draft-links-frontend.php:471
+#: assets/js/build/sidebar.js:12
+msgid "Send reply"
+msgstr "Yanıtı gönder"
+
+#: includes/class-erdo-draft-links-feedback-list.php:246
+msgid "Delete this feedback and its replies?"
+msgstr "Bu geri bildirim ve yanıtları silinsin mi?"
+
+#. translators: %s: share link label
+#: includes/class-erdo-draft-links-feedback-list.php:267
+#, php-format
+msgid "via “%s”"
+msgstr "“%s” üzerinden"
+
+#: includes/class-erdo-draft-links-feedback-list.php:272
+msgid "All feedback on this post"
+msgstr "Bu yazıdaki tüm geri bildirimler"
+
+#: includes/class-erdo-draft-links-frontend.php:184
+msgid "The form expired. Please try again."
+msgstr "Formun süresi doldu. Lütfen tekrar deneyin."
+
+#: includes/class-erdo-draft-links-frontend.php:192
+msgid "Too many attempts. Please wait a few minutes and try again."
+msgstr ""
+"Çok fazla deneme yapıldı. Lütfen birkaç dakika bekleyip tekrar deneyin."
+
+#: includes/class-erdo-draft-links-frontend.php:201
+msgid "That password is not correct."
+msgstr "Şifre doğru değil."
+
+#: includes/class-erdo-draft-links-frontend.php:455
+msgid "What’s new since your last review"
+msgstr "Son incelemenizden bu yana yenilikler"
+
+#: includes/class-erdo-draft-links-frontend.php:456
+msgid "Preview"
+msgstr "Önizleme"
+
+#. translators: %s: relative time, e.g. "in 3 days"
+#: includes/class-erdo-draft-links-frontend.php:458
+#, php-format
+msgid "Link expires %s"
+msgstr "Linkin süresi %s doluyor"
+
+#: includes/class-erdo-draft-links-frontend.php:459
+msgid "Review toolbar"
+msgstr "İnceleme araç çubuğu"
+
+#: includes/class-erdo-draft-links-frontend.php:460
+msgid "Comments"
+msgstr "Yorumlar"
+
+#: includes/class-erdo-draft-links-frontend.php:462
+msgid "Approve"
+msgstr "Onayla"
+
+#: includes/class-erdo-draft-links-frontend.php:463
+#: includes/class-erdo-draft-links-frontend.php:494
+msgid "Request changes"
+msgstr "Değişiklik iste"
+
+#: includes/class-erdo-draft-links-frontend.php:464
+msgid "Hide toolbar"
+msgstr "Araç çubuğunu gizle"
+
+#: includes/class-erdo-draft-links-frontend.php:467
+#: assets/js/build/sidebar.js:12
+msgid "Cancel"
+msgstr "Vazgeç"
+
+#: includes/class-erdo-draft-links-frontend.php:468
+#: includes/class-erdo-draft-links-frontend.php:535
+msgid "Send"
+msgstr "Gönder"
+
+#: includes/class-erdo-draft-links-frontend.php:472
+#: includes/class-erdo-draft-links-frontend.php:528
+msgid "Your name"
+msgstr "Adınız"
+
+#: includes/class-erdo-draft-links-frontend.php:473
+msgid "Email (optional)"
+msgstr "E-posta (isteğe bağlı)"
+
+#: includes/class-erdo-draft-links-frontend.php:474
+msgid "Only used to let you know when someone replies."
+msgstr "Yalnızca biri yanıt verdiğinde size haber vermek için kullanılır."
+
+#. translators: %s: reviewer name
+#: includes/class-erdo-draft-links-frontend.php:477
+#, php-format
+msgid "Commenting as %s"
+msgstr "%s olarak yorum yapıyorsunuz"
+
+#: includes/class-erdo-draft-links-frontend.php:478
+#: includes/class-erdo-draft-links-frontend.php:532
+msgid "Your comment"
+msgstr "Yorumunuz"
+
+#: includes/class-erdo-draft-links-frontend.php:479
+msgid "What do you think?"
+msgstr "Ne düşünüyorsunuz?"
+
+#: includes/class-erdo-draft-links-frontend.php:480
+msgid "What should change here?"
+msgstr "Burada ne değişmeli?"
+
+#: includes/class-erdo-draft-links-frontend.php:481
+msgid ""
+"Click the part of the page you want to comment on. Press Esc to cancel."
+msgstr ""
+"Yorum yapmak istediğiniz sayfa bölümüne tıklayın. Vazgeçmek için Esc tuşuna "
+"basın."
+
+#. translators: %d: note number
+#: includes/class-erdo-draft-links-frontend.php:483
+#, php-format
+msgid "Note %d"
+msgstr "Not %d"
+
+#: includes/class-erdo-draft-links-frontend.php:484
+msgid "Show on page"
+msgstr "Sayfada göster"
+
+#: includes/class-erdo-draft-links-frontend.php:485
+msgid "This part of the page has changed since the note was left."
+msgstr "Not bırakıldıktan sonra sayfanın bu bölümü değişti."
+
+#: includes/class-erdo-draft-links-frontend.php:486
+msgid ""
+"No comments yet. Write one below, or use “Note on page” to point at "
+"something specific."
+msgstr ""
+"Henüz yorum yok. Aşağıya bir yorum yazın ya da belirli bir yeri göstermek "
+"için “Sayfada not” özelliğini kullanın."
+
+#: includes/class-erdo-draft-links-frontend.php:490
+msgid "Requested changes"
+msgstr "Değişiklik istedi"
+
+#: includes/class-erdo-draft-links-frontend.php:491
+msgid "Approve this draft?"
+msgstr "Bu taslak onaylansın mı?"
+
+#: includes/class-erdo-draft-links-frontend.php:492
+msgid "The author will be told it is good to go."
+msgstr "Yazara hazır olduğu bildirilecek."
+
+#: includes/class-erdo-draft-links-frontend.php:493
+msgid "Message (optional)"
+msgstr "Mesaj (isteğe bağlı)"
+
+#: includes/class-erdo-draft-links-frontend.php:495
+msgid ""
+"Tell the author what should change. Your comments and notes stay attached."
+msgstr ""
+"Yazara neyin değişmesi gerektiğini anlatın. Yorumlarınız ve notlarınız ekli "
+"kalır."
+
+#: includes/class-erdo-draft-links-frontend.php:496
+msgid "What should change?"
+msgstr "Ne değişmeli?"
+
+#. translators: %s: reviewer name
+#: includes/class-erdo-draft-links-frontend.php:498
+#, php-format
+msgid "Approved by %s"
+msgstr "%s onayladı"
+
+#. translators: %s: reviewer name
+#: includes/class-erdo-draft-links-frontend.php:500
+#, php-format
+msgid "Changes requested by %s"
+msgstr "%s değişiklik istedi"
+
+#: includes/class-erdo-draft-links-frontend.php:501
+msgid "Updated since the last review"
+msgstr "Son incelemeden bu yana güncellendi"
+
+#: includes/class-erdo-draft-links-frontend.php:502
+msgid "Thanks! The author has been told you approved it."
+msgstr "Teşekkürler! Yazara onayladığınız bildirildi."
+
+#: includes/class-erdo-draft-links-frontend.php:503
+msgid "Thanks! The author has your change requests."
+msgstr "Teşekkürler! Değişiklik istekleriniz yazara iletildi."
+
+#: includes/class-erdo-draft-links-frontend.php:504
+msgid "Comment sent."
+msgstr "Yorum gönderildi."
+
+#: includes/class-erdo-draft-links-frontend.php:505
+msgid "Note added."
+msgstr "Not eklendi."
+
+#: includes/class-erdo-draft-links-frontend.php:507
+msgid "Could not load the conversation."
+msgstr "Konuşma yüklenemedi."
+
+#. translators: %s: post title
+#: includes/class-erdo-draft-links-notifications.php:60
+#, php-format
+msgid "Draft approved: %s"
+msgstr "Taslak onaylandı: %s"
+
+#. translators: %s: post title
+#: includes/class-erdo-draft-links-notifications.php:62
+#, php-format
+msgid "Changes requested: %s"
+msgstr "Değişiklik istendi: %s"
+
+#. translators: 1: reviewer name, 2: post title
+#: includes/class-erdo-draft-links-notifications.php:66
+#, php-format
+msgid "%1$s approved the draft \"%2$s\"."
+msgstr "%1$s, \"%2$s\" taslağını onayladı."
+
+#. translators: 1: reviewer name, 2: post title
+#: includes/class-erdo-draft-links-notifications.php:68
+#, php-format
+msgid "%1$s requested changes to the draft \"%2$s\"."
+msgstr "%1$s, \"%2$s\" taslağında değişiklik istedi."
+
+#. translators: %s: URL of the post editor
+#: includes/class-erdo-draft-links-notifications.php:76
+#, php-format
+msgid "Open the post: %s"
+msgstr "Yazıyı aç: %s"
+
+#. translators: %s: post title
+#: includes/class-erdo-draft-links-notifications.php:90
+#, php-format
+msgid "Someone asked for a new draft link: %s"
+msgstr "Biri yeni bir taslak linki istedi: %s"
+
+#. translators: 1: link label, 2: post title, 3: URL of the post editor
+#: includes/class-erdo-draft-links-notifications.php:95
+#, php-format
+msgid ""
+"Someone opened the \"%1$s\" draft link for \"%2$s\" after it stopped working, and asked for a new one.\n"
+"\n"
+"Generate a new link from the post editor: %3$s"
+msgstr ""
+"Biri \"%2$s\" yazısının \"%1$s\" taslak linkini çalışmayı durdurduktan sonra açtı ve yeni bir link istedi.\n"
+"\n"
+"Yazı düzenleyiciden yeni bir link oluşturun: %3$s"
+
+#. translators: 1: link label, 2: post title, 3: time left, e.g. "23 hours",
+#. 4: date and time in the site's timezone
+#: includes/class-erdo-draft-links-notifications.php:109
+#, php-format
+msgid "The \"%1$s\" draft link for \"%2$s\" stops working in %3$s (%4$s)."
+msgstr ""
+"\"%2$s\" yazısının \"%1$s\" taslak linki %3$s sonra çalışmayı durduracak "
+"(%4$s)."
+
+#: includes/class-erdo-draft-links-notifications.php:116
+msgid "The reviewer asked for changes and has not approved it yet."
+msgstr "İnceleyen kişi değişiklik istedi ve henüz onaylamadı."
+
+#: includes/class-erdo-draft-links-notifications.php:117
+msgid "The draft has not been approved yet."
+msgstr "Taslak henüz onaylanmadı."
+
+#. translators: %s: admin URL of the links screen
+#: includes/class-erdo-draft-links-notifications.php:120
+#, php-format
+msgid "To give the reviewer more time, extend it here: %s"
+msgstr "İnceleyene daha fazla süre tanımak için linki buradan uzatın: %s"
+
+#. translators: %s: post title
+#: includes/class-erdo-draft-links-notifications.php:129
+#, php-format
+msgid "Draft link expires soon: %s"
+msgstr "Taslak linkinin süresi yakında doluyor: %s"
+
+#. translators: 1: name of the person who replied, 2: post title, 3: reply
+#. text
+#: includes/class-erdo-draft-links-notifications.php:148
+#, php-format
+msgid ""
+"%1$s replied to your feedback on \"%2$s\":\n"
+"\n"
+"%3$s"
+msgstr ""
+"%1$s, \"%2$s\" hakkındaki geri bildiriminize yanıt verdi:\n"
+"\n"
+"%3$s"
+
+#. translators: %s: the reviewer's draft link
+#: includes/class-erdo-draft-links-notifications.php:155
+#, php-format
+msgid "See the conversation: %s"
+msgstr "Konuşmayı görün: %s"
+
+#. translators: %s: post title
+#: includes/class-erdo-draft-links-notifications.php:161
+#, php-format
+msgid "New reply about \"%s\""
+msgstr "\"%s\" hakkında yeni yanıt"
+
+#: includes/class-erdo-draft-links-post-list.php:85
+msgid "Shared, waiting"
+msgstr "Paylaşıldı, bekliyor"
+
+#: includes/class-erdo-draft-links-post-list.php:86
+msgid "Not shared"
+msgstr "Paylaşılmadı"
+
+#: includes/class-erdo-draft-links-post-list.php:112
+#: assets/js/build/sidebar.js:11
+msgid "Copy share link"
+msgstr "Paylaşım linkini kopyala"
+
+#: includes/class-erdo-draft-links-privacy.php:31
+msgid ""
+"Erdo Draft Links lets you share unpublished content with reviewers through "
+"private links. Suggested text for your policy:"
+msgstr ""
+"Erdo Draft Links, yayınlanmamış içeriği inceleyenlerle özel linkler "
+"aracılığıyla paylaşmanızı sağlar. Gizlilik politikanız için önerilen metin:"
+
+#: includes/class-erdo-draft-links-privacy.php:32
+msgid "Suggested text:"
+msgstr "Önerilen metin:"
+
+#: includes/class-erdo-draft-links-privacy.php:33
+msgid ""
+"When you review a draft through a private review link, we store the name you"
+" enter, your comments and notes, your approval or change request, and — only"
+" if you choose to give it — your email address, so we can tell you when "
+"someone replies. Your name and email are also kept in your browser so you "
+"don’t have to type them again. A cookie remembers that you opened the review"
+" link; it lasts until the link expires, at most 30 days."
+msgstr ""
+"Bir taslağı özel bir inceleme linki aracılığıyla incelediğinizde, girdiğiniz"
+" adı, yorumlarınızı ve notlarınızı, onayınızı veya değişiklik isteğinizi ve "
+"— yalnızca vermeyi seçerseniz — biri yanıt verdiğinde size haber "
+"verebilmemiz için e-posta adresinizi saklarız. Tekrar yazmanız gerekmesin "
+"diye adınız ve e-postanız tarayıcınızda da tutulur. Bir çerez, inceleme "
+"linkini açtığınızı hatırlar; link sona erene kadar, en fazla 30 gün "
+"geçerlidir."
+
+#: includes/class-erdo-draft-links-privacy.php:34
+msgid ""
+"Your feedback is kept until the reviewed page is deleted, or until you ask "
+"us to erase it."
+msgstr ""
+"Geri bildiriminiz, incelenen sayfa silinene veya silinmesini isteyene kadar "
+"saklanır."
+
+#: includes/class-erdo-draft-links-privacy.php:35
+msgid ""
+"If the site’s editors use the optional AI helpers (for example to summarise "
+"or translate feedback), the text of the comments is sent to the AI provider "
+"the site has connected. Your email address and IP address are never sent, "
+"and your name is replaced with “Reviewer”."
+msgstr ""
+"Sitenin editörleri isteğe bağlı yapay zekâ yardımcılarını kullanırsa "
+"(örneğin geri bildirimi özetlemek veya çevirmek için), yorumların metni "
+"sitenin bağladığı yapay zekâ sağlayıcısına gönderilir. E-posta adresiniz ve "
+"IP adresiniz asla gönderilmez; adınız “İnceleyen” ile değiştirilir."
+
+#: includes/class-erdo-draft-links-privacy.php:42
+#: includes/class-erdo-draft-links-privacy.php:50
+#: includes/class-erdo-draft-links-privacy.php:75
+msgid "Draft review feedback"
+msgstr "Taslak inceleme geri bildirimi"
+
+#: includes/class-erdo-draft-links-privacy.php:65
+msgid "Page"
+msgstr "Sayfa"
+
+#: includes/class-erdo-draft-links-privacy.php:67
+msgid "Email"
+msgstr "E-posta"
+
+#: includes/class-erdo-draft-links-privacy.php:68
+msgid "Type"
+msgstr "Tür"
+
+#: includes/class-erdo-draft-links-privacy.php:69 assets/js/build/sidebar.js:1
+msgid "Message"
+msgstr "Mesaj"
+
+#: includes/class-erdo-draft-links-privacy.php:76
+msgid "Comments, notes and decisions left on shared drafts."
+msgstr "Paylaşılan taslaklara bırakılan yorumlar, notlar ve kararlar."
+
+#: includes/class-erdo-draft-links-review.php:90
+#: includes/class-erdo-draft-links-visitor-api.php:242
+msgid "Your preview session has ended. Open the draft link again."
+msgstr "Önizleme oturumunuz sona erdi. Taslak linkini yeniden açın."
+
+#: includes/class-erdo-draft-links-review.php:102
+#: includes/class-erdo-draft-links-visitor-api.php:158
+msgid "Please enter your name."
+msgstr "Lütfen adınızı girin."
+
+#: includes/class-erdo-draft-links-review.php:105
+msgid "Please describe the changes you would like."
+msgstr "Lütfen istediğiniz değişiklikleri açıklayın."
+
+#: includes/class-erdo-draft-links-settings.php:85
+msgid "Sharing"
+msgstr "Paylaşım"
+
+#: includes/class-erdo-draft-links-settings.php:86
+msgid "Email notifications"
+msgstr "E-posta bildirimleri"
+
+#: includes/class-erdo-draft-links-settings.php:87
+#: includes/class-erdo-draft-links-settings.php:96
+msgid "AI helpers"
+msgstr "Yapay zekâ yardımcıları"
+
+#: includes/class-erdo-draft-links-settings.php:88
+msgid "Data"
+msgstr "Veri"
+
+#: includes/class-erdo-draft-links-settings.php:91
+msgid "Where links can be shared"
+msgstr "Linklerin paylaşılabileceği yerler"
+
+#: includes/class-erdo-draft-links-settings.php:92
+msgid "Links expire after"
+msgstr "Linklerin süresi"
+
+#: includes/class-erdo-draft-links-settings.php:93
+msgid "When a post is published"
+msgstr "Bir yazı yayınlandığında"
+
+#: includes/class-erdo-draft-links-settings.php:94
+msgid "Email me when"
+msgstr "Şu durumlarda bana e-posta gönder"
+
+#: includes/class-erdo-draft-links-settings.php:95
+msgid "Also notify"
+msgstr "Ayrıca bildir"
+
+#: includes/class-erdo-draft-links-settings.php:97
+msgid "Expired links"
+msgstr "Süresi dolan linkler"
+
+#: includes/class-erdo-draft-links-settings.php:98
+msgid "When the plugin is deleted"
+msgstr "Eklenti silindiğinde"
+
+#: includes/class-erdo-draft-links-settings.php:126
+msgid "Some of the extra email addresses were not valid and were removed."
+msgstr "Ek e-posta adreslerinden bazıları geçerli değildi ve kaldırıldı."
+
+#: includes/class-erdo-draft-links-settings.php:172
+msgid ""
+"Emails go to whoever created the link and the post’s author (or the site "
+"admin email if neither has one)."
+msgstr ""
+"E-postalar linki oluşturan kişiye ve yazının yazarına gider (ikisinin de "
+"e-postası yoksa site yöneticisinin e-postasına)."
+
+#: includes/class-erdo-draft-links-settings.php:195
+msgid ""
+"A theme or plugin also changes this list with the "
+"erdo_draft_links_supported_post_types filter, which takes precedence."
+msgstr ""
+"Bir tema veya eklenti de bu listeyi erdo_draft_links_supported_post_types "
+"filtresiyle değiştiriyor; filtre önceliklidir."
+
+#: includes/class-erdo-draft-links-settings.php:201
+msgid "24 hours"
+msgstr "24 saat"
+
+#: includes/class-erdo-draft-links-settings.php:202
+msgid "48 hours"
+msgstr "48 saat"
+
+#: includes/class-erdo-draft-links-settings.php:203
+msgid "7 days"
+msgstr "7 gün"
+
+#: includes/class-erdo-draft-links-settings.php:204
+msgid "30 days"
+msgstr "30 gün"
+
+#: includes/class-erdo-draft-links-settings.php:211
+msgid ""
+"Used by “Create share link”. You can still pick another duration for any "
+"link."
+msgstr ""
+"“Paylaşım linki oluştur” tarafından kullanılır. Her link için yine başka bir"
+" süre seçebilirsiniz."
+
+#: includes/class-erdo-draft-links-settings.php:219
+msgid "Turn off its share links automatically"
+msgstr "Paylaşım linklerini otomatik olarak kapat"
+
+#: includes/class-erdo-draft-links-settings.php:221
+msgid "Otherwise the editor offers to turn them off right after publishing."
+msgstr ""
+"Aksi halde düzenleyici, yayınladıktan hemen sonra linkleri kapatmayı önerir."
+
+#: includes/class-erdo-draft-links-settings.php:226
+msgid "A link is opened for the first time"
+msgstr "Bir link ilk kez açıldığında"
+
+#: includes/class-erdo-draft-links-settings.php:227
+msgid "A reviewer comments or leaves a note"
+msgstr "Bir inceleyen yorum yaptığında veya not bıraktığında"
+
+#: includes/class-erdo-draft-links-settings.php:228
+msgid "A reviewer approves or requests changes"
+msgstr "Bir inceleyen onayladığında veya değişiklik istediğinde"
+
+#: includes/class-erdo-draft-links-settings.php:229
+msgid "Someone asks for a new link after one stopped working"
+msgstr "Biri, çalışmayı durduran bir linkin ardından yeni link istediğinde"
+
+#: includes/class-erdo-draft-links-settings.php:230
+msgid "A link that hasn’t been approved expires within a day"
+msgstr "Onaylanmamış bir linkin süresi bir gün içinde dolacağında"
+
+#: includes/class-erdo-draft-links-settings.php:243
+msgid ""
+"Reviewers who leave their email are always told when someone replies to "
+"them."
+msgstr ""
+"E-postasını bırakan inceleyenlere, biri onlara yanıt verdiğinde her zaman "
+"haber verilir."
+
+#: includes/class-erdo-draft-links-settings.php:251
+msgid "pm@example.com, team@example.com"
+msgstr "pm@ornek.com, ekip@ornek.com"
+
+#: includes/class-erdo-draft-links-settings.php:253
+msgid "Comma-separated addresses that get every notification above."
+msgstr "Yukarıdaki tüm bildirimleri alacak, virgülle ayrılmış adresler."
+
+#: includes/class-erdo-draft-links-settings.php:257
+msgid ""
+"Summarise feedback into a to-do list, draft replies, translate comments, "
+"write the message to send with a link and a “what changed” note for "
+"reviewers. They run only when you click them, on your own AI provider "
+"account."
+msgstr ""
+"Geri bildirimi yapılacaklar listesine özetleyin, yanıt taslakları "
+"hazırlayın, yorumları çevirin, linkle gönderilecek mesajı ve inceleyenler "
+"için “neler değişti” notunu yazdırın. Yalnızca siz tıkladığınızda, kendi "
+"yapay zekâ sağlayıcı hesabınızla çalışırlar."
+
+#: includes/class-erdo-draft-links-settings.php:265
+msgid "Show the AI helpers in the editor"
+msgstr "Yapay zekâ yardımcılarını düzenleyicide göster"
+
+#: includes/class-erdo-draft-links-settings.php:269
+msgid "Needs WordPress 7.0 or newer."
+msgstr "WordPress 7.0 veya daha yeni bir sürüm gerekir."
+
+#: includes/class-erdo-draft-links-settings.php:273
+msgid "An AI provider is connected."
+msgstr "Bir yapay zekâ sağlayıcısı bağlı."
+
+#: includes/class-erdo-draft-links-settings.php:274
+msgid "No AI provider is connected yet."
+msgstr "Henüz bağlı bir yapay zekâ sağlayıcısı yok."
+
+#. translators: %s: link to the Settings → Connectors screen
+#: includes/class-erdo-draft-links-settings.php:281
+#, php-format
+msgid "Add or change your own API key under %s. Draft Links never stores it."
+msgstr ""
+"Kendi API anahtarınızı %s altında ekleyin veya değiştirin. Draft Links "
+"anahtarı asla saklamaz."
+
+#: includes/class-erdo-draft-links-settings.php:282
+msgid "Settings → Connectors"
+msgstr "Ayarlar → Bağlayıcılar"
+
+#: includes/class-erdo-draft-links-settings.php:285
+msgid ""
+"Comment text and the page’s text are sent to your provider; reviewer emails "
+"and IP addresses never are, and names are replaced with “Reviewer”."
+msgstr ""
+"Yorum metinleri ve sayfanın metni sağlayıcınıza gönderilir; inceleyenlerin "
+"e-postaları ve IP adresleri asla gönderilmez, adlar “İnceleyen” ile "
+"değiştirilir."
+
+#. translators: %s: number input for days
+#: includes/class-erdo-draft-links-settings.php:291
+#, php-format
+msgid "Delete expired links after %s days"
+msgstr "Süresi dolan linkleri %s gün sonra sil"
+
+#: includes/class-erdo-draft-links-settings.php:298
+msgid "Feedback on a post is kept until the post itself is deleted."
+msgstr ""
+"Bir yazıdaki geri bildirimler, yazının kendisi silinene kadar saklanır."
+
+#: includes/class-erdo-draft-links-settings.php:306
+msgid "Remove all links, feedback and settings"
+msgstr "Tüm linkleri, geri bildirimleri ve ayarları kaldır"
+
+#: includes/class-erdo-draft-links-settings.php:308
+msgid "Untick to keep the data if you plan to reinstall."
+msgstr ""
+"Yeniden kurmayı planlıyorsanız verileri korumak için işareti kaldırın."
+
+#: includes/class-erdo-draft-links-status-page.php:51
+msgid "This link has expired"
+msgstr "Bu linkin süresi doldu"
+
+#: includes/class-erdo-draft-links-status-page.php:52
+msgid ""
+"The draft you were invited to review is no longer available through this "
+"link. Ask the person who shared it for a new one."
+msgstr ""
+"İncelemeye davet edildiğiniz taslağa artık bu linkle ulaşılamıyor. Paylaşan "
+"kişiden yeni bir link isteyin."
+
+#: includes/class-erdo-draft-links-status-page.php:57
+msgid "This link was turned off"
+msgstr "Bu link kapatıldı"
+
+#: includes/class-erdo-draft-links-status-page.php:58
+msgid ""
+"The person who shared this draft has turned the link off. If you still need "
+"access, ask them for a new link."
+msgstr ""
+"Bu taslağı paylaşan kişi linki kapattı. Hâlâ erişmeniz gerekiyorsa ondan "
+"yeni bir link isteyin."
+
+#: includes/class-erdo-draft-links-status-page.php:63
+msgid "This link has been used up"
+msgstr "Bu linkin kullanım hakkı doldu"
+
+#: includes/class-erdo-draft-links-status-page.php:64
+msgid ""
+"This link could only be opened a limited number of times, and that limit has"
+" been reached. Ask the person who shared it for a new link."
+msgstr ""
+"Bu link yalnızca sınırlı sayıda açılabiliyordu ve bu sınıra ulaşıldı. "
+"Paylaşan kişiden yeni bir link isteyin."
+
+#: includes/class-erdo-draft-links-status-page.php:69
+msgid "This draft is password protected"
+msgstr "Bu taslak şifre korumalı"
+
+#: includes/class-erdo-draft-links-status-page.php:70
+msgid "Enter the password you were given together with the link."
+msgstr "Linkle birlikte size verilen şifreyi girin."
+
+#: includes/class-erdo-draft-links-status-page.php:75
+msgid "Request sent"
+msgstr "İstek gönderildi"
+
+#: includes/class-erdo-draft-links-status-page.php:76
+msgid "We let the person who shared this draft know that you need a new link."
+msgstr ""
+"Bu taslağı paylaşan kişiye yeni bir linke ihtiyacınız olduğunu bildirdik."
+
+#: includes/class-erdo-draft-links-status-page.php:81
+msgid "This link doesn’t work"
+msgstr "Bu link çalışmıyor"
+
+#: includes/class-erdo-draft-links-status-page.php:82
+msgid ""
+"The link may be incomplete. Check that you copied the whole address, or ask "
+"the person who shared it to send it again."
+msgstr ""
+"Link eksik olabilir. Adresin tamamını kopyaladığınızdan emin olun veya "
+"paylaşan kişiden tekrar göndermesini isteyin."
+
+#: includes/class-erdo-draft-links-visitor-api.php:161
+msgid "Please write a message."
+msgstr "Lütfen bir mesaj yazın."
+
+#: includes/class-erdo-draft-links-visitor-api.php:167
+msgid ""
+"You have sent a lot of feedback in a short time. Please wait a few minutes."
+msgstr ""
+"Kısa sürede çok fazla geri bildirim gönderdiniz. Lütfen birkaç dakika "
+"bekleyin."
+
+#: includes/class-erdo-draft-links-visitor-api.php:175
+msgid "This conversation no longer exists."
+msgstr "Bu konuşma artık mevcut değil."
+
+#: includes/class-erdo-draft-links-visitor-api.php:188
+msgid "Pick a spot on the page for your note."
+msgstr "Notunuz için sayfada bir yer seçin."
+
+#: includes/class-erdo-draft-links-visitor-api.php:246
+msgid "This page has been open for a long time. Reload it and try again."
+msgstr "Bu sayfa uzun süredir açık. Sayfayı yenileyip tekrar deneyin."
+
+#: templates/status.php:121
+msgid "View draft"
+msgstr "Taslağı görüntüle"
+
+#: templates/status.php:127
+msgid "Ask for a new link"
+msgstr "Yeni link iste"
+
+#: assets/js/build/sidebar.js:1
+msgid "Could not write the message."
+msgstr "Mesaj yazılamadı."
+
+#: assets/js/build/sidebar.js:1
+msgid "Message to send with the link"
+msgstr "Linkle gönderilecek mesaj"
+
+#: assets/js/build/sidebar.js:1
+msgid ""
+"Written by your AI provider. Check it, edit it, then paste it into your "
+"email or chat."
+msgstr ""
+"Yapay zekâ sağlayıcınız tarafından yazıldı. Kontrol edin, düzenleyin, "
+"ardından e-postanıza veya sohbetinize yapıştırın."
+
+#: assets/js/build/sidebar.js:1
+msgid "Message copied."
+msgstr "Mesaj kopyalandı."
+
+#: assets/js/build/sidebar.js:1
+msgid "Copy message"
+msgstr "Mesajı kopyala"
+
+#: assets/js/build/sidebar.js:1
+msgid "Write again"
+msgstr "Yeniden yaz"
+
+#: assets/js/build/sidebar.js:1
+msgid "Could not rename the link."
+msgstr "Linkin adı değiştirilemedi."
+
+#. translators: %s: relative time, e.g. "in 3 days"
+#: assets/js/build/sidebar.js:2
+#, js-format
+msgid "Expires %s"
+msgstr "Süresi %s doluyor"
+
+#: assets/js/build/sidebar.js:2
+msgid "Not opened yet"
+msgstr "Henüz açılmadı"
+
+#. translators: 1: number of times opened, 2: relative time of the last open
+#: assets/js/build/sidebar.js:3
+#, js-format
+msgid "Opened %1$d time, last %2$s"
+msgid_plural "Opened %1$d times, last %2$s"
+msgstr[0] "%1$d kez açıldı, son: %2$s"
+msgstr[1] "%1$d kez açıldı, son: %2$s"
+
+#. translators: %d: number of times opened
+#: assets/js/build/sidebar.js:4
+#, js-format
+msgid "Opened %d time"
+msgid_plural "Opened %d times"
+msgstr[0] "%d kez açıldı"
+msgstr[1] "%d kez açıldı"
+
+#: assets/js/build/sidebar.js:4
+msgid "Password protected"
+msgstr "Şifre korumalı"
+
+#: assets/js/build/sidebar.js:4
+msgid "Open limit reached — the link no longer opens"
+msgstr "Açılma sınırına ulaşıldı — link artık açılmıyor"
+
+#. translators: %d: maximum number of opens
+#: assets/js/build/sidebar.js:5
+#, js-format
+msgid "limit %d"
+msgstr "sınır %d"
+
+#: assets/js/build/sidebar.js:5
+msgid "Link copied."
+msgstr "Link kopyalandı."
+
+#: assets/js/build/sidebar.js:5
+msgid "Could not copy. Select the link and copy it manually."
+msgstr "Kopyalanamadı. Linki seçip elle kopyalayın."
+
+#: assets/js/build/sidebar.js:5
+msgid "Link actions"
+msgstr "Link işlemleri"
+
+#: assets/js/build/sidebar.js:5
+msgid "Open in new tab"
+msgstr "Yeni sekmede aç"
+
+#: assets/js/build/sidebar.js:5
+msgid "Rename"
+msgstr "Yeniden adlandır"
+
+#: assets/js/build/sidebar.js:5
+msgid "Write a message to send (AI)"
+msgstr "Gönderilecek mesajı yaz (yapay zekâ)"
+
+#: assets/js/build/sidebar.js:5
+msgid "Could not extend the link."
+msgstr "Link uzatılamadı."
+
+#: assets/js/build/sidebar.js:5
+msgid "Expire in 7 days from now"
+msgstr "Şu andan itibaren 7 gün sonra bitsin"
+
+#: assets/js/build/sidebar.js:5
+msgid "Could not turn off the link."
+msgstr "Link kapatılamadı."
+
+#: assets/js/build/sidebar.js:5 assets/js/build/sidebar.js:12
+msgid "Turn off link"
+msgid_plural "Turn off all links"
+msgstr[0] "Linki kapat"
+msgstr[1] "Tüm linkleri kapat"
+
+#: assets/js/build/sidebar.js:5
+msgid "No review decision yet."
+msgstr "Henüz inceleme kararı yok."
+
+#. translators: 1: reviewer name, 2: relative time, e.g. "2 hours ago"
+#: assets/js/build/sidebar.js:6
+#, js-format
+msgid "Approved by %1$s · %2$s"
+msgstr "%1$s onayladı · %2$s"
+
+#. translators: 1: reviewer name, 2: relative time, e.g. "2 hours ago"
+#: assets/js/build/sidebar.js:7
+#, js-format
+msgid "Changes requested by %1$s · %2$s"
+msgstr "%1$s değişiklik istedi · %2$s"
+
+#. translators: %s: reviewer name
+#: assets/js/build/sidebar.js:8
+#, js-format
+msgid "Edited since %s approved it"
+msgstr "%s onayladıktan sonra düzenlendi"
+
+#. translators: %s: reviewer name
+#: assets/js/build/sidebar.js:9
+#, js-format
+msgid "Edited since %s requested changes"
+msgstr "%s değişiklik istedikten sonra düzenlendi"
+
+#: assets/js/build/sidebar.js:9
+msgid "Reviewers will see the note."
+msgstr "İnceleyenler notu görecek."
+
+#: assets/js/build/sidebar.js:9
+msgid "Note removed."
+msgstr "Not kaldırıldı."
+
+#: assets/js/build/sidebar.js:9
+msgid "Could not save the note."
+msgstr "Not kaydedilemedi."
+
+#: assets/js/build/sidebar.js:9
+msgid "Note for reviewers"
+msgstr "İnceleyenler için not"
+
+#: assets/js/build/sidebar.js:9
+msgid "Edit note"
+msgstr "Notu düzenle"
+
+#: assets/js/build/sidebar.js:9
+msgid "Add a “what changed” note for reviewers"
+msgstr "İnceleyenler için “neler değişti” notu ekle"
+
+#: assets/js/build/sidebar.js:9
+msgid "What changed since the last review"
+msgstr "Son incelemeden bu yana neler değişti"
+
+#: assets/js/build/sidebar.js:9
+msgid "Note"
+msgstr "Not"
+
+#: assets/js/build/sidebar.js:9
+msgid ""
+"Shown at the top of the comments panel on the review page, so returning "
+"reviewers know what to look at."
+msgstr ""
+"İnceleme sayfasındaki yorumlar panelinin en üstünde gösterilir; böylece geri"
+" dönen inceleyenler neye bakacaklarını bilir."
+
+#: assets/js/build/sidebar.js:9
+msgid "Could not write the note."
+msgstr "Not yazılamadı."
+
+#: assets/js/build/sidebar.js:9
+msgid "Write from the changes with AI"
+msgstr "Değişikliklerden yapay zekâyla yaz"
+
+#: assets/js/build/sidebar.js:9
+msgid "Save note"
+msgstr "Notu kaydet"
+
+#: assets/js/build/sidebar.js:9
+msgid "Remove note"
+msgstr "Notu kaldır"
+
+#: assets/js/build/sidebar.js:9
+msgid "Share for review"
+msgstr "İnceleme için paylaş"
+
+#: assets/js/build/sidebar.js:10
+msgid "Save the draft first, then you can create a link to share it."
+msgstr ""
+"Önce taslağı kaydedin, ardından paylaşmak için bir link oluşturabilirsiniz."
+
+#: assets/js/build/sidebar.js:10
+msgid ""
+"Anyone with the link can view this draft and leave feedback — no login "
+"needed."
+msgstr ""
+"Linke sahip olan herkes bu taslağı görüntüleyebilir ve geri bildirim "
+"bırakabilir — giriş gerekmez."
+
+#: assets/js/build/sidebar.js:10
+msgid "Only you see this, e.g. the client’s name."
+msgstr "Bunu yalnızca siz görürsünüz, ör. müşterinin adı."
+
+#: assets/js/build/sidebar.js:10
+msgid "Expires on"
+msgstr "Bitiş tarihi"
+
+#: assets/js/build/sidebar.js:10
+msgid "Send it to the reviewer separately from the link."
+msgstr "Şifreyi inceleyen kişiye linkten ayrı gönderin."
+
+#: assets/js/build/sidebar.js:10
+msgid "Share link created and copied."
+msgstr "Paylaşım linki oluşturuldu ve kopyalandı."
+
+#: assets/js/build/sidebar.js:10 assets/js/build/sidebar.js:11
+msgid "Share link created."
+msgstr "Paylaşım linki oluşturuldu."
+
+#: assets/js/build/sidebar.js:10 assets/js/build/sidebar.js:11
+msgid "Could not create the link. Please try again."
+msgstr "Link oluşturulamadı. Lütfen tekrar deneyin."
+
+#: assets/js/build/sidebar.js:10
+msgid "Create share link"
+msgstr "Paylaşım linki oluştur"
+
+#: assets/js/build/sidebar.js:10
+msgid "Hide options"
+msgstr "Seçenekleri gizle"
+
+#: assets/js/build/sidebar.js:10
+msgid "Link options"
+msgstr "Link seçenekleri"
+
+#. translators: %d: number of active links
+#: assets/js/build/sidebar.js:11
+#, js-format
+msgid "%d active link"
+msgid_plural "%d active links"
+msgstr[0] "%d etkin link"
+msgstr[1] "%d etkin link"
+
+#: assets/js/build/sidebar.js:11
+msgid "Share link copied."
+msgstr "Paylaşım linki kopyalandı."
+
+#. translators: %d: number of active share links
+#: assets/js/build/sidebar.js:12
+#, js-format
+msgid ""
+"%d share link for this post is still active. Now that the post is public you"
+" may not need it anymore."
+msgid_plural ""
+"%d share links for this post are still active. Now that the post is public "
+"you may not need them anymore."
+msgstr[0] ""
+"Bu yazı için %d paylaşım linki hâlâ etkin. Yazı artık herkese açık olduğuna "
+"göre buna ihtiyacınız kalmamış olabilir."
+msgstr[1] ""
+"Bu yazı için %d paylaşım linki hâlâ etkin. Yazı artık herkese açık olduğuna "
+"göre bunlara ihtiyacınız kalmamış olabilir."
+
+#: assets/js/build/sidebar.js:12
+msgid "Share links turned off."
+msgstr "Paylaşım linkleri kapatıldı."
+
+#: assets/js/build/sidebar.js:12
+msgid "Could not turn off every link. Check the Share for review panel."
+msgstr ""
+"Linklerin hepsi kapatılamadı. İnceleme için paylaş panelini kontrol edin."
+
+#: assets/js/build/sidebar.js:12
+msgid "The AI request failed."
+msgstr "Yapay zekâ isteği başarısız oldu."
+
+#: assets/js/build/sidebar.js:12
+msgid "Translation"
+msgstr "Çeviri"
+
+#: assets/js/build/sidebar.js:12
+msgid "Translate"
+msgstr "Çevir"
+
+#: assets/js/build/sidebar.js:12
+msgid "The reviewer sees your reply the next time they open the link."
+msgstr "İnceleyen kişi yanıtınızı linki bir sonraki açışında görür."
+
+#: assets/js/build/sidebar.js:12
+msgid "Suggest another reply"
+msgstr "Başka bir yanıt öner"
+
+#: assets/js/build/sidebar.js:12
+msgid "Suggest a reply"
+msgstr "Yanıt öner"
+
+#: assets/js/build/sidebar.js:12
+msgid "Could not send the reply."
+msgstr "Yanıt gönderilemedi."
+
+#: assets/js/build/sidebar.js:12
+msgid "Could not update the status."
+msgstr "Durum güncellenemedi."
+
+#: assets/js/build/sidebar.js:12
+msgid "Could not summarise the feedback."
+msgstr "Geri bildirim özetlenemedi."
+
+#: assets/js/build/sidebar.js:12
+msgid "Summarise again"
+msgstr "Yeniden özetle"
+
+#: assets/js/build/sidebar.js:12
+msgid "Summarise into a to-do list"
+msgstr "Yapılacaklar listesine özetle"
+
+#: assets/js/build/sidebar.js:12
+msgid "Nothing to do found in the open feedback."
+msgstr "Açık geri bildirimde yapılacak bir şey bulunamadı."
+
+#. translators: %d: number of feedback items the task came from
+#: assets/js/build/sidebar.js:13
+#, js-format
+msgid "Done — resolve %d comment"
+msgid_plural "Done — resolve %d comments"
+msgstr[0] "Tamam — %d yorumu çözüldü yap"
+msgstr[1] "Tamam — %d yorumu çözüldü yap"
+
+#: assets/js/build/sidebar.js:13
+msgid "Could not load feedback."
+msgstr "Geri bildirimler yüklenemedi."
+
+#: assets/js/build/sidebar.js:13
+msgid "Save the draft and share a link to start collecting feedback."
+msgstr ""
+"Geri bildirim toplamaya başlamak için taslağı kaydedin ve bir link paylaşın."
+
+#: assets/js/build/sidebar.js:13
+msgid ""
+"No feedback yet. Reviewers can comment, pin notes on the page, approve or "
+"request changes from the share link."
+msgstr ""
+"Henüz geri bildirim yok. İnceleyenler paylaşım linkinden yorum yapabilir, "
+"sayfaya not iğneleyebilir, onaylayabilir veya değişiklik isteyebilir."
+
+#: assets/js/build/sidebar.js:13
+msgid ""
+"Want help summarising, replying or translating? Connect your own AI provider"
+" under <a>Settings → Connectors</a>."
+msgstr ""
+"Özetleme, yanıtlama veya çeviride yardım ister misiniz? Kendi yapay zekâ "
+"sağlayıcınızı <a>Ayarlar → Bağlayıcılar</a> altında bağlayın."
+
+#. translators: %d: number of resolved feedback items
+#: assets/js/build/sidebar.js:14
+#, js-format
+msgid "%d resolved"
+msgid_plural "%d resolved"
+msgstr[0] "%d çözüldü"
+msgstr[1] "%d çözüldü"

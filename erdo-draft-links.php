@@ -33,6 +33,13 @@ spl_autoload_register( function ( string $class ): void {
 	}
 } );
 
+// Bundled translations (languages/) as a fallback: WordPress loads
+// translate.wordpress.org language packs on its own, but only looks inside
+// the plugin folder when told to. A language pack, if present, still wins.
+if ( isset( $GLOBALS['wp_textdomain_registry'] ) && method_exists( $GLOBALS['wp_textdomain_registry'], 'set_custom_path' ) ) {
+	$GLOBALS['wp_textdomain_registry']->set_custom_path( 'erdo-draft-links', ERDO_DRAFT_LINKS_PLUGIN_DIR . 'languages' );
+}
+
 register_activation_hook( __FILE__, static function (): void {
 	Erdo_Draft_Links_DB::activate();
 	Erdo_Draft_Links_Cron::schedule();
