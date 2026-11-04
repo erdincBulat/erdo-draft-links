@@ -554,6 +554,49 @@ class Erdo_Draft_Links_DB {
 	}
 
 	/**
+	 * Feedback rows (top-level and replies) left with this email, oldest first.
+	 *
+	 * @return object[]
+	 */
+	public function get_feedback_by_email( string $email, int $limit, int $offset = 0 ): array {
+		global $wpdb;
+
+		if ( '' === trim( $email ) ) {
+			return array();
+		}
+		$table = esc_sql( $this->feedback_table );
+
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		$rows = $wpdb->get_results(
+			$wpdb->prepare( "SELECT * FROM `{$table}` WHERE author_email = %s ORDER BY id ASC LIMIT %d OFFSET %d", $email, $limit, $offset )
+		);
+		// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+
+		return (array) $rows;
+	}
+
+	/**
+	 * Removes what identifies the person behind a feedback row; the text stays.
+	 */
+	public function anonymize_feedback( int $id ): bool {
+		global $wpdb;
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		$result = $wpdb->update(
+			$this->feedback_table,
+			array(
+				'author_name'  => __( 'Anonymous', 'erdo-draft-links' ),
+				'author_email' => '',
+			),
+			array( 'id' => $id ),
+			array( '%s', '%s' ),
+			array( '%d' )
+		);
+
+		return false !== $result;
+	}
+
+	/**
 	 * Adds a reply (a child row) to a top-level feedback item. Staff replies
 	 * carry the WordPress user id; visitor replies have user_id 0.
 	 */

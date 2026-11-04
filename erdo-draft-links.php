@@ -64,6 +64,7 @@ add_action( 'plugins_loaded', function (): void {
 	$visitor_api   = new Erdo_Draft_Links_Visitor_Api( $db, $token, $session, $review, $notifications );
 	$frontend      = new Erdo_Draft_Links_Frontend( $db, $token, $session, new Erdo_Draft_Links_Status_Page(), $notifications );
 	$cron          = new Erdo_Draft_Links_Cron( $db, $notifications );
+	$privacy       = new Erdo_Draft_Links_Privacy( $db );
 
 	( new Erdo_Draft_Links_Migrator( $db, $token ) )->maybe_upgrade();
 	$review->register( $loader );
@@ -76,6 +77,7 @@ add_action( 'plugins_loaded', function (): void {
 	$visitor_api->register( $loader );
 	$frontend->register( $loader );
 	$cron->register( $loader );
+	$privacy->register( $loader );
 	$loader->run();
 
 	if ( defined( 'WP_CLI' ) && WP_CLI ) {
