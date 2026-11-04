@@ -3,9 +3,9 @@
 	"meta": {
 		"title": "Erdo Draft Links",
 		"author": "erdincbulat",
-		"description": "Try Erdo Draft Links instantly: generate a secure, expiring preview link for a draft post, no install required."
+		"description": "Try Erdo Draft Links instantly: share a draft with a client for comments and approval, no install required."
 	},
-	"landingPage": "/wp-admin/tools.php?page=erdo-draft-links-manager",
+	"landingPage": "/wp-admin/admin.php?page=erdo-draft-links",
 	"preferredVersions": {
 		"php": "8.3",
 		"wp": "latest"

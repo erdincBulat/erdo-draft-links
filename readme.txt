@@ -1,6 +1,6 @@
 === Erdo Draft Links – Share Drafts for Client Review & Approval ===
 Contributors:      erdincbulat
-Tags:              client approval, share draft, preview, feedback, no login
+Tags:              client approval, share draft, draft preview, feedback, no login
 Requires at least: 6.6
 Tested up to:      7.1
 Requires PHP:      8.0
@@ -8,13 +8,17 @@ Stable tag:        2.0.0
 License:           GPLv2 or later
 License URI:       https://www.gnu.org/licenses/gpl-2.0.html
 
-Send clients a private link to a draft. They comment, pin notes to the page and approve or request changes — no login needed.
+Send clients a secure, expiring link to a draft. They comment, pin notes and approve or request changes — no login needed.
 
 == Description ==
 
 **Erdo Draft Links** turns "can you take a look at this draft?" into a proper review. Create a private link from the post editor and send it to your client. They open the draft without a WordPress account, leave comments or notes pinned to the exact part of the page, and click **Approve** or **Request changes**. You see everything in the editor, reply from there, and get an email at each step.
 
 Built for freelancers and agencies who share drafts with clients, and for teams who need a sign-off before publishing.
+
+= Why not a staging site or a temporary account? =
+
+WordPress' own preview only works for logged-in users, so the usual workarounds are a staging site, a temporary user account for the client, or screenshots in an email. A staging site is a lot of setup for one page, a temporary account gives the client access to your dashboard (and someone has to delete it later), and screenshots can't be clicked or commented on. With Erdo Draft Links you send a WordPress draft preview without login: one secure link that opens only that post, expires on its own, and collects the client's feedback and approval in one place.
 
 = How it works =
 
@@ -104,6 +108,18 @@ Settings are under **Draft Links → Settings**.
 = Does my client need an account? =
 
 No. Anyone with the link can open the draft and leave feedback, without logging in.
+
+= How do I share a WordPress draft with a client without giving them a login? =
+
+Open the draft, click **Create share link** in the **Share for review** panel and send the copied link to your client by email or chat. They can preview the draft without logging in, and the link only opens that one post.
+
+= How is this different from the built-in WordPress preview? =
+
+The built-in **Preview** button only works while you are logged in; anyone else gets a "page not found". A share link works for people without an account, can expire, be password-protected or turned off, and lets the reviewer comment and approve.
+
+= Do I still need a staging site to show clients unpublished pages? =
+
+Not for reviewing content. Send a share link to the draft page instead. A staging site is still the right tool for testing theme or plugin changes across the whole site.
 
 = Can I share a post that is already published? =
 

@@ -5,7 +5,7 @@
 <h1 align="center">Erdo Draft Links</h1>
 
 <p align="center">
-  Share draft posts with anyone via a secure, temporary link — no WordPress login required.
+  Send clients a secure, expiring link to a draft. They comment, pin notes and approve or request changes — no login needed.
 </p>
 
 <p align="center">
@@ -26,55 +26,61 @@
 
 ---
 
-**Erdo Draft Links** lets you generate a secure, token-based URL for any draft, private, or published post or page. Share it with clients, reviewers, or collaborators — they can read the content without needing a WordPress account.
+**Erdo Draft Links** turns "can you take a look at this draft?" into a proper review. Create a private link from the post editor and send it to your client. They open the draft without a WordPress account, leave comments or notes pinned to the exact part of the page, and click **Approve** or **Request changes**. You see everything in the editor, reply from there, and get an email at each step.
 
-Think of it like Google Docs' "Anyone with the link can view" — but for WordPress.
+Built for freelancers and agencies who share drafts with clients, and for teams who need a sign-off before publishing.
 
 ## Screenshots
 
-| Block Editor sidebar | Classic Editor meta box |
+| Share for review panel | What your client sees |
 |---|---|
-| ![Block Editor sidebar](https://ps.w.org/erdo-draft-links/assets/screenshot-1.png) | ![Classic Editor meta box](https://ps.w.org/erdo-draft-links/assets/screenshot-2.png) |
+| ![Share for review panel in the block editor](https://ps.w.org/erdo-draft-links/assets/screenshot-1.png) | ![Review bar with comments and a note pinned to the page](https://ps.w.org/erdo-draft-links/assets/screenshot-2.png) |
 
-<p align="center"><img src="https://ps.w.org/erdo-draft-links/assets/screenshot-3.png" alt="Draft post viewed via Erdo Draft Links by a non-logged-in visitor" width="70%"></p>
+| Client feedback sidebar with AI to-do list | Feedback inbox |
+|---|---|
+| ![Client feedback sidebar in the editor](https://ps.w.org/erdo-draft-links/assets/screenshot-3.png) | ![Feedback inbox under Draft Links](https://ps.w.org/erdo-draft-links/assets/screenshot-4.png) |
 
 ## How it works
 
-1. Open any post or page in the editor (Block Editor or Classic Editor).
-2. Click **"Generate Draft Link"** in the sidebar panel or meta box.
-3. Choose an expiry: 24 hours, 48 hours, 7 days, never, or a custom date & time.
-4. Share the link. Recipients can view the content — no login needed.
+1. Open a draft (or any post or page) and click **Create share link** in the **Share for review** panel. The link is copied for you.
+2. Send it to your client. They see the page as it will look, with a small review bar at the bottom.
+3. They comment, pin notes to parts of the page, and approve or request changes.
+4. Read and answer their feedback in the editor's **Client feedback** sidebar. They get your reply by email if they left their address.
 
 ## Features
 
-- Works with both the **Block Editor (Gutenberg)** and the **Classic Editor**
-- Supports **posts**, **pages**, and any custom post type — toggle them on in **Tools → Erdo Draft Links → Settings**, or via a filter for developers
-- **Multiple labeled links per post** — e.g. "Client A" and "Designer", each with its own expiry, revocable independently
-- **WP-CLI support** — `wp erdo-draft-links generate|revoke|list` for scripting and automation
-- Secure **32-character cryptographic tokens** — brute-force resistant
-- Configurable expiry: 24 hours, 48 hours, 7 days, no expiry, or a custom date & time
-- **View count** tracking per link, with an email notification the first time a link is opened
-- Visitors can leave **name + feedback** on the preview — collected in a "Feedback" tab in the admin and emailed to you
-- **Reply to feedback** directly from the admin — visitors see your reply the next time they open the preview
-- **Revoke** any link at any time
-- Tokens are stored **hashed** in the database — raw tokens are never stored after the redirect
-- Two-step flow: token URL → cookie → clean permalink (token never appears in browser history)
-- No external API calls, no phone-home, no subscriptions
-- Translation-ready (English default, Turkish included)
+**For your client**
 
-## Who is this for?
+- No account, no login, no plugin to install
+- Review bar with **Comments**, **Note on page**, **Approve** and **Request changes**
+- Notes pinned to the exact element they clicked, threaded replies, optional email when you answer
+- Clear pages for expired, turned-off or password-protected links, with an **Ask for a new link** button
+- Works on phones, with keyboard and screen readers; isolated from your theme's styles (Shadow DOM)
 
-- **Freelancers and agencies** — send a client a draft post to review before it's published, without handing out a WordPress login
-- **Editorial teams** — let outside reviewers or stakeholders read a draft without granting WordPress access
-- **Anyone sharing private or scheduled content** — a scoped, revocable link instead of changing post status or creating a temporary account
+**For you**
+
+- One-click **Create share link** in the block editor; **Link options** for label, expiry, password and open limit
+- **Several links per post**, each with its own label, expiry, review decision and feedback
+- **Client feedback** sidebar: reply in place, mark as resolved, see "edited since approved"
+- **Draft Links** menu with a searchable **Links** table and a **Feedback** inbox
+- **Review** column in Posts/Pages lists and a **Client feedback** dashboard widget
+- Email notifications: first open, new feedback, approval or change request, request for a new link, and a reminder a day before an unapproved link expires
+- Optionally turn links off when the post is published
+- Classic Editor meta box and **WP-CLI**
+
+**Optional AI helpers (bring your own key)**
+
+On WordPress 7.0+, connect your own provider under **Settings → Connectors** to get: feedback → to-do list, reply suggestions, comment translation, a share message, and a "what changed" note for returning reviewers. Nothing runs until you click, the plugin stores no keys, and reviewer emails/IPs are never sent.
+
+**Works with** Elementor and other page builders, LiteSpeed Cache, WP Rocket, WP Super Cache, Yoast SEO, and the WordPress **Abilities API** (WP 6.9+) for AI agents and MCP.
 
 ## Installation
 
-1. Upload the `erdo-draft-links` folder to `/wp-content/plugins/`, or install directly from **Plugins → Add New** by searching "Erdo Draft Links"
-2. Activate through the **Plugins** menu
-3. Open any post or page and find the **Erdo Draft Links** panel in the editor sidebar or meta box
+1. Install from **Plugins → Add New** by searching "Erdo Draft Links", or upload the `erdo-draft-links` folder to `/wp-content/plugins/`
+2. Activate it
+3. Open a draft, find **Share for review** in the editor sidebar, and click **Create share link**
 
-Full FAQ and changelog are on the [WordPress.org plugin page](https://wordpress.org/plugins/erdo-draft-links/).
+Settings are under **Draft Links → Settings**. Full FAQ and changelog are on the [WordPress.org plugin page](https://wordpress.org/plugins/erdo-draft-links/).
 
 ## Try it instantly (no install)
 
@@ -84,7 +90,16 @@ Runs entirely in your browser, no server or account needed.
 
 ## Developer notes
 
-Site admins can enable other public post types under **Tools → Erdo Draft Links → Settings** — no code needed. Developers can also add support via the `erdo_draft_links_supported_post_types` filter, which takes precedence over the Settings tab:
+Filters:
+
+| Filter | Purpose |
+|---|---|
+| `erdo_draft_links_supported_post_types` | Post types links can be created for (overrides the Settings page) |
+| `erdo_draft_links_notification_recipients` | Who gets emails about a link |
+| `erdo_draft_links_review_base` | The `/review/` part of share URLs |
+| `erdo_draft_links_is_automated_request` | Treat a request as a link-preview bot |
+| `erdo_draft_links_ai_enabled` | Offer the AI helpers or not |
+| `erdo_draft_links_ai_models` | Preferred AI models, in order |
 
 ```php
 add_filter( 'erdo_draft_links_supported_post_types', function( $types ) {
@@ -101,9 +116,11 @@ wp erdo-draft-links revoke <link_id>
 wp erdo-draft-links list [--post_id=<id>] [--status=<all|active|expired|revoked>] [--format=<table|csv|json|yaml|count>]
 ```
 
-`assets/js/build/{classic,sidebar}.js` are compiled output — if you edit `assets/js/src/`, run `npm install && npm run build` (uses `@wordpress/scripts`) to regenerate them and their `*.asset.php` dependency manifests before committing.
+### Building the editor scripts
 
-See [`readme.txt`](readme.txt) for the full WordPress.org-facing description, FAQ, and changelog.
+`assets/js/build/{classic,sidebar}.js` are compiled output. If you edit `assets/js/src/`, run `npm install && npm run build` (uses `@wordpress/scripts`) to regenerate them and their `*.asset.php` manifests before committing.
+
+See [`readme.txt`](readme.txt) for the full WordPress.org description, FAQ and changelog.
 
 ## Contributing
 
@@ -111,12 +128,13 @@ Issues and pull requests are welcome — see [CONTRIBUTING.md](.github/CONTRIBUT
 
 ## Security
 
-- Raw token: 32-char alphanumeric via `wp_generate_password( 32, false, false )`.
-- Stored hash: `HMAC-SHA256(raw, AUTH_KEY)` — the raw token is never stored.
-- Cookie value: a second `HMAC-SHA256` derivation, distinct from both the raw token and its stored hash.
-- Preview cookies only ever expand visibility to the single `post_id` they were issued for.
+- Tokens are 32 random alphanumeric characters (`wp_generate_password( 32, false, false )`).
+- The database keeps `HMAC-SHA256(token, AUTH_KEY)` for lookup and a libsodium-encrypted copy so editors can copy a link again; a database dump alone doesn't reveal working links.
+- The token in the URL is swapped for an HttpOnly cookie straight away, so it doesn't stay in browser history.
+- A preview cookie only ever opens the single post it was issued for.
+- Review pages are sent with `noindex`, `no-store` and `Referrer-Policy: no-referrer`.
 
-If you find a security issue, please open an issue or contact the author directly rather than disclosing it publicly.
+If you find a security issue, please contact the author directly rather than opening a public issue.
 
 ## License
 
