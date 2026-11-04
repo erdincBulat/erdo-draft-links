@@ -14,13 +14,15 @@ class Erdo_Draft_Links_Settings {
 	const PAGE   = 'erdo-draft-links-settings';
 
 	const EXPIRIES = array( '24h', '48h', '7d', '30d' );
-	const EVENTS   = array( 'first_view', 'feedback', 'review', 'link_requested' );
+	const EVENTS   = array( 'first_view', 'feedback', 'review', 'link_requested', 'expiring' );
 
 	public static function defaults(): array {
 		return array(
 			'default_expiry'   => '7d',
 			'notify_events'    => self::EVENTS,
 			'notify_extra'     => '',
+			// Settings saved before notify_known existed offered only these.
+			'notify_known'     => array( 'first_view', 'feedback', 'review', 'link_requested' ),
 			'close_on_publish' => false,
 			'cleanup_days'     => 7,
 			'delete_data'      => true,
@@ -39,6 +41,12 @@ class Erdo_Draft_Links_Settings {
 	}
 
 	public static function notify_enabled( string $event ): bool {
+		// Events added after the settings were last saved weren't offered on
+		// that form, so they start switched on like for a fresh install.
+		$known = self::get( 'notify_known' );
+		if ( is_array( $known ) && ! in_array( $event, $known, true ) ) {
+			return in_array( $event, self::EVENTS, true );
+		}
 		return in_array( $event, (array) self::get( 'notify_events' ), true );
 	}
 
@@ -106,6 +114,7 @@ class Erdo_Draft_Links_Settings {
 			$out['default_expiry'] = $input['default_expiry'];
 		}
 
+		$out['notify_known']  = self::EVENTS;
 		$out['notify_events'] = array_values( array_intersect( self::EVENTS, array_map( 'sanitize_key', (array) ( $input['notify_events'] ?? array() ) ) ) );
 
 		$entered = array_filter( array_map( 'trim', explode( ',', (string) ( $input['notify_extra'] ?? '' ) ) ) );
@@ -214,6 +223,7 @@ class Erdo_Draft_Links_Settings {
 			'feedback'       => __( 'A reviewer comments or leaves a note', 'erdo-draft-links' ),
 			'review'         => __( 'A reviewer approves or requests changes', 'erdo-draft-links' ),
 			'link_requested' => __( 'Someone asks for a new link after one stopped working', 'erdo-draft-links' ),
+			'expiring'       => __( 'A link that hasn’t been approved expires within a day', 'erdo-draft-links' ),
 		);
 		echo '<fieldset>';
 		foreach ( $labels as $event => $label ) {

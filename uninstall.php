@@ -8,6 +8,7 @@ global $wpdb;
 $erdo_draft_links_settings = get_option( 'erdo_draft_link_settings' );
 if ( is_array( $erdo_draft_links_settings ) && array_key_exists( 'delete_data', $erdo_draft_links_settings ) && ! $erdo_draft_links_settings['delete_data'] ) {
 	wp_clear_scheduled_hook( 'erdo_draft_link_daily_cleanup' );
+	wp_clear_scheduled_hook( 'erdo_draft_link_expiry_check' );
 	return;
 }
 
@@ -25,3 +26,4 @@ delete_option( 'erdo_draft_link_flush_rules' );
 delete_post_meta_by_key( '_erdo_dl_review' );
 
 wp_clear_scheduled_hook( 'erdo_draft_link_daily_cleanup' );
+wp_clear_scheduled_hook( 'erdo_draft_link_expiry_check' );

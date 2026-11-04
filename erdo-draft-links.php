@@ -1,8 +1,8 @@
 <?php
 /**
- * Plugin Name:       Erdo Draft Links
+ * Plugin Name:       Erdo Draft Links – Share Drafts for Client Review & Approval
  * Plugin URI:        https://wordpress.org/plugins/erdo-draft-links/
- * Description:       Share draft posts with non-logged-in users via a secure, temporary link — no login required.
+ * Description:       Share drafts with clients through secure, expiring links — no login needed. Collect comments, notes pinned to the page and approve/request-changes decisions.
  * Version:           2.0.0
  * Requires at least: 6.6
  * Tested up to:      7.1
@@ -18,7 +18,7 @@
 defined( 'ABSPATH' ) || exit;
 
 define( 'ERDO_DRAFT_LINKS_VERSION',     '2.0.0' );
-define( 'ERDO_DRAFT_LINKS_DB_VERSION',  '2.0.0' );
+define( 'ERDO_DRAFT_LINKS_DB_VERSION',  '2.0.1' );
 define( 'ERDO_DRAFT_LINKS_PLUGIN_FILE', __FILE__ );
 define( 'ERDO_DRAFT_LINKS_PLUGIN_DIR',  plugin_dir_path( __FILE__ ) );
 
@@ -63,7 +63,7 @@ add_action( 'plugins_loaded', function (): void {
 	$feedback_api  = new Erdo_Draft_Links_Feedback_Api( $db, $review );
 	$visitor_api   = new Erdo_Draft_Links_Visitor_Api( $db, $token, $session, $review, $notifications );
 	$frontend      = new Erdo_Draft_Links_Frontend( $db, $token, $session, new Erdo_Draft_Links_Status_Page(), $notifications );
-	$cron          = new Erdo_Draft_Links_Cron( $db );
+	$cron          = new Erdo_Draft_Links_Cron( $db, $notifications );
 
 	( new Erdo_Draft_Links_Migrator( $db, $token ) )->maybe_upgrade();
 	$review->register( $loader );

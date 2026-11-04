@@ -1,4 +1,4 @@
-=== Erdo Draft Links – Share Drafts, Client Preview, Secure Link ===
+=== Erdo Draft Links – Share Drafts for Client Review & Approval ===
 Contributors:      erdincbulat
 Tags:              draft, preview, share, client preview, no login
 Requires at least: 6.6

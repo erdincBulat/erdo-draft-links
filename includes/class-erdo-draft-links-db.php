@@ -72,6 +72,7 @@ class Erdo_Draft_Links_DB {
   reviewed_at datetime DEFAULT NULL,
   reviewer_name varchar(100) NOT NULL DEFAULT '',
   reviewed_modified datetime DEFAULT NULL,
+  expiry_notified_at datetime DEFAULT NULL,
   PRIMARY KEY  (id),
   KEY post_id (post_id),
   KEY token_hash (token_hash(64)),
@@ -249,6 +250,10 @@ class Erdo_Draft_Links_DB {
 		$fields = array_intersect_key( $fields, array_flip( array( 'label', 'expires_at' ) ) );
 		if ( ! $fields ) {
 			return false;
+		}
+		// A new expiry gets its own "expires soon" email.
+		if ( array_key_exists( 'expires_at', $fields ) ) {
+			$fields['expiry_notified_at'] = null;
 		}
 
 		global $wpdb;
@@ -756,6 +761,42 @@ class Erdo_Draft_Links_DB {
 
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		$wpdb->delete( $this->feedback_table, array( 'post_id' => $post_id ), array( '%d' ) );
+	}
+
+	/**
+	 * Active links that expire within the next $within seconds, were created
+	 * at least $min_age seconds ago (so a 24-hour link doesn't warn the moment
+	 * it is made), and haven't had their "expires soon" email yet.
+	 *
+	 * @return object[]
+	 */
+	public function get_links_expiring_soon( int $within = DAY_IN_SECONDS, int $min_age = DAY_IN_SECONDS ): array {
+		global $wpdb;
+
+		$table = esc_sql( $this->table );
+		$now   = time();
+
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		$rows = $wpdb->get_results(
+			$wpdb->prepare(
+				"SELECT * FROM `{$table}` WHERE is_active = 1 AND expiry_notified_at IS NULL AND expires_at IS NOT NULL AND expires_at > %s AND expires_at <= %s AND created_at <= %s AND review_status <> %s ORDER BY expires_at ASC LIMIT 100",
+				gmdate( 'Y-m-d H:i:s', $now ),
+				gmdate( 'Y-m-d H:i:s', $now + $within ),
+				gmdate( 'Y-m-d H:i:s', $now - $min_age ),
+				self::REVIEW_APPROVED
+			)
+		);
+		// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+
+		return (array) $rows;
+	}
+
+	public function mark_expiry_notified( object $link ): void {
+		global $wpdb;
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		$wpdb->update( $this->table, array( 'expiry_notified_at' => gmdate( 'Y-m-d H:i:s' ) ), array( 'id' => (int) $link->id ), array( '%s' ), array( '%d' ) );
+		$this->flush_link_cache( $link );
 	}
 
 	public function delete_expired_links( int $older_than_days = 7 ): int {
