@@ -21,6 +21,9 @@ class Erdo_Draft_Links_Abilities {
 	}
 
 	public function register_category(): void {
+		if ( ! function_exists( 'wp_register_ability_category' ) ) {
+			return;
+		}
 		wp_register_ability_category(
 			self::CATEGORY,
 			array(
@@ -143,6 +146,9 @@ class Erdo_Draft_Links_Abilities {
 	}
 
 	private function add( string $name, string $label, string $description, array $input_schema, callable $execute, array $annotations ): void {
+		if ( ! function_exists( 'wp_register_ability' ) ) {
+			return;
+		}
 		wp_register_ability(
 			self::CATEGORY . '/' . $name,
 			array(
