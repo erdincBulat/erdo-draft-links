@@ -195,6 +195,10 @@
 	// Comments panel.
 	var listEl = h( 'ol', { class: 'thread' } );
 	var emptyEl = h( 'p', { class: 'empty', text: i18n.empty } );
+	// Editors can leave a "what changed" note for reviewers coming back.
+	var noteEl = settings.changesNote
+		? h( 'section', { class: 'note' }, h( 'h3', { class: 'note__title', text: i18n.whatChanged } ), h( 'p', { class: 'note__text', text: settings.changesNote } ) )
+		: h( 'span', { hidden: true } );
 	var composer = h( 'form', { class: 'composer', novalidate: true } );
 	var panel = h(
 		'section',
@@ -205,7 +209,7 @@
 			h( 'h2', { id: 'erdo-panel-title', text: i18n.comments } ),
 			h( 'button', { type: 'button', class: 'icon-btn', 'aria-label': i18n.close, html: ICONS.close, onclick: closePanel } )
 		),
-		h( 'div', { class: 'panel__body' }, emptyEl, listEl ),
+		h( 'div', { class: 'panel__body' }, noteEl, emptyEl, listEl ),
 		composer
 	);
 

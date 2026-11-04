@@ -319,6 +319,25 @@ h2 {
 	padding: 4px 16px;
 }
 
+.note {
+	margin: 12px 0 4px;
+	padding: 10px 12px;
+	background: var( --edl-surface );
+	border-left: 3px solid var( --edl-accent );
+	border-radius: 4px;
+}
+
+.note__title {
+	margin: 0 0 4px;
+	font-size: 13px;
+	font-weight: 600;
+}
+
+.note__text {
+	margin: 0;
+	white-space: pre-line;
+}
+
 .empty {
 	margin: 16px 0;
 	color: var( --edl-muted );

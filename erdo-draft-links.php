@@ -66,6 +66,7 @@ add_action( 'plugins_loaded', function (): void {
 	$cron          = new Erdo_Draft_Links_Cron( $db, $notifications );
 	$privacy       = new Erdo_Draft_Links_Privacy( $db );
 	$abilities     = new Erdo_Draft_Links_Abilities();
+	$ai            = new Erdo_Draft_Links_AI( $db, $token );
 
 	( new Erdo_Draft_Links_Migrator( $db, $token ) )->maybe_upgrade();
 	$review->register( $loader );
@@ -80,6 +81,7 @@ add_action( 'plugins_loaded', function (): void {
 	$cron->register( $loader );
 	$privacy->register( $loader );
 	$abilities->register( $loader );
+	$ai->register( $loader );
 	$loader->run();
 
 	if ( defined( 'WP_CLI' ) && WP_CLI ) {

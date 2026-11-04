@@ -6,9 +6,10 @@ import { store as noticesStore } from '@wordpress/notices';
 import { Button, SelectControl, TextControl, Spinner } from '@wordpress/components';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { store } from '../store';
-import { settings, usePostContext, copyText, errorMessage, openFeedbackSidebar } from '../utils';
+import { settings, usePostContext, copyText, errorMessage, openFeedbackSidebar, useAiStatus } from '../utils';
 import LinkRow from './LinkRow';
 import ReviewBadge from './ReviewBadge';
+import ChangesNote from './ChangesNote';
 
 /**
  * "Share for review" panel in the post's Document settings: the main place
@@ -29,6 +30,7 @@ export default function SharePanel() {
 		},
 		[ postId ]
 	);
+	const ai = useAiStatus();
 	const { generateLink } = useDispatch( store );
 	const { createSuccessNotice, createErrorNotice } = useDispatch( noticesStore );
 
@@ -175,9 +177,10 @@ export default function SharePanel() {
 					</h3>
 					<ul className="erdo-dl-links">
 						{ links.map( ( link ) => (
-							<LinkRow key={ link.id } postId={ postId } link={ link } />
+							<LinkRow key={ link.id } postId={ postId } link={ link } ai={ ai } />
 						) ) }
 					</ul>
+					<ChangesNote postId={ postId } ai={ ai } />
 				</>
 			) }
 		</PluginDocumentSettingPanel>

@@ -5,13 +5,15 @@ import { Button, DropdownMenu, MenuGroup, MenuItem, TextControl, Icon } from '@w
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { store } from '../store';
 import { copyText, relative, errorMessage, moreIcon, lockIcon } from '../utils';
+import ShareMessageModal from './ShareMessageModal';
 
-export default function LinkRow( { postId, link } ) {
+export default function LinkRow( { postId, link, ai } ) {
 	const { updateLink, revokeLink } = useDispatch( store );
 	const { createSuccessNotice, createErrorNotice } = useDispatch( noticesStore );
 	const [ renaming, setRenaming ] = useState( false );
 	const [ label, setLabel ] = useState( link.label );
 	const [ busy, setBusy ] = useState( false );
+	const [ writing, setWriting ] = useState( false );
 
 	const run = ( promise, success, fallback ) => {
 		setBusy( true );
@@ -131,6 +133,16 @@ export default function LinkRow( { postId, link } ) {
 								>
 									{ __( 'Rename', 'erdo-draft-links' ) }
 								</MenuItem>
+								{ ai && ai.available && (
+									<MenuItem
+										onClick={ () => {
+											setWriting( true );
+											onClose();
+										} }
+									>
+										{ __( 'Write a message to send (AI)', 'erdo-draft-links' ) }
+									</MenuItem>
+								) }
 								<MenuItem
 									onClick={ () => {
 										run(
@@ -159,6 +171,7 @@ export default function LinkRow( { postId, link } ) {
 					) }
 				</DropdownMenu>
 			</div>
+			{ writing && <ShareMessageModal postId={ postId } link={ link } onClose={ () => setWriting( false ) } /> }
 		</li>
 	);
 }

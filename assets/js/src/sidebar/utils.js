@@ -1,4 +1,5 @@
-import { useEffect, useRef } from '@wordpress/element';
+import { useEffect, useRef, useState } from '@wordpress/element';
+import apiFetch from '@wordpress/api-fetch';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { store as noticesStore } from '@wordpress/notices';
@@ -138,4 +139,41 @@ export function openFeedbackSidebar( dispatch ) {
 	if ( editPost && editPost.openGeneralSidebar ) {
 		editPost.openGeneralSidebar( name );
 	}
+}
+
+export const sparkIcon = (
+	<SVG xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+		<Path d="M12 3l1.8 4.6L18.5 9.5 13.8 11.3 12 16l-1.8-4.7L5.5 9.5l4.7-1.9L12 3zm6.5 10l.9 2.1 2.1.9-2.1.9-.9 2.1-.9-2.1-2.1-.9 2.1-.9.9-2.1z" />
+	</SVG>
+);
+
+// One request per page load: whether the AI helpers are on and a provider
+// is connected under Settings → Connectors.
+let aiStatusPromise = null;
+
+/**
+ * @return {{enabled: boolean, available: boolean, connectors_url: string}}
+ */
+export function useAiStatus() {
+	const [ status, setStatus ] = useState( { enabled: false, available: false, connectors_url: '' } );
+	useEffect( () => {
+		if ( ! aiStatusPromise ) {
+			aiStatusPromise = apiFetch( { path: '/erdo-draft-links/v1/ai' } ).catch( () => null );
+		}
+		let live = true;
+		aiStatusPromise.then( ( data ) => live && data && setStatus( data ) );
+		return () => {
+			live = false;
+		};
+	}, [] );
+	return status;
+}
+
+/** POSTs to one of the AI helper routes of a post. */
+export function aiRequest( postId, helper, data = {} ) {
+	return apiFetch( {
+		path: `/erdo-draft-links/v1/posts/${ postId }/ai/${ helper }`,
+		method: 'POST',
+		data,
+	} );
 }

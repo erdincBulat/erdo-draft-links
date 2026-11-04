@@ -26,6 +26,7 @@ class Erdo_Draft_Links_Settings {
 			'close_on_publish' => false,
 			'cleanup_days'     => 7,
 			'delete_data'      => true,
+			'ai_enabled'       => true,
 		);
 	}
 
@@ -83,6 +84,7 @@ class Erdo_Draft_Links_Settings {
 
 		add_settings_section( 'sharing', __( 'Sharing', 'erdo-draft-links' ), '__return_null', self::PAGE );
 		add_settings_section( 'notifications', __( 'Email notifications', 'erdo-draft-links' ), array( $this, 'render_notifications_intro' ), self::PAGE );
+		add_settings_section( 'ai', __( 'AI helpers', 'erdo-draft-links' ), array( $this, 'render_ai_intro' ), self::PAGE );
 		add_settings_section( 'data', __( 'Data', 'erdo-draft-links' ), '__return_null', self::PAGE );
 
 		$fields = array(
@@ -91,6 +93,7 @@ class Erdo_Draft_Links_Settings {
 			array( 'close_on_publish', __( 'When a post is published', 'erdo-draft-links' ), 'sharing' ),
 			array( 'notify_events', __( 'Email me when', 'erdo-draft-links' ), 'notifications' ),
 			array( 'notify_extra', __( 'Also notify', 'erdo-draft-links' ), 'notifications' ),
+			array( 'ai_enabled', __( 'AI helpers', 'erdo-draft-links' ), 'ai' ),
 			array( 'cleanup_days', __( 'Expired links', 'erdo-draft-links' ), 'data' ),
 			array( 'delete_data', __( 'When the plugin is deleted', 'erdo-draft-links' ), 'data' ),
 		);
@@ -127,6 +130,7 @@ class Erdo_Draft_Links_Settings {
 		$out['close_on_publish'] = ! empty( $input['close_on_publish'] );
 		$out['cleanup_days']     = max( 1, min( 365, absint( $input['cleanup_days'] ?? 7 ) ) );
 		$out['delete_data']      = ! empty( $input['delete_data'] );
+		$out['ai_enabled']       = ! empty( $input['ai_enabled'] );
 
 		return $out;
 	}
@@ -247,6 +251,38 @@ class Erdo_Draft_Links_Settings {
 			esc_attr__( 'pm@example.com, team@example.com', 'erdo-draft-links' )
 		);
 		echo '<p class="description">' . esc_html__( 'Comma-separated addresses that get every notification above.', 'erdo-draft-links' ) . '</p>';
+	}
+
+	public function render_ai_intro(): void {
+		echo '<p>' . esc_html__( 'Summarise feedback into a to-do list, draft replies, translate comments, write the message to send with a link and a “what changed” note for reviewers. They run only when you click them, on your own AI provider account.', 'erdo-draft-links' ) . '</p>';
+	}
+
+	public function render_ai_enabled(): void {
+		printf(
+			'<label><input type="checkbox" name="%1$s" value="1" %2$s /> %3$s</label>',
+			esc_attr( $this->name( 'ai_enabled' ) ),
+			checked( (bool) self::get( 'ai_enabled' ), true, false ),
+			esc_html__( 'Show the AI helpers in the editor', 'erdo-draft-links' )
+		);
+
+		if ( ! function_exists( 'wp_ai_client_prompt' ) ) {
+			$status = __( 'Needs WordPress 7.0 or newer.', 'erdo-draft-links' );
+		} else {
+			$ai     = new Erdo_Draft_Links_AI( Erdo_Draft_Links_DB::get_instance(), new Erdo_Draft_Links_Token() );
+			$status = $ai->status()['available']
+				? __( 'An AI provider is connected.', 'erdo-draft-links' )
+				: __( 'No AI provider is connected yet.', 'erdo-draft-links' );
+		}
+		printf(
+			'<p class="description">%1$s %2$s</p>',
+			esc_html( $status ),
+			function_exists( 'wp_ai_client_prompt' ) ? sprintf(
+				/* translators: %s: link to the Settings → Connectors screen */
+				esc_html__( 'Add or change your own API key under %s. Draft Links never stores it.', 'erdo-draft-links' ),
+				'<a href="' . esc_url( admin_url( 'options-connectors.php' ) ) . '">' . esc_html__( 'Settings → Connectors', 'erdo-draft-links' ) . '</a>'
+			) : ''
+		);
+		echo '<p class="description">' . esc_html__( 'Comment text and the page’s text are sent to your provider; reviewer emails and IP addresses never are, and names are replaced with “Reviewer”.', 'erdo-draft-links' ) . '</p>';
 	}
 
 	public function render_cleanup_days(): void {

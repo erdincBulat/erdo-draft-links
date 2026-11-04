@@ -440,6 +440,7 @@ class Erdo_Draft_Links_Frontend {
 				'isPublished' => 'publish' === get_post_status( $this->active_post_id ),
 				'expiresAt'   => $link && $link->expires_at ? gmdate( 'Y-m-d\TH:i:s\Z', strtotime( $link->expires_at . ' UTC' ) ) : null,
 				'locale'      => str_replace( '_', '-', determine_locale() ),
+				'changesNote' => Erdo_Draft_Links_AI::get_note( (int) $this->active_post_id )['text'],
 				'i18n'        => $this->review_bar_strings(),
 			)
 		);
@@ -451,6 +452,7 @@ class Erdo_Draft_Links_Frontend {
 	private function review_bar_strings(): array {
 		return array(
 			'draftPreview'       => __( 'Draft preview', 'erdo-draft-links' ),
+			'whatChanged'        => __( 'What’s new since your last review', 'erdo-draft-links' ),
 			'preview'            => __( 'Preview', 'erdo-draft-links' ),
 			/* translators: %s: relative time, e.g. "in 3 days" */
 			'expires'            => __( 'Link expires %s', 'erdo-draft-links' ),

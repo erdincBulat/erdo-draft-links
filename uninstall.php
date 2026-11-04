@@ -24,6 +24,8 @@ delete_option( 'erdo_draft_link_last_cleanup' );
 delete_option( 'erdo_draft_link_migrating' );
 delete_option( 'erdo_draft_link_flush_rules' );
 delete_post_meta_by_key( '_erdo_dl_review' );
+delete_post_meta_by_key( '_erdo_dl_changes_note' );
+delete_transient( 'erdo_draft_link_ai_status' );
 
 wp_clear_scheduled_hook( 'erdo_draft_link_daily_cleanup' );
 wp_clear_scheduled_hook( 'erdo_draft_link_expiry_check' );

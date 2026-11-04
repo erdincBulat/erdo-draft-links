@@ -556,3 +556,93 @@ a.erdo-dl-muted:focus {
 		width: auto;
 	}
 }
+
+/* ---------------------------------------------------------------- AI helpers */
+
+.erdo-dl-ai-button.components-button {
+	margin: 4px 0 12px;
+}
+
+.erdo-dl-tasks {
+	margin-bottom: 12px;
+	padding-bottom: 12px;
+	border-bottom: 1px solid #e0e0e0;
+}
+
+.erdo-dl-tasks__list {
+	margin: 0 0 0 18px;
+	padding: 0;
+}
+
+.erdo-dl-tasks__list li {
+	margin-bottom: 8px;
+}
+
+.erdo-dl-tasks__list li.is-done .erdo-dl-tasks__text {
+	color: #757575;
+	text-decoration: line-through;
+}
+
+.erdo-dl-tasks__list .components-button.is-link {
+	display: block;
+	font-size: 12px;
+}
+
+.erdo-dl-fb__translation {
+	margin: 4px 0 6px;
+	padding: 6px 8px;
+	background: #f6f7f7;
+	border-radius: 2px;
+	white-space: pre-line;
+}
+
+.erdo-dl-fb__translation span {
+	display: block;
+	font-size: 11px;
+	font-weight: 600;
+	text-transform: uppercase;
+	color: #757575;
+}
+
+.erdo-dl-fb__ai-link.components-button.is-link {
+	display: inline-flex;
+	gap: 4px;
+	margin: 0 0 8px;
+	font-size: 12px;
+	text-decoration: none;
+}
+
+.erdo-dl-ai-hint {
+	margin-top: 16px;
+}
+
+.erdo-dl-note {
+	margin-top: 12px;
+}
+
+.erdo-dl-note__label {
+	display: block;
+	font-size: 11px;
+	font-weight: 600;
+	text-transform: uppercase;
+	color: #757575;
+}
+
+.erdo-dl-note__text {
+	margin: 4px 0;
+	white-space: pre-line;
+}
+
+.erdo-dl-modal {
+	max-width: 560px;
+}
+
+.erdo-dl-modal__buttons {
+	display: flex;
+	gap: 8px;
+	margin-top: 16px;
+}
+
+.erdo-dl-error {
+	color: #b32d2e;
+}
