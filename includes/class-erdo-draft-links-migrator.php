@@ -62,6 +62,10 @@ class Erdo_Draft_Links_Migrator {
 		$table = esc_sql( $this->db->get_table_name() );
 
 		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.DirectDatabaseQuery.SchemaChange, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		// Fresh install: nothing to fix, and SHOW INDEX on a missing table is a DB error.
+		if ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $wpdb->esc_like( $this->db->get_table_name() ) ) ) !== $this->db->get_table_name() ) {
+			return;
+		}
 		$is_unique = $wpdb->get_var( "SHOW INDEX FROM `{$table}` WHERE Key_name = 'post_id' AND Non_unique = 0" );
 		if ( $is_unique ) {
 			$wpdb->query( "ALTER TABLE `{$table}` DROP INDEX post_id" );
